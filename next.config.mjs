@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  reactStrictMode:false,
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -9,13 +10,6 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  content: [
-    "./pages/**/*.{ts,tsx}",
-    "./components/**/*.{ts,tsx}",
-    "./app/**/*.{ts,tsx}",
-    "./src/**/*.{ts,tsx}",
-    "*.{js,ts,jsx,tsx,mdx}",
-  ],
   output: "export",
 };
 
