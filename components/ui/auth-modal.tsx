@@ -171,6 +171,7 @@ export function AuthModal({
       [id]: validateField(id, id === "contact" ? value : value),
     }));
   };
+
   const handleSignInChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setSignInData((prev) => ({ ...prev, [id]: value }));
@@ -198,6 +199,7 @@ export function AuthModal({
         title: "Validation Error",
         description: "Please fix the errors in the form",
         variant: "destructive",
+        duration: 3000,
       });
       return;
     }
@@ -209,6 +211,7 @@ export function AuthModal({
         title: "Error",
         description: "Passwords do not match",
         variant: "destructive",
+        duration: 3000,
       });
       setIsLoading(false);
       return;
@@ -225,17 +228,21 @@ export function AuthModal({
       });
 
       toast({
-        title: "Success",
+        title: "Success!",
         description: "Account created successfully!",
+        duration: 3000,
+        className: "bg-green-500 text-white",
       });
+      
       onClose();
       if (onAuthSuccess) onAuthSuccess();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Sign up error:", error);
       toast({
-        title: "Error",
-        description: "Failed to create account. Please try again.",
+        title: "Registration Failed",
+        description: error.response?.data?.message || "Failed to create account. Please try again.",
         variant: "destructive",
+        duration: 3000,
       });
     } finally {
       setIsLoading(false);
@@ -253,17 +260,21 @@ export function AuthModal({
       });
 
       toast({
-        title: "Success",
-        description: "Logged in successfully!",
+        title: "Welcome back!",
+        description: "You've successfully logged in.",
+        duration: 3000,
+        className: "bg-green-500 text-white",
       });
+      
       onClose();
       if (onAuthSuccess) onAuthSuccess();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Sign in error:", error);
       toast({
-        title: "Error",
-        description: "Invalid credentials. Please try again.",
+        title: "Login Failed",
+        description: error.response?.data?.message || "Invalid credentials. Please try again.",
         variant: "destructive",
+        duration: 3000,
       });
     } finally {
       setIsLoading(false);
@@ -314,7 +325,6 @@ export function AuthModal({
               </div>
             </div>
 
-            {/* Email & Phone Number in a row */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="emailId">Email ID</Label>
@@ -346,7 +356,6 @@ export function AuthModal({
               </div>
             </div>
 
-            {/* Password & Confirm Password in a row */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>

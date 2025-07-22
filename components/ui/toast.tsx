@@ -1,10 +1,10 @@
+// components/ui/toast.tsx
 "use client"
 
 import * as React from "react"
 import * as ToastPrimitives from "@radix-ui/react-toast"
 import { cva, type VariantProps } from "class-variance-authority"
 import { X } from "lucide-react"
-
 import { cn } from "@/lib/utils"
 
 const ToastProvider = ToastPrimitives.Provider
@@ -30,8 +30,11 @@ const toastVariants = cva(
     variants: {
       variant: {
         default: "border bg-background text-foreground",
-        destructive:
-          "destructive group border-destructive bg-destructive text-destructive-foreground",
+        destructive: "destructive group border-destructive bg-destructive text-destructive-foreground",
+        success: "bg-green-50 border-green-200 text-green-800",
+        error: "bg-red-50 border-red-200 text-red-800",
+        info: "bg-blue-50 border-blue-200 text-blue-800",
+        warning: "bg-yellow-50 border-yellow-200 text-yellow-800",
       },
     },
     defaultVariants: {
@@ -43,12 +46,16 @@ const toastVariants = cva(
 const Toast = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Root>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root> &
-    VariantProps<typeof toastVariants>
->(({ className, variant, ...props }, ref) => {
+    VariantProps<typeof toastVariants> & {
+      type?: "success" | "error" | "info" | "warning" | "default" | "destructive"
+    }
+>(({ className, variant, type, ...props }, ref) => {
+  const toastVariant = variant || (type === "destructive" ? "destructive" : type) || "default"
+  
   return (
     <ToastPrimitives.Root
       ref={ref}
-      className={cn(toastVariants({ variant }), className)}
+      className={cn(toastVariants({ variant: toastVariant }), className)}
       {...props}
     />
   )
@@ -112,9 +119,63 @@ const ToastDescription = React.forwardRef<
 ))
 ToastDescription.displayName = ToastPrimitives.Description.displayName
 
-type ToastProps = React.ComponentPropsWithoutRef<typeof Toast>
+type ToastProps = React.ComponentPropsWithoutRef<typeof Toast> & {
+  type?: "success" | "error" | "info" | "warning" | "default" | "destructive"
+  duration?: number
+  action?: React.ReactNode
+}
 
 type ToastActionElement = React.ReactElement<typeof ToastAction>
+
+interface ToastItem extends ToastProps {
+  id: string
+  title?: string
+  description?: string
+  onClose?: (id: string) => void
+}
+
+function useToast() {
+  const [toasts, setToasts] = React.useState<ToastItem[]>([])
+
+  const toast = (props: Omit<ToastItem, "id" | "onClose">) => {
+    const id = Math.random().toString(36).substring(2, 9)
+    setToasts((prev) => [...prev, { ...props, id, onClose: removeToast }])
+  }
+
+  const removeToast = (id: string) => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id))
+  }
+
+  return {
+    toast,
+    toasts,
+    removeToast,
+  }
+}
+
+function Toaster({ toasts, removeToast }: { toasts: ToastItem[]; removeToast: (id: string) => void }) {
+  return (
+    <ToastProvider>
+      <ToastViewport>
+        {toasts.map((toast) => (
+          <Toast
+            key={toast.id}
+            variant={toast.variant}
+            type={toast.type}
+            duration={toast.duration}
+            onOpenChange={(open) => !open && removeToast(toast.id)}
+          >
+            <div className="grid gap-1">
+              {toast.title && <ToastTitle>{toast.title}</ToastTitle>}
+              {toast.description && <ToastDescription>{toast.description}</ToastDescription>}
+            </div>
+            <ToastClose />
+          </Toast>
+        ))}
+      </ToastViewport>
+    </ToastProvider>
+  )
+}
 
 export {
   type ToastProps,
@@ -126,4 +187,6 @@ export {
   ToastDescription,
   ToastClose,
   ToastAction,
+  useToast,
+  Toaster,
 }

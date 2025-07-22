@@ -36,8 +36,9 @@ import {
 } from "@/components/ui/card";
 import { AuthModal } from "@/components/ui/auth-modal";
 import Image from "next/image";
+import { useToast } from "@/hooks/use-toast";
 import AuthService from "@/services/auth.service";
-import { InternshipContact } from "@/components/ui/internship-contact";
+import { ModernContactForm, type ContactFormData } from "@/components/ui/Contact-form";
 
 export default function RalithonWebsite() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -47,8 +48,6 @@ export default function RalithonWebsite() {
   const [visibleElements, setVisibleElements] = useState(new Set());
   const [showHiringModal, setShowHiringModal] = useState(true);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [showInternshipContactModal, setShowInternshipContactModal] =
-    useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
@@ -58,6 +57,7 @@ export default function RalithonWebsite() {
   const [showInternshipModal, setShowInternshipModal] = useState(false);
   const [customMessage, setCustomMessage] = useState<string | undefined>();
   const IMAGE_URL = process.env.NEXT_PUBLIC_IMAGE_URL;
+  const { toast  } = useToast();
 
   useEffect(() => {
     setMounted(true);
@@ -139,7 +139,7 @@ export default function RalithonWebsite() {
       icon: <Code className="h-8 w-8 text-blue-600" />,
       description:
         "Learn to build modern, responsive websites and web applications using HTML, CSS, JavaScript, React, and Node.js. Master front-end and back-end development skills.",
-      skills: "HTML, CSS, JavaScript, React, Node.js, MongoDB, Git",
+      skills: "HTML, CSS, JavaScript, React, Node.js, MongoDB,\nGit",
     },
     {
       title: "Graphic Design",
@@ -147,7 +147,7 @@ export default function RalithonWebsite() {
       icon: <Palette className="h-8 w-8 text-blue-600" />,
       description:
         "Master the art of visual communication through digital design. Learn Adobe Creative Suite, UI/UX principles, branding, and create stunning graphics for web and print.",
-      skills: "Photoshop, Illustrator, Figma, UI/UX Design, Branding",
+      skills: "Photoshop, Illustrator, Figma, UI/UX Design, \nBranding",
     },
     {
       title: "Java Programming",
@@ -155,7 +155,7 @@ export default function RalithonWebsite() {
       icon: <Coffee className="h-8 w-8 text-blue-600" />,
       description:
         "Dive deep into Java programming language and learn object-oriented programming concepts. Build enterprise applications using Spring Framework and work with databases.",
-      skills: "Core Java, OOP, Spring Boot, Hibernate, MySQL, REST APIs",
+      skills: "Core Java, OOP, Spring Boot, Hibernate, MySQL, \nREST APIs",
     },
     {
       title: "Android Development",
@@ -171,7 +171,7 @@ export default function RalithonWebsite() {
       icon: <BarChart className="h-8 w-8 text-blue-600" />,
       description:
         "Explore the world of data science and analytics. Learn Python, machine learning algorithms, data visualization, and statistical analysis to extract insights from data.",
-      skills: "Python, Pandas, NumPy, Scikit-learn, Matplotlib, Jupyter",
+      skills: "Python, Pandas, NumPy, Scikit-learn, Matplotlib, \nJupyter",
     },
     {
       title: "Python Programming",
@@ -314,9 +314,14 @@ export default function RalithonWebsite() {
     }
   };
 
-  const handleInternshipContact = () => {
-    setShowInternshipContactModal(true);
-  };
+  
+  const handleContactSubmit = (data: ContactFormData) => {
+    toast({
+      title: "Message Sent Successfully!",
+      description: `Thank you ${data.fullName}! We'll get back to you within 24 hours.`,
+      type: "success",
+    })
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -759,7 +764,7 @@ export default function RalithonWebsite() {
                     <p className="text-xs font-semibold text-gray-700 mb-1">
                       Skills you'll learn:
                     </p>
-                    <p className="text-xs text-blue-600 font-medium">
+                    <p className="text-xs text-blue-600 font-medium whitespace-pre-line">
                       {internship.skills}
                     </p>
                   </div>
@@ -794,13 +799,6 @@ export default function RalithonWebsite() {
               data analytics, we have the perfect program to launch your career
               in technology.
             </p>
-            <Button
-              size="lg"
-              className="bg-blue-600 hover:bg-blue-700 text-lg px-8 py-4 transform hover:scale-105 transition-all duration-300"
-              onClick={handleInternshipContact}
-            >
-              Apply Now <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
           </div>
         </div>
       </section>
@@ -914,83 +912,17 @@ export default function RalithonWebsite() {
       )}
 
       {/* Contact Section */}
-      <section id="contact" className="py-20 bg-white">
+     
+      <section id="contact" className="py-20 bg-gray-100">
         <div className="container mx-auto px-4">
           <div
             data-animate
-            className={`text-center mb-16 transform transition-all duration-1000 ${
-              visibleElements.has("contact-header")
-                ? "translate-y-0 opacity-100"
-                : "translate-y-10 opacity-0"
+            className={`transform transition-all duration-1000 ${
+              visibleElements.has("contact-form") ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
             }`}
-            id="contact-header"
+            id="contact-form"
           >
-            <h2 className="text-4xl font-bold text-gray-800 mb-6">
-              Contact Us
-            </h2>
-            <div className="w-20 h-1 bg-blue-600 mx-auto mb-8"></div>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Get in touch with us to discuss your project requirements or to
-              apply for our internship programs.
-            </p>
-          </div>
-
-          <div className="grid lg:grid-cols-3 gap-8">
-            <Card
-              data-animate
-              className={`text-center p-8 hover:shadow-lg transition-all duration-500 ${
-                visibleElements.has("contact-email")
-                  ? "translate-y-0 opacity-100"
-                  : "translate-y-10 opacity-0"
-              }`}
-              id="contact-email"
-            >
-              <div className="flex justify-center mb-4 text-blue-600">
-                <Mail className="h-12 w-12" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">Email Us</h3>
-              <p className="text-lg text-gray-700 font-medium">
-                shivanshshivhare44@gmail.com
-              </p>
-            </Card>
-
-            <Card
-              data-animate
-              className={`text-center p-8 hover:shadow-lg transition-all duration-500 ${
-                visibleElements.has("contact-address")
-                  ? "translate-y-0 opacity-100"
-                  : "translate-y-10 opacity-0"
-              }`}
-              id="contact-address"
-              style={{ animationDelay: "200ms" }}
-            >
-              <div className="flex justify-center mb-4 text-blue-600">
-                <MapPin className="h-12 w-12" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">Visit Us</h3>
-              <p className="text-lg text-gray-700 font-medium">
-                PU-4 behind orbit mall,Indore [M.P.]
-              </p>
-            </Card>
-
-            <Card
-              data-animate
-              className={`text-center p-8 hover:shadow-lg transition-all duration-500 ${
-                visibleElements.has("contact-phone")
-                  ? "translate-y-0 opacity-100"
-                  : "translate-y-10 opacity-0"
-              }`}
-              id="contact-phone"
-              style={{ animationDelay: "400ms" }}
-            >
-              <div className="flex justify-center mb-4 text-blue-600">
-                <Mail className="h-12 w-12" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">Call Us</h3>
-              <p className="text-lg text-gray-700 font-medium">
-                +91 8109867611
-              </p>
-            </Card>
+            <ModernContactForm onSubmit={handleContactSubmit} />
           </div>
         </div>
       </section>
@@ -1168,12 +1100,6 @@ export default function RalithonWebsite() {
           }
         }}
         customMessage={customMessage}
-      />
-      <InternshipContact
-        isOpen={showInternshipContactModal}
-        onClose={() => {
-          setShowInternshipContactModal(false);
-        }}
       />
       {/* Hiring Modal */}
       {showHiringModal && (
