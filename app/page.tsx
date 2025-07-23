@@ -139,7 +139,7 @@ export default function RalithonWebsite() {
       icon: <Code className="h-8 w-8 text-blue-600" />,
       description:
         "Learn to build modern, responsive websites and web applications using HTML, CSS, JavaScript, React, and Node.js. Master front-end and back-end development skills.",
-      skills: "HTML, CSS, JavaScript, React, Node.js, MongoDB,\nGit",
+      skills: "HTML, CSS, JavaScript, React, Node.js, MongoDB, Git",
     },
     {
       title: "Graphic Design",
@@ -147,7 +147,7 @@ export default function RalithonWebsite() {
       icon: <Palette className="h-8 w-8 text-blue-600" />,
       description:
         "Master the art of visual communication through digital design. Learn Adobe Creative Suite, UI/UX principles, branding, and create stunning graphics for web and print.",
-      skills: "Photoshop, Illustrator, Figma, UI/UX Design, \nBranding",
+      skills: "Photoshop, Illustrator, Figma, UI/UX Design, Branding",
     },
     {
       title: "Java Programming",
@@ -155,7 +155,7 @@ export default function RalithonWebsite() {
       icon: <Coffee className="h-8 w-8 text-blue-600" />,
       description:
         "Dive deep into Java programming language and learn object-oriented programming concepts. Build enterprise applications using Spring Framework and work with databases.",
-      skills: "Core Java, OOP, Spring Boot, Hibernate, MySQL, \nREST APIs",
+      skills: "Core Java, OOP, Spring Boot, Hibernate, MySQL, REST APIs",
     },
     {
       title: "Android Development",
@@ -171,7 +171,7 @@ export default function RalithonWebsite() {
       icon: <BarChart className="h-8 w-8 text-blue-600" />,
       description:
         "Explore the world of data science and analytics. Learn Python, machine learning algorithms, data visualization, and statistical analysis to extract insights from data.",
-      skills: "Python, Pandas, NumPy, Scikit-learn, Matplotlib, \nJupyter",
+      skills: "Python, Pandas, NumPy, Scikit-learn, Matplotlib, Jupyter",
     },
     {
       title: "Python Programming",
@@ -319,7 +319,7 @@ export default function RalithonWebsite() {
     toast({
       title: "Message Sent Successfully!",
       description: `Thank you ${data.fullName}! We'll get back to you within 24 hours.`,
-      type: "success",
+      // type: "success",
     })
   }
 
@@ -332,7 +332,7 @@ export default function RalithonWebsite() {
               className="flex items-center space-x-3 cursor-pointer hover:opacity-80 transition-opacity"
               onClick={() => scrollToSection("home")}
             >
-              <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center shadow-lg">
                 <img
                   src={`${IMAGE_URL}logo.png`}
                   alt="Modern office space"
@@ -357,7 +357,7 @@ export default function RalithonWebsite() {
                   onClick={() => scrollToSection(item.id)}
                   className={`relative px-4 py-2 font-medium transition-all duration-300 ${
                     activeSection === item.id
-                      ? "text-blue-600"
+                      ? "text-transparent bg-clip-text bg-gradient-to-br from-blue-600 to-blue-800"
                       : "text-gray-700 hover:text-blue-600"
                   }`}
                 >
@@ -401,7 +401,7 @@ export default function RalithonWebsite() {
                 </div>
               ) : (
                 <Button
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full"
+                  className="bg-gradient-to-br from-blue-600 to-blue-800 hover:bg-blue-700 text-white px-6 py-2 rounded-full"
                   onClick={() => setShowAuthModal(true)}
                 >
                   Sign Up / Sign In
@@ -444,7 +444,7 @@ export default function RalithonWebsite() {
                   onClick={() => scrollToSection(item.id)}
                   className={`block w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-300 ${
                     activeSection === item.id
-                      ? "bg-blue-100 text-blue-600"
+                      ? "text-transparent bg-clip-text bg-gradient-to-br from-blue-600 to-blue-800 text-blue-600"
                       : "text-gray-700 hover:bg-gray-100 hover:text-blue-600"
                   }`}
                 >
@@ -477,8 +477,7 @@ export default function RalithonWebsite() {
         </div>
       </header>
 
-      {/* Automatic Image Slider with Animation and Text Overlay */}
-      <section id="home" className="relative h-screen overflow-hidden">
+<section id="home" className="relative h-screen overflow-hidden">
         {heroSlides.map((slide, index) => (
           <div
             key={index}
@@ -494,9 +493,8 @@ export default function RalithonWebsite() {
               alt={`Slide ${index + 1}`}
               fill
               className="object-cover"
-              priority={index === 0} // Only for the first image
+              priority={index === 0}
             />
-            {/* Text on top of image */}
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-center text-white max-w-4xl px-4">
                 <h1
@@ -517,10 +515,9 @@ export default function RalithonWebsite() {
                 >
                   {slide.subtitle}
                 </p>
-                {/* Read More Button */}
                 <Button
                   size="lg"
-                  className={`bg-blue-600 hover:bg-blue-700 text-lg px-8 py-4 transform transition-all duration-1000 delay-500 hover:scale-105 ${
+                  className={`bg-gradient-to-br from-blue-600 to-blue-800 hover:bg-blue-700 text-lg px-8 py-4 transform transition-all duration-1000 delay-500 hover:scale-105 ${
                     index === currentSlide
                       ? "translate-y-0 opacity-100"
                       : "translate-y-10 opacity-0"
@@ -563,7 +560,7 @@ export default function RalithonWebsite() {
             <h2 className="text-4xl font-bold text-gray-800 mb-6">
               About Ralithon Technologies
             </h2>
-            <div className="w-20 h-1 bg-blue-600 mx-auto mb-8"></div>
+            <div className="w-20 h-1 bg-gradient-to-br from-blue-600 to-blue-800 mx-auto mb-8"></div>
           </div>
 
           <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -669,7 +666,7 @@ export default function RalithonWebsite() {
             <h2 className="text-4xl font-bold text-gray-800 mb-6">
               What We Do
             </h2>
-            <div className="w-20 h-1 bg-blue-600 mx-auto mb-8"></div>
+            <div className="w-20 h-1 bg-gradient-to-br from-blue-600 to-blue-800 mx-auto mb-8"></div>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
               We provide comprehensive IT services and solutions to help
               businesses grow and succeed in the digital world. Our expertise
@@ -724,7 +721,7 @@ export default function RalithonWebsite() {
             <h2 className="text-4xl font-bold text-gray-800 mb-6">
               Our Internships
             </h2>
-            <div className="w-20 h-1 bg-blue-600 mx-auto mb-8"></div>
+            <div className="w-20 h-1 bg-gradient-to-br from-blue-600 to-blue-800 mx-auto mb-8"></div>
           </div>
 
           {/* Enhanced Internship Cards with detailed information */}
@@ -763,14 +760,14 @@ export default function RalithonWebsite() {
                   <div>
                     <p className="text-xs font-semibold text-gray-700 mb-1">
                       Skills you'll learn:
-                    </p>
-                    <p className="text-xs text-blue-600 font-medium whitespace-pre-line">
-                      {internship.skills}
-                    </p>
+                    </p><p className="text-xs text-blue-600 font-medium truncate overflow-hidden whitespace-nowrap">
+  {internship.skills}
+</p>
+
                   </div>
                   <Button
                     size="sm"
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-sm py-2"
+                    className="w-full bg-gradient-to-br from-blue-600 to-blue-800 hover:bg-blue-700 text-sm py-2"
                     onClick={() => handleInternshipApply(internship.title)}
                   >
                     Apply Here
@@ -912,7 +909,6 @@ export default function RalithonWebsite() {
       )}
 
       {/* Contact Section */}
-     
       <section id="contact" className="py-20 bg-gray-100">
         <div className="container mx-auto px-4">
           <div
@@ -942,7 +938,7 @@ export default function RalithonWebsite() {
             <h2 className="text-4xl font-bold text-gray-800 mb-6">
               Frequently Asked Questions
             </h2>
-            <div className="w-20 h-1 bg-blue-600 mx-auto mb-8"></div>
+            <div className="w-20 h-1 bg-gradient-to-br from-blue-600 to-blue-800 mx-auto mb-8"></div>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Find answers to common questions about our services and internship
               programs.
@@ -1138,7 +1134,7 @@ export default function RalithonWebsite() {
 
               <div className="flex flex-col sm:flex-row gap-3">
                 <Button
-                  className="bg-blue-600 hover:bg-blue-700 flex-1"
+                  className="bg-gradient-to-br from-blue-600 to-blue-800 hover:bg-blue-700 flex-1"
                   onClick={() => {
                     setShowHiringModal(false);
                     scrollToSection("internships");
@@ -1163,7 +1159,7 @@ export default function RalithonWebsite() {
       {showScrollTop && (
         <Button
           onClick={scrollToTop}
-          className="fixed bottom-6 right-6 rounded-full w-12 h-12 bg-blue-600 hover:bg-blue-700 shadow-lg z-50"
+          className="fixed bottom-6 right-6 rounded-full w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-800 hover:bg-blue-700 shadow-lg z-50"
           size="icon"
         >
           <ChevronUp className="h-6 w-6" />

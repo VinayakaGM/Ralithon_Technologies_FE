@@ -1,20 +1,20 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Mail, Phone, MapPin, Send } from "lucide-react"
+import type React from "react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Mail, Phone, MapPin, Send } from "lucide-react";
 
 interface ModernContactFormProps {
-  onSubmit: (data: ContactFormData) => void
+  onSubmit: (data: ContactFormData) => void;
 }
 
 export interface ContactFormData {
-  fullName: string
-  email: string
-  phone: string
-  address: string
-  message: string
+  fullName: string;
+  email: string;
+  phone: string;
+  address: string;
+  message: string;
 }
 
 export function ModernContactForm({ onSubmit }: ModernContactFormProps) {
@@ -24,33 +24,35 @@ export function ModernContactForm({ onSubmit }: ModernContactFormProps) {
     phone: "",
     address: "",
     message: "",
-  })
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
+    e.preventDefault();
+    setIsSubmitting(true);
 
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    onSubmit(formData)
+    onSubmit(formData);
     setFormData({
       fullName: "",
       email: "",
       phone: "",
       address: "",
       message: "",
-    })
-    setIsSubmitting(false)
-  }
+    });
+    setIsSubmitting(false);
+  };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
-    }))
-  }
+    }));
+  };
 
   return (
     <div className="bg-white rounded-3xl shadow-2xl overflow-hidden max-w-6xl mx-auto">
@@ -63,8 +65,9 @@ export function ModernContactForm({ onSubmit }: ModernContactFormProps) {
           <div className="relative z-10 h-full flex flex-col justify-center">
             <h2 className="text-4xl lg:text-5xl font-bold mb-6">Contact Us</h2>
             <p className="text-lg lg:text-xl text-blue-100 mb-12 leading-relaxed">
-              Not sure what you need? The team at Ralithon Technologies will be happy to listen to you and suggest
-              solutions you hadn't considered.
+              Not sure what you need? The team at Ralithon Technologies will be
+              happy to listen to you and suggest solutions you hadn't
+              considered.
             </p>
 
             <div className="space-y-6">
@@ -74,7 +77,9 @@ export function ModernContactForm({ onSubmit }: ModernContactFormProps) {
                 </div>
                 <div>
                   <p className="text-blue-100 text-sm">Email</p>
-                  <p className="text-white font-medium">shivanshshivhare44@gmail.com</p>
+                  <p className="text-white font-medium">
+                    shivanshshivhare44@gmail.com
+                  </p>
                 </div>
               </div>
 
@@ -94,7 +99,9 @@ export function ModernContactForm({ onSubmit }: ModernContactFormProps) {
                 </div>
                 <div>
                   <p className="text-blue-100 text-sm">Address</p>
-                  <p className="text-white font-medium">PU-4 behind orbit mall, Indore [M.P.]</p>
+                  <p className="text-white font-medium">
+                    PU-4 behind orbit mall, Indore [M.P.]
+                  </p>
                 </div>
               </div>
             </div>
@@ -104,30 +111,37 @@ export function ModernContactForm({ onSubmit }: ModernContactFormProps) {
         {/* Right Form Section */}
         <div className="lg:col-span-3 p-8 lg:p-12 bg-gray-50">
           <div className="max-w-2xl">
-            <h3 className="text-3xl lg:text-4xl font-bold text-gray-800 mb-2">We'd love to hear from you!</h3>
+            <h3 className="text-3xl lg:text-4xl font-bold text-gray-800 mb-2">
+              We'd love to hear from you!
+            </h3>
             <p className="text-xl text-gray-600 mb-8">Let's get in touch</p>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-         
-<div className="grid md:grid-cols-2 gap-6">
-                 {/* Full Name */}
-              <div>
-                <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  id="fullName"
-                  name="fullName"
-                  required
-                  value={formData.fullName}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-                  placeholder="Enter your full name"
-                />
-              </div>
-    <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Full Name */}
+                <div>
+                  <label
+                    htmlFor="fullName"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    id="fullName"
+                    name="fullName"
+                    required
+                    value={formData.fullName}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                    placeholder="Enter your full name"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="phone"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
                     Phone number
                   </label>
                   <div className="flex">
@@ -150,7 +164,10 @@ export function ModernContactForm({ onSubmit }: ModernContactFormProps) {
               {/* Email and Phone */}
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
                     Email
                   </label>
                   <div className="relative">
@@ -169,25 +186,31 @@ export function ModernContactForm({ onSubmit }: ModernContactFormProps) {
                     />
                   </div>
                 </div>
-                              {/* Address */}
-              <div>
-                <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
-                  Address
-                </label>
-                <input
-                  type="text"
-                  id="address"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-                  placeholder="Enter your address"
-                />
-              </div>
+
+                <div>
+                  <label
+                    htmlFor="address"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
+                    Address
+                  </label>
+                  <input
+                    type="text"
+                    id="address"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                    placeholder="Enter your address"
+                  />
+                </div>
               </div>
               {/* Message */}
               <div>
-                <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="message"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Your Message
                 </label>
                 <textarea
@@ -206,7 +229,7 @@ export function ModernContactForm({ onSubmit }: ModernContactFormProps) {
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium flex items-center space-x-2 transition-all duration-200"
+                className="bg-gradient-to-br from-blue-600 to-blue-800 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium flex items-center space-x-2 transition-all duration-200"
               >
                 {isSubmitting ? (
                   <>
@@ -225,5 +248,5 @@ export function ModernContactForm({ onSubmit }: ModernContactFormProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }
