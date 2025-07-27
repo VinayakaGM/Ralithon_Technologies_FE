@@ -1,90 +1,165 @@
-// services/auth.service.ts
 import axios from "axios";
 import {
   AuthResponse,
+  GenerateOtp,
   LoginData,
   RegisterData,
   User,
+  VerifyOTPParams,
 } from "../types/auth.types";
 
 const API_URL = process.env.NEXT_PUBLIC_BASE_API_URL;
 
 class AuthService {
-  async register(userData: RegisterData): Promise<AuthResponse> {
-    try {
-      const response = await axios.post(`${API_URL}users/register`, userData, {
+  register(userData: RegisterData): Promise<AuthResponse> {
+    return axios
+      .post(`${API_URL}users/register`, userData, {
         headers: {
           accept: "*/*",
           "Content-Type": "application/json",
         },
+      })
+      .then((response) => response.data)
+      .catch((error) => {
+        if (
+          error.response?.status === 400 &&
+          error.response?.data?.otpVerify === false
+        ) {
+          return error.response.data;
+        }
+
+        const errorMessage =
+          error.response?.data?.message ||
+          error.response?.message ||
+          error?.message ||
+          "Registration failed. Please try again.";
+
+        throw new Error(errorMessage);
       });
-
-      if (response.data.token) {
-        this.setUser(response.data);
-      }
-
-      return response.data;
-    } catch (error) {
-      console.error("Registration error:", error);
-      throw error;
-    }
   }
 
-  async login(credentials: LoginData): Promise<AuthResponse> {
-    try {
-      const response = await axios.post(`${API_URL}users/login`, credentials, {
+  login(credentials: LoginData): Promise<AuthResponse> {
+    return axios
+      .post(`${API_URL}users/login`, credentials, {
         headers: {
           accept: "*/*",
           "Content-Type": "application/json",
         },
-      });
-
-      if (response.data.token) {
+      })
+      .then((response) => {
         this.setUser(response.data);
-      }
+        return response.data;
+      })
+      .catch((error) => {
+        console.error("Login error:", error);
+        const errorMessage =
+          error.response?.data?.message ||
+          error.response?.message ||
+          error?.message ||
+          "Login failed. Please check your credentials.";
+        throw new Error(errorMessage);
+      });
+  }
 
-      return response.data;
-    } catch (error) {
-      console.error("Login error:", error);
-      throw error;
-    }
+  verifyOTP({ userId, otp }: VerifyOTPParams): Promise<AuthResponse> {
+    return axios
+      .put(`${API_URL}users/verify-otp/${userId}?otp=${otp}`, null, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+      .then((response) => response.data)
+      .catch((error) => {
+        const errorMessage =
+          error.response?.data?.message ||
+          error.response?.message ||
+          error?.message ||
+          "Error while verifying otp.";
+        throw new Error(errorMessage);
+      });
+  }
+
+  generateOTP(email: GenerateOtp): Promise<AuthResponse> {
+    return axios
+      .put(`${API_URL}users/generate-otp/${email}`, null, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+      .then((response) => response.data)
+      .catch((error) => {
+        const errorMessage =
+          error.response?.data?.message ||
+          error.response?.message ||
+          error?.message ||
+          "Error while generating otp.";
+        throw new Error(errorMessage);
+      });
   }
 
   logout(): void {
     if (typeof window !== "undefined") {
-      localStorage.removeItem("user");
-      localStorage.removeItem("token");
+      try {
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+      } catch (error) {
+        console.error("Error clearing auth data:", error);
+      }
     }
   }
 
   getCurrentUser(): User | null {
     if (typeof window === "undefined") return null;
 
-    const userStr = localStorage.getItem("user");
-    return userStr ? JSON.parse(userStr) : null;
+    try {
+      const userStr = localStorage.getItem("user");
+      if (!userStr) return null;
+
+      return JSON.parse(userStr) as User;
+    } catch (error) {
+      console.error("Error parsing user data:", error);
+      this.logout(); // Clear corrupted data
+      return null;
+    }
   }
 
   getAuthToken(): string | null {
     if (typeof window === "undefined") return null;
-    return localStorage.getItem("token");
+
+    try {
+      return localStorage.getItem("token");
+    } catch (error) {
+      console.error("Error accessing token:", error);
+      return null;
+    }
   }
 
   isAuthenticated(): boolean {
-    return this.getAuthToken() !== null;
+    if (typeof window === "undefined") return false;
+
+    return !!this.getAuthToken() && !!this.getCurrentUser();
   }
 
   private setUser(authData: AuthResponse): void {
     if (typeof window === "undefined") return;
 
-    const user: User = {
-      userId: authData.userId,
-      email: authData.email,
-      userType: authData.userType,
-      userStatus: authData.userStatus,
-    };
+    try {
+      const user: User = {
+        userId: authData.userId,
+        email: authData.email,
+        userType: authData.userType,
+        userStatus: authData.userStatus,
+      };
 
-    localStorage.setItem("user", JSON.stringify(user));
-    localStorage.setItem("token", authData.token);
+      localStorage.setItem("user", JSON.stringify(user));
+
+      if (authData.token) {
+        localStorage.setItem("token", authData.token);
+      }
+    } catch (error) {
+      console.error("Error storing user data:", error);
+      throw new Error("Failed to store authentication data");
+    }
   }
 }
 

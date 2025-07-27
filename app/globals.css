@@ -7,7 +7,15 @@ body {
 }
 
 .to-blue-800 {
-  --tw-gradient-to: #1c1f2a var(--tw-gradient-to-position);
+  --tw-gradient-to: #1d4ed8 var(--tw-gradient-to-position);
+}
+
+.from-blue-600 {
+  --tw-gradient-from: #3b82f6 var(--tw-gradient-from-position);
+}
+
+.to-gray-900 {
+    --tw-gradient-to: #707580 var(--tw-gradient-to-position);
 }
 
 @layer utilities {
@@ -95,4 +103,137 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+
+
+/* Custom Sonner Toast Styles */
+[data-sonner-toaster] [data-sonner-toast] {
+  border-radius: 8px !important;
+  padding: 16px !important;
+  font-weight: 500 !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+  border: none !important;
+}
+
+/* Success Toast - Green */
+[data-sonner-toaster] [data-sonner-toast][data-type="success"] {
+
+    color: white !important;
+    background: linear-gradient(111deg, #4ade80, #22d3ee) !important;}
+
+[data-sonner-toaster] [data-sonner-toast][data-type="success"] [data-description] {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Error Toast - Custom Red */
+[data-sonner-toaster] [data-sonner-toast][data-type="error"] {
+color: white !important;
+    background: linear-gradient(135deg, #f87171, #dc2626);
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-type="error"] [data-description] {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Info Toast - Blue Theme */
+[data-sonner-toaster] [data-sonner-toast][data-type="info"] {
+    color: white !important;
+    background: linear-gradient(135deg, #60a5fa, #3b73ce);
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-type="info"] [data-description] {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Warning Toast - Yellow */
+[data-sonner-toaster] [data-sonner-toast][data-type="warning"] {
+  background-color: #f59e0b !important;
+  color: white !important;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-type="warning"] [data-description] {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Default Toast */
+[data-sonner-toaster] [data-sonner-toast][data-type="default"] {
+  background-color: white !important;
+  color: #374151 !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-type="default"] [data-description] {
+  color: #6b7280 !important;
+}
+
+/* Close button styling - Top right corner with red color */
+[data-sonner-toaster] [data-sonner-toast] [data-close-button] {
+  position: absolute !important;
+  top: -3px !important;
+  left: 99% !important;
+  /* right: 8px !important; */
+  background-color: #ef4444 !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 50% !important;
+  width: 20px !important;
+  height: 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 12px !important;
+  font-weight: bold !important;
+  cursor: pointer !important;
+  z-index: 10 !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-sonner-toaster] [data-sonner-toast] [data-close-button]:hover {
+  background-color: #dc2626 !important;
+  transform: none !important;
+}
+
+/* Ensure toast content has proper padding to avoid overlap with close button */
+[data-sonner-toaster] [data-sonner-toast] {
+  padding-right: 40px !important;
+  position: relative !important;
+}
+
+/* Action button styling */
+[data-sonner-toaster] [data-sonner-toast] [data-button] {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 6px !important;
+  padding: 6px 12px !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-sonner-toaster] [data-sonner-toast] [data-button]:hover {
+  background-color: rgba(255, 255, 255, 0.3) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* For default toast action buttons */
+[data-sonner-toaster] [data-sonner-toast][data-type="default"] [data-button] {
+  background-color: #f3f4f6 !important;
+  color: #374151 !important;
+  border: 1px solid #d1d5db !important;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-type="default"] [data-button]:hover {
+  background-color: #e5e7eb !important;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-type="default"] [data-close-button] {
+  background-color: #f3f4f6 !important;
+  color: #6b7280 !important;
+  border: 1px solid #d1d5db !important;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-type="default"] [data-close-button]:hover {
+  background-color: #e5e7eb !important;
+  color: #374151 !important;
 }

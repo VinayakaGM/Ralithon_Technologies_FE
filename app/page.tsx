@@ -36,9 +36,13 @@ import {
 } from "@/components/ui/card";
 import { AuthModal } from "@/components/ui/auth-modal";
 import Image from "next/image";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import AuthService from "@/services/auth.service";
-import { ModernContactForm, type ContactFormData } from "@/components/ui/Contact-form";
+import {
+  ModernContactForm,
+  type ContactFormData,
+} from "@/components/ui/Contact-form";
+import Link from "next/link";
 
 export default function RalithonWebsite() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -57,7 +61,6 @@ export default function RalithonWebsite() {
   const [showInternshipModal, setShowInternshipModal] = useState(false);
   const [customMessage, setCustomMessage] = useState<string | undefined>();
   const IMAGE_URL = process.env.NEXT_PUBLIC_IMAGE_URL;
-  const { toast  } = useToast();
 
   useEffect(() => {
     setMounted(true);
@@ -80,9 +83,22 @@ export default function RalithonWebsite() {
   }, []);
 
   const handleLogout = () => {
-    AuthService.logout();
-    setIsDropdownOpen(false);
-    window.location.reload();
+    try {
+      AuthService.logout();
+      setIsDropdownOpen(false);
+      toast.success("Logged Out Successfully! 👋", {
+        description:
+          "You have been safely logged out. Thank you for visiting Ralithon Technologies!",
+      });
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+    } catch (error) {
+      toast.error("Logout Failed", {
+        description: "There was an issue logging you out. Please try again.",
+      });
+    }
   };
 
   const currentUser = mounted ? AuthService.getCurrentUser() : null;
@@ -314,14 +330,11 @@ export default function RalithonWebsite() {
     }
   };
 
-  
   const handleContactSubmit = (data: ContactFormData) => {
-    toast({
-      title: "Message Sent Successfully!",
+    toast.success("Message Sent Successfully! 📧", {
       description: `Thank you ${data.fullName}! We'll get back to you within 24 hours.`,
-      // type: "success",
-    })
-  }
+    });
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -388,7 +401,13 @@ export default function RalithonWebsite() {
                   {isDropdownOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
                       <div className="px-4 py-2 text-sm text-gray-700 border-b border-gray-200">
-                        {currentUser.email}
+                        {currentUser.userType === "ROLE_STUDENT" ? (
+                          <Link href={"/student-dashboard"}>
+                            Student Dashboard
+                          </Link>
+                        ) : (
+                          <Link href={"/admin-dashboard"}>Admin Dashboard</Link>
+                        )}
                       </div>
                       <button
                         onClick={handleLogout}
@@ -477,7 +496,7 @@ export default function RalithonWebsite() {
         </div>
       </header>
 
-<section id="home" className="relative h-screen overflow-hidden">
+      <section id="home" className="relative h-screen overflow-hidden">
         {heroSlides.map((slide, index) => (
           <div
             key={index}
@@ -760,10 +779,10 @@ export default function RalithonWebsite() {
                   <div>
                     <p className="text-xs font-semibold text-gray-700 mb-1">
                       Skills you'll learn:
-                    </p><p className="text-xs text-blue-600 font-medium truncate overflow-hidden whitespace-nowrap">
-  {internship.skills}
-</p>
-
+                    </p>
+                    <p className="text-xs text-blue-600 font-medium truncate overflow-hidden whitespace-nowrap">
+                      {internship.skills}
+                    </p>
                   </div>
                   <Button
                     size="sm"
@@ -914,7 +933,9 @@ export default function RalithonWebsite() {
           <div
             data-animate
             className={`transform transition-all duration-1000 ${
-              visibleElements.has("contact-form") ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
+              visibleElements.has("contact-form")
+                ? "translate-y-0 opacity-100"
+                : "translate-y-10 opacity-0"
             }`}
             id="contact-form"
           >
@@ -1083,7 +1104,6 @@ export default function RalithonWebsite() {
       </footer>
 
       {/* Signup / Signin modal */}
-
       <AuthModal
         isOpen={showAuthModal}
         onClose={() => {

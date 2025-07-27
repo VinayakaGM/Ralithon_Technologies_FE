@@ -1,25 +1,34 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "@/components/theme-provider";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Relathon Technologies",
-  description: "Created by Relathon Technologies",
-  generator: "Relathon Technologies",
+  title: "Ralithon Technologies",
+  description: "Your Trusted IT Solutions Partner",
 };
 
-const IMAGE_URL = process.env.NEXT_PUBLIC_IMAGE_URL;
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="en">
-      <head>
-        <link rel="icon" href={`${IMAGE_URL}logo.png`} type="image/png" />
-        <title>Relathon Technologies</title>
-      </head>
-      <body>{children}</body>
+    <html lang="en" suppressHydrationWarning>
+      <body className={inter.className}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+          <Toaster />
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

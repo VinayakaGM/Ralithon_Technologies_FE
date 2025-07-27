@@ -10,8 +10,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import AuthService from "@/services/auth.service";
+import { Eye, EyeOff } from "lucide-react";
+import { OTPVerificationModal } from "../otp-verification-modal-box";
+import authService from "@/services/auth.service";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -29,9 +32,14 @@ export function AuthModal({
   customMessage,
 }: AuthModalProps) {
   const [isSignUp, setIsSignUp] = useState(initialMode === "signup");
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
-
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoadingForSignIn, setIsLoadingForSignIn] = useState(false);
+  const [isLoadingForSignUp, setIsLoadingForSignUp] = useState(false);
+  const [showOTPModal, setShowOTPModal] = useState(false);
+  const [otpError, setOtpError] = useState("");
+  const [isVerifyingOTP, setIsVerifyingOTP] = useState(false);
+  const [userId, setUserId] = useState<number>(0);
   const [signUpData, setSignUpData] = useState({
     firstName: "",
     lastName: "",
@@ -77,6 +85,7 @@ export function AuthModal({
         password: "",
         checkPassword: "",
       });
+      setShowOTPModal(false);
     } else {
       setIsSignUp(initialMode === "signup");
     }
@@ -191,34 +200,22 @@ export function AuthModal({
 
     return !Object.values(newErrors).some((error) => error !== "");
   };
-
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateSignUpForm()) {
-      toast({
-        title: "Validation Error",
-        description: "Please fix the errors in the form",
-        variant: "destructive",
-        duration: 3000,
-      });
+      toast.error("Please fix the errors in the form");
       return;
     }
 
-    setIsLoading(true);
-
+    setIsLoadingForSignUp(true);
     if (signUpData.password !== signUpData.checkPassword) {
-      toast({
-        title: "Error",
-        description: "Passwords do not match",
-        variant: "destructive",
-        duration: 3000,
-      });
-      setIsLoading(false);
+      toast.error("Passwords do not match");
+      setIsLoadingForSignUp(false);
       return;
     }
 
     try {
-      await AuthService.register({
+      const response = await AuthService.register({
         emailId: signUpData.emailId,
         firstName: signUpData.firstName,
         lastName: signUpData.lastName,
@@ -227,226 +224,368 @@ export function AuthModal({
         checkPassword: signUpData.checkPassword,
       });
 
-      toast({
-        title: "Success!",
-        description: "Account created successfully!",
-        duration: 3000,
-        className: "bg-green-500 text-white",
-      });
-      
-      onClose();
-      if (onAuthSuccess) onAuthSuccess();
+      if (response.userId) {
+        setUserId(response.userId);
+      }
+      if (response.otpVerify === false) {
+        setShowOTPModal(true);
+        toast.success(
+          response.message || "Verification code sent to your email",
+          {
+            description: "Please enter the 4-digit code to verify your account",
+          }
+        );
+      }
+
+      if (response.status_code === 201) {
+        onClose();
+        if (onAuthSuccess) onAuthSuccess();
+      }
     } catch (error: any) {
-      console.error("Sign up error:", error);
-      toast({
-        title: "Registration Failed",
-        description: error.response?.data?.message || "Failed to create account. Please try again.",
-        variant: "destructive",
-        duration: 3000,
-      });
+      console.error("Registration error:", error);
+
+      if (
+        error.response?.data?.statusCode === 400 &&
+        error.response?.data?.otpVerify === false
+      ) {
+        setShowOTPModal(true);
+        toast.success(
+          error.response?.data?.message ||
+            "Verification code sent to your email",
+          {
+            description: "Please enter the 4-digit code to verify your account",
+          }
+        );
+      } else {
+        toast.error("Registration Failed", {
+          description:
+            error.response?.data?.message ||
+            error.message ||
+            "Failed to create account. Please try again.",
+        });
+      }
     } finally {
-      setIsLoading(false);
+      setIsLoadingForSignUp(false);
     }
+  };
+
+  const handleVerifyOTP = async (otp: string) => {
+    setIsVerifyingOTP(true);
+    setOtpError("");
+
+    localStorage.setItem("email", signUpData.emailId);
+    try {
+      const response = await authService.verifyOTP({
+        userId: userId,
+        otp: otp,
+      });
+
+      if (response.statusCode === 200) {
+        toast.success(response?.message || "Account Verified Successfully!");
+        setShowOTPModal(false);
+        onClose();
+        if (onAuthSuccess) onAuthSuccess();
+      }
+      if (response.statusCode === 208) {
+        toast.success(response?.message || "Account Verified Successfully!");
+        setShowOTPModal(false);
+        onClose();
+        if (onAuthSuccess) onAuthSuccess();
+      } else {
+        setOtpError(response.message || "Invalid verification code");
+      }
+    } catch (error: any) {
+      setOtpError(
+        error.response?.data?.message ||
+          error.response?.message ||
+          "Failed to verify OTP. Please try again."
+      );
+    } finally {
+      setIsVerifyingOTP(false);
+    }
+  };
+
+  const handleOTPModalClose = () => {
+    setShowOTPModal(false);
   };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    setIsLoadingForSignIn(true);
 
     try {
-      await AuthService.login({
+      const response = await AuthService.login({
         emailId: signInData.emailId,
         password: signInData.password,
       });
+      if (
+        response.status_code === 200 ||
+        response.message === "login successfully"
+      ) {
+        toast.success("Welcome Back! 👋", {
+          description: `${
+            response.message || "You've successfully logged in."
+          } Welcome to Ralithon Technologies!`,
+        });
 
-      toast({
-        title: "Welcome back!",
-        description: "You've successfully logged in.",
-        duration: 3000,
-        className: "bg-green-500 text-white",
-      });
-      
-      onClose();
-      if (onAuthSuccess) onAuthSuccess();
+        onClose();
+        if (onAuthSuccess) onAuthSuccess();
+      } else {
+        toast.error("Login Failed", {
+          description: response.message || "Login failed. Please try again.",
+        });
+      }
     } catch (error: any) {
       console.error("Sign in error:", error);
-      toast({
-        title: "Login Failed",
-        description: error.response?.data?.message || "Invalid credentials. Please try again.",
-        variant: "destructive",
-        duration: 3000,
+      toast.error("Login Failed", {
+        description:
+          error.response?.data?.message ||
+          error.response?.message ||
+          "Invalid credentials. Please check your email and password.",
       });
     } finally {
-      setIsLoading(false);
+      setIsLoadingForSignIn(false);
     }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle style={{ display: "flex", justifyContent: "center" }}>
-            {isSignUp ? "Create an account" : "Sign in to your account"}
-          </DialogTitle>
-        </DialogHeader>{" "}
-        {customMessage && (
-          <div className="bg-blue-50 p-3 rounded-md text-sm text-blue-800 mb-4">
-            {customMessage}
-          </div>
-        )}
-        {isSignUp ? (
-          <form onSubmit={handleSignUp} className="grid gap-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="firstName">First Name</Label>
-                <Input
-                  id="firstName"
-                  placeholder="John"
-                  required
-                  value={signUpData.firstName}
-                  onChange={handleSignUpChange}
-                />
-                {errors.firstName && (
-                  <p className="text-red-500 text-xs">{errors.firstName}</p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name</Label>
-                <Input
-                  id="lastName"
-                  placeholder="Doe"
-                  required
-                  value={signUpData.lastName}
-                  onChange={handleSignUpChange}
-                />
-                {errors.lastName && (
-                  <p className="text-red-500 text-xs">{errors.lastName}</p>
-                )}
-              </div>
+    <>
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle style={{ display: "flex", justifyContent: "center" }}>
+              {isSignUp ? "Create an account" : "Sign in to your account"}
+            </DialogTitle>
+          </DialogHeader>{" "}
+          {customMessage && (
+            <div className="bg-blue-50 p-3 rounded-md text-sm text-blue-800 mb-4">
+              {customMessage}
             </div>
+          )}
+          {isSignUp ? (
+            <form onSubmit={handleSignUp} className="grid gap-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="firstName">First Name</Label>
+                  <Input
+                    id="firstName"
+                    placeholder="First Name"
+                    required
+                    value={signUpData.firstName}
+                    onChange={handleSignUpChange}
+                  />
+                  {errors.firstName && (
+                    <p className="text-red-500 text-xs">{errors.firstName}</p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lastName">Last Name</Label>
+                  <Input
+                    id="lastName"
+                    placeholder="Last Name"
+                    required
+                    value={signUpData.lastName}
+                    onChange={handleSignUpChange}
+                  />
+                  {errors.lastName && (
+                    <p className="text-red-500 text-xs">{errors.lastName}</p>
+                  )}
+                </div>
+              </div>
 
-            <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="emailId">Email ID</Label>
+                  <Input
+                    id="emailId"
+                    type="email"
+                    placeholder="example@gmail.com"
+                    required
+                    value={signUpData.emailId}
+                    onChange={handleSignUpChange}
+                  />
+                  {errors.emailId && (
+                    <p className="text-red-500 text-xs">{errors.emailId}</p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="contact">Phone Number</Label>
+                  <Input
+                    id="contact"
+                    type="tel"
+                    placeholder="+XXXXXXXXXXXX"
+                    required
+                    value={signUpData.contact}
+                    onChange={handleSignUpChange}
+                  />
+                  {errors.contact && (
+                    <p className="text-red-500 text-xs">{errors.contact}</p>
+                  )}
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                {/* Password Field */}
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="********"
+                      required
+                      value={signUpData.password}
+                      onChange={handleSignUpChange}
+                      className="pr-10"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                  {errors.password && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.password}
+                    </p>
+                  )}
+                  {!errors.password && signUpData.password && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      8-15 chars, 1 upper, 1 lower, 1 number, 1 special
+                    </p>
+                  )}
+                </div>
+
+                {/* Confirm Password Field */}
+                <div className="space-y-2">
+                  <Label htmlFor="checkPassword">Confirm Password</Label>
+                  <div className="relative">
+                    <Input
+                      id="checkPassword"
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder="********"
+                      required
+                      value={signUpData.checkPassword}
+                      onChange={handleSignUpChange}
+                      className="pr-10"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                  {errors.checkPassword && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.checkPassword}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                className="bg-gradient-to-br from-gray-800 to-gray-900 w-full mt-2"
+                disabled={isLoadingForSignUp}
+              >
+                {isLoadingForSignUp ? "Creating account..." : "Sign Up"}
+              </Button>
+              <div className="mt-4 text-center text-sm">
+                Already a user?{" "}
+                <Button
+                  variant="link"
+                  type="button"
+                  onClick={handleToggleMode}
+                  className="p-0 h-auto text-sm underline"
+                >
+                  Sign-in
+                </Button>
+              </div>
+            </form>
+          ) : (
+            <form onSubmit={handleSignIn} className="grid gap-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="emailId">Email ID</Label>
+                <Label htmlFor="emailId">Email</Label>
                 <Input
                   id="emailId"
-                  type="email"
                   placeholder="m@example.com"
                   required
-                  value={signUpData.emailId}
-                  onChange={handleSignUpChange}
+                  value={signInData.emailId}
+                  onChange={handleSignInChange}
                 />
-                {errors.emailId && (
-                  <p className="text-red-500 text-xs">{errors.emailId}</p>
-                )}
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="contact">Phone Number</Label>
-                <Input
-                  id="contact"
-                  type="tel"
-                  placeholder="+1234567890"
-                  required
-                  value={signUpData.contact}
-                  onChange={handleSignUpChange}
-                />
-                {errors.contact && (
-                  <p className="text-red-500 text-xs">{errors.contact}</p>
-                )}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
+              <div className="space-y-2 relative">
                 <Label htmlFor="password">Password</Label>
                 <Input
                   id="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="********"
                   required
-                  value={signUpData.password}
-                  onChange={handleSignUpChange}
+                  value={signInData.password}
+                  onChange={handleSignInChange}
+                  className="pr-10"
                 />
-                {errors.password && (
-                  <p className="text-red-500 text-xs">{errors.password}</p>
-                )}
-                {!errors.password && signUpData.password && (
-                  <p className="text-xs text-gray-500">
-                    8-15 chars, 1 upper, 1 lower, 1 number, 1 special
-                  </p>
-                )}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-7 h-4/5 px-3 hover:bg-transparent" // Adjusted positioning
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4 mb-6 mt-0" />
+                  ) : (
+                    <Eye className="h-4 w-4 mb-6 mt-0" />
+                  )}
+                </Button>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="checkPassword">Confirm Password</Label>
-                <Input
-                  id="checkPassword"
-                  type="password"
-                  placeholder="********"
-                  required
-                  value={signUpData.checkPassword}
-                  onChange={handleSignUpChange}
-                />
-                {errors.checkPassword && (
-                  <p className="text-red-500 text-xs">{errors.checkPassword}</p>
-                )}
+              <Button
+                type="submit"
+                className="bg-gradient-to-br from-gray-800 to-gray-900 w-full"
+                disabled={isLoadingForSignIn}
+              >
+                {isLoadingForSignIn ? "Signing in..." : "Sign In"}
+              </Button>
+              <div className="mt-4 text-center text-sm">
+                Don't have an account?{" "}
+                <Button
+                  variant="link"
+                  type="button"
+                  onClick={handleToggleMode}
+                  className="p-0 h-auto text-sm underline"
+                >
+                  Sign-up
+                </Button>
               </div>
-            </div>
-
-            <Button type="submit" className="w-full mt-2" disabled={isLoading}>
-              {isLoading ? "Creating account..." : "Sign Up"}
-            </Button>
-            <div className="mt-4 text-center text-sm">
-              Already a user?{" "}
-              <Button
-                variant="link"
-                type="button"
-                onClick={handleToggleMode}
-                className="p-0 h-auto text-sm underline"
-              >
-                Sign-in
-              </Button>
-            </div>
-          </form>
-        ) : (
-          <form onSubmit={handleSignIn} className="grid gap-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="emailId">Email</Label>
-              <Input
-                id="emailId"
-                placeholder="m@example.com"
-                required
-                value={signInData.emailId}
-                onChange={handleSignInChange}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="********"
-                required
-                value={signInData.password}
-                onChange={handleSignInChange}
-              />
-            </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Signing in..." : "Sign In"}
-            </Button>
-            <div className="mt-4 text-center text-sm">
-              Don't have an account?{" "}
-              <Button
-                variant="link"
-                type="button"
-                onClick={handleToggleMode}
-                className="p-0 h-auto text-sm underline"
-              >
-                Sign-up
-              </Button>
-            </div>
-          </form>
-        )}
-      </DialogContent>
-    </Dialog>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
+      <OTPVerificationModal
+        isOpen={showOTPModal}
+        onClose={handleOTPModalClose}
+        onVerify={handleVerifyOTP}
+        email={signUpData.emailId}
+        isLoading={isVerifyingOTP}
+        error={otpError}
+      />
+    </>
   );
 }
