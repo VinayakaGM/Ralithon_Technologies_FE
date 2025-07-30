@@ -280,17 +280,41 @@ export function AuthModal({
         otp: otp,
       });
 
-      if (response.statusCode === 200) {
+      if (response.statusCode === 200 || response.statusCode === 208) {
         toast.success(response?.message || "Account Verified Successfully!");
-        setShowOTPModal(false);
-        onClose();
-        if (onAuthSuccess) onAuthSuccess();
-      }
-      if (response.statusCode === 208) {
-        toast.success(response?.message || "Account Verified Successfully!");
-        setShowOTPModal(false);
-        onClose();
-        if (onAuthSuccess) onAuthSuccess();
+
+        try {
+          const loginResponse = await AuthService.login({
+            emailId: signUpData.emailId,
+            password: signUpData.password,
+          });
+
+          if (
+            loginResponse.status_code === 200 ||
+            loginResponse.message === "login successfully"
+          ) {
+            toast.success("Welcome! 👋", {
+              description: `You've been automatically logged in. Welcome to Ralithon Technologies!`,
+            });
+
+            setShowOTPModal(false);
+            onClose();
+            if (onAuthSuccess) onAuthSuccess();
+          } else {
+            toast.error("Auto Login Failed", {
+              description: loginResponse.message || "Please sign in manually.",
+            });
+            setShowOTPModal(false);
+            onClose();
+          }
+        } catch (loginError: any) {
+          console.error("Auto login error:", loginError);
+          toast.error("Auto Login Failed", {
+            description: "Please sign in manually.",
+          });
+          setShowOTPModal(false);
+          onClose();
+        }
       } else {
         setOtpError(response.message || "Invalid verification code");
       }
@@ -502,7 +526,7 @@ export function AuthModal({
 
               <Button
                 type="submit"
-                className="bg-gradient-to-br from-gray-800 to-gray-900 w-full mt-2"
+                className="bg-gradient-to-br from-blue-600 to-blue-800 w-full mt-2"
                 disabled={isLoadingForSignUp}
               >
                 {isLoadingForSignUp ? "Creating account..." : "Sign Up"}
@@ -558,7 +582,7 @@ export function AuthModal({
               </div>
               <Button
                 type="submit"
-                className="bg-gradient-to-br from-gray-800 to-gray-900 w-full"
+                className="bg-gradient-to-br from-blue-600 to-blue-800 w-full"
                 disabled={isLoadingForSignIn}
               >
                 {isLoadingForSignIn ? "Signing in..." : "Sign In"}

@@ -66,24 +66,50 @@ interface AdminSidebarProps {
 
 export function AdminSidebar({ activeTab, setActiveTab }: AdminSidebarProps) {
   return (
-    <Sidebar className="border-r">
-      <SidebarHeader className="p-4">
-        <h2 className="text-lg font-semibold text-gray-900">Admin Dashboard</h2>
+    <Sidebar className="border-r border-gray-200 bg-white">
+      <SidebarHeader className="p-6 border-b border-gray-200">
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center">
+            <img
+              src="/placeholder.svg?height=20&width=20"
+              alt="Admin"
+              className="w-5 h-5"
+            />
+          </div>
+          <h2 className="text-lg font-bold text-gray-800">Admin Panel</h2>
+        </div>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="p-4">
         <SidebarGroup>
-          <SidebarGroupLabel>Management</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-gray-600 font-semibold mb-4">
+            Management Tools
+          </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="space-y-2">
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.id}>
                   <SidebarMenuButton
                     onClick={() => setActiveTab(item.id)}
                     isActive={activeTab === item.id}
-                    className="w-full justify-start"
+                    className={`w-full justify-start p-3 rounded-lg transition-all duration-300 ${
+                      activeTab === item.id
+                        ? "bg-gradient-to-br from-blue-600 to-blue-800 text-white shadow-lg"
+                        : "text-gray-700 hover:bg-gray-100 hover:text-blue-600"
+                    }`}
                   >
-                    <item.icon className="h-4 w-4" />
-                    <span>{item.title}</span>
+                    <item.icon className="h-5 w-5 mr-3" />
+                    <div className="text-left">
+                      <div className="font-medium">{item.title}</div>
+                      <div
+                        className={`text-xs ${
+                          activeTab === item.id
+                            ? "text-blue-100"
+                            : "text-gray-500"
+                        }`}
+                      >
+                        {item.description}
+                      </div>
+                    </div>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}

@@ -70,7 +70,9 @@ export function ProfileTab({ user }: ProfileTabProps) {
               <Input id="phone" placeholder="Enter your phone number" />
             </div>
 
-            <Button>Save Changes</Button>
+            <Button className="bg-gradient-to-br from-blue-600 to-blue-800 hover:bg-blue-700">
+              Save Changes
+            </Button>
           </CardContent>
         </Card>
 
