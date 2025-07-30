@@ -167,8 +167,8 @@ export function OTPVerificationModal({
 
           <Button
             type="submit"
-            className="w-full bg-gradient-to-br from-gray-800 to-gray-900"
-            disabled={isLoading || otp.join("").length !== 4} // Changed to 4
+            className="w-full bg-gradient-to-br from-blue-600 to-blue-800"
+            disabled={isLoading || otp.join("").length !== 4}
           >
             {isLoading ? (
               <div className="flex items-center">
