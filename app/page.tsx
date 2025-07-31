@@ -1082,6 +1082,12 @@ export default function RalithonWebsite() {
                     {link.label}
                   </button>
                 ))}
+                <Link
+                  href="/policy"
+                  className="block text-gray-400 hover:text-white transition-colors"
+                >
+                  Policy
+                </Link>
               </div>
             </div>
           </div>
