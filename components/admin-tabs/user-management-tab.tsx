@@ -110,7 +110,7 @@ export function UserManagementTab() {
             Manage all registered users and their permissions
           </p>
         </div>
-        <Button>
+        <Button className="bg-gradient-to-br from-blue-600 to-blue-800">
           <UserPlus className="h-4 w-4 mr-2" />
           Add User
         </Button>
@@ -136,7 +136,7 @@ export function UserManagementTab() {
         </Card>
         <Card>
           <CardContent className="p-4">
-            <div className="text-2xl font-bold text-purple-600">
+            <div className="text-2xl font-bold text-purple-600 ">
               {users.filter((u) => u.role === "ROLE_ADMIN").length}
             </div>
             <div className="text-sm text-gray-600">Administrators</div>
@@ -213,6 +213,11 @@ export function UserManagementTab() {
                     <Badge
                       variant={
                         user.role === "ROLE_ADMIN" ? "default" : "secondary"
+                      }
+                      className={
+                        user.role === "ROLE_ADMIN"
+                          ? "bg-gradient-to-br from-blue-600 to-blue-800"
+                          : ""
                       }
                     >
                       {user.role === "ROLE_ADMIN" ? "Admin" : "Student"}

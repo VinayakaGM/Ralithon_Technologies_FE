@@ -76,7 +76,7 @@ export function StudentSidebar({
             Learning Hub
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-3">
+            <SidebarMenu className="space-y-3" style={{ gap: "10px" }}>
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.id} style={{ height: "40px" }}>
                   <SidebarMenuButton

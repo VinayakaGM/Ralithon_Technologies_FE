@@ -11,6 +11,7 @@ import { CourseManagementTab } from "@/components/admin-tabs/course-management-t
 import { CertificateManagementTab } from "@/components/admin-tabs/certificate-management-tab";
 import { AnalyticsTab } from "@/components/admin-tabs/analytics-tab";
 import { NotificationsTab } from "@/components/admin-tabs/notifications-tab";
+import authService from "@/services/auth.service";
 
 export default function AdminDashboard() {
   const [user, setUser] = useState<any>(null);
@@ -18,32 +19,19 @@ export default function AdminDashboard() {
   const router = useRouter();
 
   useEffect(() => {
-    const userData = localStorage.getItem("user");
-    if (!userData) {
-      router.push("/login");
+    const currentUser = authService.getCurrentUser();
+
+    if (!currentUser) {
+      router.push("/");
       return;
     }
-
-    const parsedUser = JSON.parse(userData);
-    if (parsedUser.role !== "ROLE_ADMIN") {
-      router.push("/login");
-      return;
-    }
-
-    setUser(parsedUser);
+    setUser(currentUser);
   }, [router]);
 
   if (!user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
-            <img
-              src="/placeholder.svg?height=32&width=32"
-              alt="Loading"
-              className="w-8 h-8"
-            />
-          </div>
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600 font-medium">
             Loading Admin Dashboard...

@@ -110,7 +110,7 @@ export function CertificateManagementTab() {
         </div>
         <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="bg-gradient-to-br from-blue-600 to-blue-800">
               <Plus className="h-4 w-4 mr-2" />
               Issue Certificate
             </Button>

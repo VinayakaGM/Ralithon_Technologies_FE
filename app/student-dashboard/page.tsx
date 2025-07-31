@@ -31,13 +31,6 @@ export default function StudentDashboard() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
-            <img
-              src="/placeholder.svg?height=32&width=32"
-              alt="Loading"
-              className="w-8 h-8"
-            />
-          </div>
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600 font-medium">
             Loading Student Dashboard...
