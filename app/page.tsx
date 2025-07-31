@@ -90,10 +90,6 @@ export default function RalithonWebsite() {
         description:
           "You have been safely logged out. Thank you for visiting Ralithon Technologies!",
       });
-
-      setTimeout(() => {
-        window.location.reload();
-      }, 1500);
     } catch (error) {
       toast.error("Logout Failed", {
         description: "There was an issue logging you out. Please try again.",

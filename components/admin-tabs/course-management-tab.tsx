@@ -98,7 +98,7 @@ export function CourseManagementTab() {
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="bg-gradient-to-br from-blue-600 to-blue-800">
               <Plus className="h-4 w-4 mr-2" />
               Add Course
             </Button>
