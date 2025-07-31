@@ -357,8 +357,8 @@ export default function RalithonWebsite() {
                 { id: "home", label: "Home" },
                 { id: "about", label: "About" },
                 { id: "services", label: "Services" },
-                { id: "contact", label: "Contact" },
                 { id: "internships", label: "Internships" },
+                { id: "contact", label: "Contact" },
                 { id: "faq", label: "FAQ" },
               ].map((item) => (
                 <button

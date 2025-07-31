@@ -25,9 +25,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="h-screen w-screen overflow-auto no-scrollbar">
-            {children}
-          </div>
+          {children}
           <Toaster />
         </ThemeProvider>
       </body>
