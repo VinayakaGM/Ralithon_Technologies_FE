@@ -38,7 +38,7 @@ class ContactService {
 
   submitContactForm(contactData: ContactFormData): Promise<ContactResponse> {
     return axios
-      .post(`${API_URL}api/contact`, contactData, {
+      .post(`${API_URL}contact`, contactData, {
         headers: this.getHeaders(),
       })
       .then((response) => {

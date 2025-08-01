@@ -68,16 +68,16 @@ export default function PolicyPage() {
         <div className="space-y-4">
           <div className="grid md:grid-cols-2 gap-4">
             <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200 transform hover:scale-105 transition-all duration-300">
-              <p className="font-semibold text-blue-800">
+              <p className="font-semibold text-gray-600">
                 <strong>Company Name:</strong> Ralithon Technologies
               </p>
-              <p className="text-blue-700 mt-2">
+              <p className="text-gray-600 mt-2">
                 <strong>Nature of Business:</strong> Technology Services &
                 Educational Training
               </p>
             </div>
-            <div className="p-4 bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl border border-indigo-200 transform hover:scale-105 transition-all duration-300">
-              <ul className="list-disc list-inside space-y-2 text-indigo-700">
+            <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-indigo-200 transform hover:scale-105 transition-all duration-300">
+              <ul className="list-disc list-inside space-y-2 text-gray-600">
                 <li>Custom website and mobile app development</li>
                 <li>
                   Skill-based training, internships, and certifications in
@@ -103,16 +103,15 @@ export default function PolicyPage() {
           ].map((item, index) => (
             <div
               key={index}
-              className="p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border border-green-200 transform hover:scale-105 transition-all duration-300 hover:shadow-lg"
+              className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-green-200 transform hover:scale-105 transition-all duration-300 hover:shadow-lg"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               <div className="flex items-center mb-2">
-                <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center text-white font-bold text-sm mr-3">
+                <span className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-800 hover:bg-blue-700 rounded-full flex items-center justify-center text-white text-lg mr-3 animate-pulse">
                   {index + 1}
-                </div>
-                <Sparkles className="h-4 w-4 text-green-600" />
+                </span>
               </div>
-              <p className="text-green-700 text-sm">{item}</p>
+              <p className="text-gray-600 text-sm">{item}</p>
             </div>
           ))}
         </div>
@@ -125,39 +124,39 @@ export default function PolicyPage() {
       color: "from-purple-500 to-purple-700",
       content: (
         <div className="space-y-8">
-          <div className="relative p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl border border-purple-200 overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-purple-200 rounded-full -mr-16 -mt-16 opacity-50"></div>
-            <h3 className="text-xl font-bold text-purple-800 mb-4 flex items-center">
-              <span className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center text-white text-lg mr-3 animate-pulse">
+          <div className="relative p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl border border-purple-200 overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-200 rounded-full -mr-16 -mt-16 opacity-50"></div>
+            <h3 className="text-xl font-bold text-gray-600 mb-4 flex items-center">
+              <span className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-800 hover:bg-blue-700 rounded-full flex items-center justify-center text-white text-lg mr-3 animate-pulse">
                 1
               </span>
               Tech Development Services
             </h3>
             <div className="space-y-3 relative z-10">
-              <p className="text-purple-700">
+              <p className="text-gray-600">
                 Designing and developing custom websites and mobile
                 applications.
               </p>
-              <p className="text-purple-700">
+              <p className="text-gray-600">
                 Technologies used: HTML, CSS, React, Flutter, Python, etc.
               </p>
-              <p className="text-purple-700">
+              <p className="text-gray-600">
                 Projects follow Agile methodology with iterative client feedback
                 and milestone-based delivery.
               </p>
             </div>
           </div>
 
-          <div className="relative p-6 bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-2xl border border-indigo-200 overflow-hidden">
-            <div className="absolute top-0 left-0 w-32 h-32 bg-indigo-200 rounded-full -ml-16 -mt-16 opacity-50"></div>
-            <h3 className="text-xl font-bold text-indigo-800 mb-4 flex items-center">
-              <span className="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center text-white text-lg mr-3 animate-pulse">
+          <div className="relative p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl border border-indigo-200 overflow-hidden">
+            <div className="absolute top-0 left-0 w-32 h-32 bg-blue-200 rounded-full -ml-16 -mt-16 opacity-50"></div>
+            <h3 className="text-xl font-bold text-gray-600 mb-4 flex items-center">
+              <span className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-800 hover:bg-blue-700 rounded-full flex items-center justify-center text-white text-lg mr-3 animate-pulse">
                 2
               </span>
               Training & Certification Programs
             </h3>
             <div className="space-y-3 relative z-10">
-              <ul className="list-disc list-inside space-y-2 text-indigo-700">
+              <ul className="list-disc list-inside space-y-2 text-gray-600">
                 <li>
                   Short-term courses in emerging technologies (AI/ML, Web3,
                   DevOps, etc.)
@@ -191,14 +190,14 @@ export default function PolicyPage() {
           </div>
           <div className="grid md:grid-cols-2 gap-4">
             <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200 transform hover:scale-105 transition-all duration-300">
-              <p className="font-semibold text-blue-800">Tech Development:</p>
-              <p className="text-blue-700">Payments are milestone-based.</p>
+              <p className="font-semibold text-gray-600">Tech Development:</p>
+              <p className="text-gray-600">Payments are milestone-based.</p>
             </div>
-            <div className="p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border border-green-200 transform hover:scale-105 transition-all duration-300">
-              <p className="font-semibold text-green-800">
+            <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-green-200 transform hover:scale-105 transition-all duration-300">
+              <p className="font-semibold text-gray-600">
                 Training/Internships:
               </p>
-              <p className="text-green-700">
+              <p className="text-gray-600">
                 Fees are prepaid before course commencement.
               </p>
             </div>
@@ -226,10 +225,10 @@ export default function PolicyPage() {
           ].map((item, index) => (
             <div
               key={index}
-              className="p-4 bg-gradient-to-r from-red-50 to-pink-50 rounded-xl border border-red-200 transform hover:scale-105 transition-all duration-300"
+              className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200 transform hover:scale-105 transition-all duration-300"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
-              <p className="text-red-700">{item}</p>
+              <p className="text-gray-600">{item}</p>
             </div>
           ))}
         </div>
@@ -242,14 +241,14 @@ export default function PolicyPage() {
       color: "from-teal-500 to-teal-700",
       content: (
         <div className="grid md:grid-cols-2 gap-4">
-          <div className="p-4 bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl border border-teal-200 transform hover:scale-105 transition-all duration-300">
-            <p className="text-teal-700">
+          <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-teal-200 transform hover:scale-105 transition-all duration-300">
+            <p className="text-gray-600">
               All services and training programs are monitored by Operations &
               Compliance team.
             </p>
           </div>
-          <div className="p-4 bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-xl border border-cyan-200 transform hover:scale-105 transition-all duration-300">
-            <p className="text-cyan-700">
+          <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-cyan-200 transform hover:scale-105 transition-all duration-300">
+            <p className="text-gray-600">
               Anti-fraud measures and reporting channels are managed by Director
               & Company Secretary.
             </p>
@@ -264,13 +263,13 @@ export default function PolicyPage() {
       color: "from-violet-500 to-violet-700",
       content: (
         <div className="space-y-4">
-          <div className="p-4 bg-gradient-to-r from-violet-50 to-purple-50 rounded-xl border border-violet-200 transform hover:scale-105 transition-all duration-300">
-            <p className="text-violet-700">
+          <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-violet-200 transform hover:scale-105 transition-all duration-300">
+            <p className="text-gray-600">
               Services are digital-only; no physical goods are delivered.
             </p>
           </div>
-          <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200 transform hover:scale-105 transition-all duration-300">
-            <p className="text-purple-700">
+          <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-purple-200 transform hover:scale-105 transition-all duration-300">
+            <p className="text-gray-600">
               Payments are non-transferable and non-refundable except as per
               refund policy below.
             </p>
@@ -316,14 +315,7 @@ export default function PolicyPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-40 left-40 w-80 h-80 bg-indigo-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
-      </div>
-
+    <div className="min-h-screen bg-gray-100 relative overflow-hidden">
       {/* Header */}
       <header
         className={`bg-white/80 backdrop-blur-lg shadow-xl border-b border-gray-200 sticky top-0 z-50 transition-all duration-700 ${
@@ -339,10 +331,23 @@ export default function PolicyPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="flex items-center space-x-2 bg-white/50 backdrop-blur-sm hover:bg-white/80 transition-all duration-300 hover:scale-105"
+                  className="text-gray-600 hover:text-blue-600 transition-colors flex items-center space-x-1"
                 >
-                  <ArrowLeft className="h-4 w-4" />
-                  <span>Back to Home</span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 19l-7-7 7-7"
+                    />
+                  </svg>
+                  <span className="text-sm">Back</span>
                 </Button>
               </Link>
               <div className="flex items-center space-x-3">
@@ -503,7 +508,7 @@ export default function PolicyPage() {
 
         {/* Privacy Assurance */}
         <Card
-          className={`bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 border-0 shadow-2xl transition-all duration-1000 transform hover:scale-[1.02] ${
+          className={`bg-gradient-to-br from-blue-50 to-blue-100 border-0 shadow-2xl transition-all duration-1000 transform hover:scale-[1.02] ${
             isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
           }`}
         >
@@ -512,7 +517,7 @@ export default function PolicyPage() {
               <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-teal-600 rounded-xl flex items-center justify-center text-white shadow-lg animate-bounce">
                 <Shield className="h-6 w-6" />
               </div>
-              <CardTitle className="text-2xl bg-gradient-to-r from-green-700 to-teal-700 bg-clip-text text-transparent">
+              <CardTitle className="text-2xl text-gray-600 bg-clip-text">
                 Privacy Assurance
               </CardTitle>
             </div>
@@ -529,7 +534,7 @@ export default function PolicyPage() {
                   className="p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-green-200 transform hover:scale-105 transition-all duration-300 hover:shadow-lg"
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
-                  <p className="text-green-800">{item}</p>
+                  <p className="text-gray-600">{item}</p>
                 </div>
               ))}
             </div>
@@ -548,13 +553,13 @@ export default function PolicyPage() {
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
                   <p className="font-semibold text-gray-800">
-                    Effective Date: [Insert Date]
+                    Effective Date: 01 Auguest 2025
                   </p>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
                   <p className="font-semibold text-gray-800">
-                    Last Updated: [Insert Date]
+                    Last Updated: 01 Auguest 2025
                   </p>
                 </div>
               </div>

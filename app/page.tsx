@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   ChevronUp,
   ArrowRight,
@@ -50,7 +50,6 @@ export default function RalithonWebsite() {
   const [activeSection, setActiveSection] = useState("home");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [visibleElements, setVisibleElements] = useState(new Set());
-  const [showHiringModal, setShowHiringModal] = useState(true);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -61,6 +60,24 @@ export default function RalithonWebsite() {
   const [showInternshipModal, setShowInternshipModal] = useState(false);
   const [customMessage, setCustomMessage] = useState<string | undefined>();
   const IMAGE_URL = process.env.NEXT_PUBLIC_IMAGE_URL;
+  const [showHiringModal, setShowHiringModal] = useState(false);
+
+  useEffect(() => {
+    const lastClosed = localStorage.getItem("hiringModalClosed");
+    if (lastClosed) {
+      const timePassed = Date.now() - parseInt(lastClosed, 10);
+      if (timePassed > 24 * 60 * 60 * 1000) {
+        setShowHiringModal(true);
+      }
+    } else {
+      setShowHiringModal(true);
+    }
+  }, []);
+
+  const handleCloseHiringModal = useCallback(() => {
+    setShowHiringModal(false);
+    localStorage.setItem("hiringModalClosed", Date.now().toString());
+  }, []);
 
   useEffect(() => {
     setMounted(true);
@@ -359,7 +376,6 @@ export default function RalithonWebsite() {
                 { id: "services", label: "Services" },
                 { id: "internships", label: "Internships" },
                 { id: "contact", label: "Contact" },
-                { id: "faq", label: "FAQ" },
               ].map((item) => (
                 <button
                   key={item.id}
@@ -376,6 +392,16 @@ export default function RalithonWebsite() {
                   )}
                 </button>
               ))}
+              <Link
+                href="/policy"
+                className={`relative px-4 py-2 font-medium transition-all duration-300 ${
+                  activeSection === "policy"
+                    ? "text-transparent bg-clip-text bg-gradient-to-br from-blue-600 to-blue-800"
+                    : "text-gray-700 hover:text-blue-600"
+                }`}
+              >
+                Policy
+              </Link>
               {currentUser ? (
                 <div className="relative" ref={dropdownRef}>
                   <div
@@ -439,10 +465,9 @@ export default function RalithonWebsite() {
             </Button>
           </div>
 
-          {/* Mobile Menu */}
           <div
             className={`lg:hidden overflow-hidden transition-all duration-500 ${
-              mobileMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+              mobileMenuOpen ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
             }`}
           >
             <nav className="pt-4 pb-2 space-y-2">
@@ -450,9 +475,8 @@ export default function RalithonWebsite() {
                 { id: "home", label: "Home" },
                 { id: "about", label: "About" },
                 { id: "services", label: "Services" },
-                { id: "contact", label: "Contact" },
                 { id: "internships", label: "Internships" },
-                { id: "faq", label: "FAQ" },
+                { id: "contact", label: "Contact" },
               ].map((item) => (
                 <button
                   key={item.id}
@@ -466,23 +490,51 @@ export default function RalithonWebsite() {
                   {item.label}
                 </button>
               ))}
-              {currentUser ? (
-                <button
-                  onClick={() => {
-                    handleLogout();
-                    setMobileMenuOpen(false);
-                  }}
-                  className={`block w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-300 text-gray-700 hover:bg-gray-100 hover:text-blue-600`}
-                >
-                  Logout
-                </button>
-              ) : (
+
+              <Link
+                href="/policy"
+                className={`block w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-300 ${
+                  activeSection === "policy"
+                    ? "text-transparent bg-clip-text bg-gradient-to-br from-blue-600 to-blue-800 text-blue-600"
+                    : "text-gray-700 hover:bg-gray-100 hover:text-blue-600"
+                }`}
+              >
+                Policy
+              </Link>
+
+              {currentUser && (
+                <>
+                  <Link
+                    href={
+                      currentUser.userType === "ROLE_STUDENT"
+                        ? "/student-dashboard"
+                        : "/admin-dashboard"
+                    }
+                    className="block w-full text-left px-4 py-3 rounded-lg font-medium text-gray-700 hover:bg-gray-100 hover:text-blue-600"
+                  >
+                    {currentUser.userType === "ROLE_STUDENT"
+                      ? "Student Dashboard"
+                      : "Admin Dashboard"}
+                  </Link>
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="block w-full text-left px-4 py-3 rounded-lg font-medium text-gray-700 hover:bg-gray-100 hover:text-blue-600"
+                  >
+                    Logout
+                  </button>
+                </>
+              )}
+
+              {!currentUser && (
                 <button
                   onClick={() => {
                     setMobileMenuOpen(false);
                     setShowAuthModal(true);
                   }}
-                  className={`block w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-300 text-gray-700 hover:bg-gray-100 hover:text-blue-600`}
+                  className="block w-full text-left px-4 py-3 rounded-lg font-medium text-gray-700 hover:bg-gray-100 hover:text-blue-600"
                 >
                   Sign Up / Sign In
                 </button>
@@ -1125,7 +1177,7 @@ export default function RalithonWebsite() {
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 relative animate-in fade-in duration-300">
             {/* Close Button */}
             <button
-              onClick={() => setShowHiringModal(false)}
+              onClick={handleCloseHiringModal}
               className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors duration-200"
             >
               <X className="h-6 w-6" />
@@ -1158,7 +1210,7 @@ export default function RalithonWebsite() {
                 <Button
                   className="bg-gradient-to-br from-blue-600 to-blue-800 hover:bg-blue-700 flex-1"
                   onClick={() => {
-                    setShowHiringModal(false);
+                    handleCloseHiringModal();
                     scrollToSection("internships");
                   }}
                 >
@@ -1167,7 +1219,7 @@ export default function RalithonWebsite() {
                 <Button
                   variant="outline"
                   className="flex-1 bg-transparent"
-                  onClick={() => setShowHiringModal(false)}
+                  onClick={handleCloseHiringModal}
                 >
                   Close
                 </Button>
