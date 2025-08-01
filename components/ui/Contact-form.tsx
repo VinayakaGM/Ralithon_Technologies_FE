@@ -20,7 +20,10 @@ export interface ContactFormData {
 }
 
 const contactFormSchema = yup.object().shape({
-  fullName: yup.string().required("Full name is required"),
+  fullName: yup
+    .string()
+    .required("Full name is required")
+    .matches(/^[a-zA-Z\s]+$/, "Only alphabets and spaces are allowed"),
   email: yup
     .string()
     .email("Invalid email format")
@@ -28,9 +31,9 @@ const contactFormSchema = yup.object().shape({
   phone: yup
     .string()
     .matches(/^[0-9]+$/, "Phone number must contain only digits")
-    .min(10, "Phone number must be at least 10 digits")
-    .max(15, "Phone number must be at most 15 digits"),
-  address: yup.string(),
+    .length(10, "Phone number must be exactly 10 digits")
+    .required("Phone number is required"),
+  address: yup.string().required("Address is required"),
   message: yup
     .string()
     .required("Message is required")
@@ -57,7 +60,10 @@ export function ModernContactForm({ onSubmit }: ModernContactFormProps) {
       setErrors({});
       setIsSubmitting(true);
 
-      const response = await ContactService.submitContactForm(formData);
+      const response = await ContactService.submitContactForm({
+        ...formData,
+        phone: `+91${formData.phone}`,
+      });
 
       if (response.success) {
         toast.success("Message Sent!", {
@@ -111,12 +117,29 @@ export function ModernContactForm({ onSubmit }: ModernContactFormProps) {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
+
+    if (name === "phone") {
+      const digitsOnly = value.replace(/\D/g, "");
+      const truncatedValue = digitsOnly.slice(0, 10);
+      setFormData((prev) => ({ ...prev, phone: truncatedValue }));
+      return;
+    }
+
     setFormData((prev) => ({ ...prev, [name]: value }));
 
     if (errors[name as keyof ContactFormData]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   };
+
+  const RequiredLabel = ({ name, label }: { name: string; label: string }) => (
+    <label
+      htmlFor={name}
+      className="block text-sm font-medium text-gray-700 mb-1"
+    >
+      {label} <span className="text-red-500">*</span>
+    </label>
+  );
 
   return (
     <div className="bg-white rounded-3xl shadow-2xl overflow-hidden max-w-6xl mx-auto">
@@ -175,7 +198,6 @@ export function ModernContactForm({ onSubmit }: ModernContactFormProps) {
           </div>
         </div>
 
-        {/* Right Form Section - Compact */}
         <div className="lg:col-span-3 p-6 lg:p-8 bg-gray-50">
           <div className="max-w-2xl">
             <h3 className="text-2xl lg:text-3xl font-bold text-gray-800 mb-2">
@@ -186,12 +208,7 @@ export function ModernContactForm({ onSubmit }: ModernContactFormProps) {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <label
-                    htmlFor="fullName"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Full Name
-                  </label>
+                  <RequiredLabel name="fullName" label="Full Name" />
                   <input
                     type="text"
                     id="fullName"
@@ -201,53 +218,53 @@ export function ModernContactForm({ onSubmit }: ModernContactFormProps) {
                     className={`w-full px-3 py-2 border ${
                       errors.fullName ? "border-red-500" : "border-gray-200"
                     } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white`}
-                    placeholder="John Doe"
+                    placeholder="Enter your full name"
+                    style={{ fontSize: "13px" }}
                   />
                   {errors.fullName && (
-                    <p className="mt-1 text-sm text-red-600">
+                    <p
+                      className="mt-1 text-red-600"
+                      style={{ fontSize: "12px" }}
+                    >
                       {errors.fullName}
                     </p>
                   )}
                 </div>
 
                 <div>
-                  <label
-                    htmlFor="phone"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Phone number
-                  </label>
+                  <RequiredLabel name="phone" label="Phone number" />
                   <div className="flex">
-                    <select className="px-2 py-2 border border-gray-200 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-sm">
-                      <option value="IN">IN</option>
-                      <option value="US">US</option>
-                    </select>
+                    <div className="px-3 py-2 border border-gray-200 rounded-l-lg bg-gray-100 text-sm flex items-center">
+                      +91
+                    </div>
                     <input
                       type="tel"
                       id="phone"
                       name="phone"
                       value={formData.phone}
                       onChange={handleChange}
+                      maxLength={10}
                       className={`flex-1 px-3 py-2 border ${
                         errors.phone ? "border-red-500" : "border-gray-200"
                       } border-l-0 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white`}
-                      placeholder="9876543210"
+                      placeholder="Enter your phone"
+                      style={{ fontSize: "13px" }}
                     />
                   </div>
                   {errors.phone && (
-                    <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
+                    <p
+                      className="mt-1 text-red-600"
+                      style={{ fontSize: "12px" }}
+                    >
+                      {errors.phone}
+                    </p>
                   )}
                 </div>
               </div>
 
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <label
-                    htmlFor="email"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Email
-                  </label>
+                  <RequiredLabel name="email" label="Email" />
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <Mail className="h-4 w-4 text-gray-400" />
@@ -261,21 +278,22 @@ export function ModernContactForm({ onSubmit }: ModernContactFormProps) {
                       className={`w-full pl-9 pr-3 py-2 border ${
                         errors.email ? "border-red-500" : "border-gray-200"
                       } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white`}
-                      placeholder="john@example.com"
+                      placeholder="abc@example.com"
+                      style={{ fontSize: "13px" }}
                     />
                   </div>
                   {errors.email && (
-                    <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+                    <p
+                      className="mt-1 text-red-600"
+                      style={{ fontSize: "12px" }}
+                    >
+                      {errors.email}
+                    </p>
                   )}
                 </div>
 
                 <div>
-                  <label
-                    htmlFor="address"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Address
-                  </label>
+                  <RequiredLabel name="address" label="Address" />
                   <input
                     type="text"
                     id="address"
@@ -285,10 +303,14 @@ export function ModernContactForm({ onSubmit }: ModernContactFormProps) {
                     className={`w-full px-3 py-2 border ${
                       errors.address ? "border-red-500" : "border-gray-200"
                     } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white`}
-                    placeholder="Your address"
+                    placeholder="Enter your address"
+                    style={{ fontSize: "13px" }}
                   />
                   {errors.address && (
-                    <p className="mt-1 text-sm text-red-600">
+                    <p
+                      className="mt-1 text-red-600"
+                      style={{ fontSize: "12px" }}
+                    >
                       {errors.address}
                     </p>
                   )}
@@ -296,12 +318,7 @@ export function ModernContactForm({ onSubmit }: ModernContactFormProps) {
               </div>
 
               <div>
-                <label
-                  htmlFor="message"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Your Message
-                </label>
+                <RequiredLabel name="message" label="Your Message" />
                 <textarea
                   id="message"
                   name="message"
@@ -312,9 +329,12 @@ export function ModernContactForm({ onSubmit }: ModernContactFormProps) {
                     errors.message ? "border-red-500" : "border-gray-200"
                   } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white resize-none`}
                   placeholder="How can we help you?"
+                  style={{ fontSize: "13px" }}
                 />
                 {errors.message && (
-                  <p className="mt-1 text-sm text-red-600">{errors.message}</p>
+                  <p className="mt-1 text-red-600" style={{ fontSize: "12px" }}>
+                    {errors.message}
+                  </p>
                 )}
               </div>
 
