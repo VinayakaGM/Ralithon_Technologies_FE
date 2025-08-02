@@ -25,6 +25,8 @@ import {
   ChevronDown,
   BookOpen,
   ClipboardList,
+  User,
+  LogOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -43,6 +45,16 @@ import {
   type ContactFormData,
 } from "@/components/ui/Contact-form";
 import Link from "next/link";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import usersService from "@/services/users.service";
 
 export default function RalithonWebsite() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -57,10 +69,12 @@ export default function RalithonWebsite() {
   const [selectedInternship, setSelectedInternship] = useState<
     (typeof internships)[0] | null
   >(null);
+  const [userDetails, setUserDetails] = useState<any>(null);
   const [showInternshipModal, setShowInternshipModal] = useState(false);
   const [customMessage, setCustomMessage] = useState<string | undefined>();
   const IMAGE_URL = process.env.NEXT_PUBLIC_IMAGE_URL;
   const [showHiringModal, setShowHiringModal] = useState(false);
+  const currentUser = mounted ? AuthService.getCurrentUser() : null;
 
   useEffect(() => {
     const lastClosed = localStorage.getItem("hiringModalClosed");
@@ -82,6 +96,36 @@ export default function RalithonWebsite() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    const fetchAndStoreUserDetails = async () => {
+      if (currentUser?.userId) {
+        const cachedUserDetails = localStorage.getItem("userDetails");
+
+        if (!cachedUserDetails || userDetails?.userId !== currentUser.userId) {
+          try {
+            const response = await usersService.getUserById(currentUser.userId);
+            if (response.success) {
+              setUserDetails(response.data);
+              localStorage.setItem(
+                "userDetails",
+                JSON.stringify(response.data)
+              );
+            }
+          } catch (error) {
+            console.error("Failed to fetch user details:", error);
+          }
+        } else if (cachedUserDetails) {
+          setUserDetails(JSON.parse(cachedUserDetails));
+        }
+      } else {
+        setUserDetails(null);
+        localStorage.removeItem("userDetails");
+      }
+    };
+
+    fetchAndStoreUserDetails();
+  }, [currentUser?.userId]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -113,8 +157,6 @@ export default function RalithonWebsite() {
       });
     }
   };
-
-  const currentUser = mounted ? AuthService.getCurrentUser() : null;
 
   const heroSlides = [
     {
@@ -380,7 +422,7 @@ export default function RalithonWebsite() {
                 <button
                   key={item.id}
                   onClick={() => scrollToSection(item.id)}
-                  className={`relative px-4 py-2 font-medium transition-all duration-300 ${
+                  className={`relative px-1 py-2 font-medium transition-all duration-300 ${
                     activeSection === item.id
                       ? "text-transparent bg-clip-text bg-gradient-to-br from-blue-600 to-blue-800"
                       : "text-gray-700 hover:text-blue-600"
@@ -403,43 +445,74 @@ export default function RalithonWebsite() {
                 Policy
               </Link>
               {currentUser ? (
-                <div className="relative" ref={dropdownRef}>
-                  <div
-                    className="flex items-center space-x-1 cursor-pointer"
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  >
-                    <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden">
-                      <span className="text-gray-600 font-medium">
-                        {currentUser.email.charAt(0).toUpperCase()}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className="flex items-center space-x-2 hover:bg-gray-100"
+                    >
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback className="bg-gradient-to-br from-blue-600 to-blue-800 text-white">
+                          {currentUser.email.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="text-sm font-medium text-gray-700">
+                        {userDetails
+                          ? `${userDetails.firstName} ${userDetails.lastName}`
+                          : currentUser?.email.split("@")[0]}
                       </span>
-                    </div>
-                    <ChevronDown
-                      className={`h-4 w-4 transition-transform ${
-                        isDropdownOpen ? "transform rotate-180" : ""
-                      }`}
-                    />
-                  </div>
+                      <ChevronDown className="h-4 w-4 text-gray-500" />
+                    </Button>
+                  </DropdownMenuTrigger>
 
-                  {isDropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
-                      <div className="px-4 py-2 text-sm text-gray-700 border-b border-gray-200">
-                        {currentUser.userType === "ROLE_STUDENT" ? (
-                          <Link href={"/student-dashboard"}>
-                            Student Dashboard
-                          </Link>
-                        ) : (
-                          <Link href={"/admin-dashboard"}>Admin Dashboard</Link>
-                        )}
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuLabel>
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium text-gray-900">
+                          {userDetails
+                            ? `${userDetails.firstName} ${userDetails.lastName}`
+                            : currentUser?.email.split("@")[0]}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {userDetails
+                            ? `${userDetails.firstName} ${userDetails.lastName}`
+                            : currentUser?.email.split("@")[0]}
+                        </p>
                       </div>
-                      <button
-                        onClick={handleLogout}
-                        className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 text-sm"
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href={
+                          currentUser.userType === "ROLE_STUDENT"
+                            ? "/student-dashboard"
+                            : "/admin-dashboard"
+                        }
+                        className="w-full"
                       >
-                        Logout
-                      </button>
-                    </div>
-                  )}
-                </div>
+                        <div className="flex items-center w-full">
+                          <User className="mr-2 h-4 w-4" />
+                          <span>
+                            {currentUser.userType === "ROLE_STUDENT"
+                              ? "Student Dashboard"
+                              : "Admin Dashboard"}
+                          </span>
+                        </div>
+                      </Link>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuSeparator />
+
+                    <DropdownMenuItem
+                      onClick={handleLogout}
+                      className="text-red-600 cursor-pointer"
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               ) : (
                 <Button
                   className="bg-gradient-to-br from-blue-600 to-blue-800 hover:bg-blue-700 text-white px-6 py-2 rounded-full"
@@ -465,6 +538,7 @@ export default function RalithonWebsite() {
             </Button>
           </div>
 
+          {/* Mobile Menu */}
           <div
             className={`lg:hidden overflow-hidden transition-all duration-500 ${
               mobileMenuOpen ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
@@ -480,7 +554,10 @@ export default function RalithonWebsite() {
               ].map((item) => (
                 <button
                   key={item.id}
-                  onClick={() => scrollToSection(item.id)}
+                  onClick={() => {
+                    scrollToSection && scrollToSection(item.id);
+                    setMobileMenuOpen(false);
+                  }}
                   className={`block w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-300 ${
                     activeSection === item.id
                       ? "text-transparent bg-clip-text bg-gradient-to-br from-blue-600 to-blue-800 text-blue-600"
@@ -498,6 +575,7 @@ export default function RalithonWebsite() {
                     ? "text-transparent bg-clip-text bg-gradient-to-br from-blue-600 to-blue-800 text-blue-600"
                     : "text-gray-700 hover:bg-gray-100 hover:text-blue-600"
                 }`}
+                onClick={() => setMobileMenuOpen(false)}
               >
                 Policy
               </Link>
@@ -511,6 +589,7 @@ export default function RalithonWebsite() {
                         : "/admin-dashboard"
                     }
                     className="block w-full text-left px-4 py-3 rounded-lg font-medium text-gray-700 hover:bg-gray-100 hover:text-blue-600"
+                    onClick={() => setMobileMenuOpen(false)}
                   >
                     {currentUser.userType === "ROLE_STUDENT"
                       ? "Student Dashboard"

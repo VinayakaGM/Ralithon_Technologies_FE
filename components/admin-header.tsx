@@ -12,7 +12,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { LogOut, Settings, User, ChevronDown } from "lucide-react";
+import { LogOut, Settings, User, ChevronDown, ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
 interface AdminHeaderProps {
   user: {
@@ -35,26 +36,18 @@ export function AdminHeader({ user }: AdminHeaderProps) {
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <SidebarTrigger />
-          <button
-            onClick={() => router.back()}
-            className="text-gray-600 hover:text-blue-600 transition-colors flex items-center space-x-1"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+        </div>
+        <div className="flex items-center space-x-4">
+          <Link href="/">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center space-x-2 bg-transparent"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-            <span className="text-sm">Back</span>
-          </button>
+              <ArrowLeft className="h-4 w-4" />
+              <span>Back to Home</span>
+            </Button>
+          </Link>
         </div>
       </div>
     </header>

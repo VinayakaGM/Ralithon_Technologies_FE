@@ -62,7 +62,7 @@ export default function StudentDashboard() {
       <div className="flex min-h-screen w-full bg-gray-50">
         <StudentSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
         <div className="flex-1">
-          <StudentHeader user={user} />
+          <StudentHeader />
           <main className="p-6 bg-gray-50 min-h-[calc(100vh-80px)]">
             <div className="max-w-7xl mx-auto">{renderActiveTab()}</div>
           </main>

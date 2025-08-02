@@ -1,15 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import {
   Building2,
   Target,
   Wrench,
-  CreditCard,
   Scale,
   Users,
   FileText,
@@ -19,593 +16,596 @@ import {
   Shield,
   ArrowLeft,
   GraduationCap,
-  ChevronDown,
-  ChevronUp,
-  Sparkles,
+  Calendar,
+  Mail,
+  Phone,
+  MapPin,
 } from "lucide-react";
 
 export default function PolicyPage() {
-  const [expandedSections, setExpandedSections] = useState<string[]>([]);
-  const [isVisible, setIsVisible] = useState(false);
-  const [activeSection, setActiveSection] = useState("");
   const IMAGE_URL = process.env.NEXT_PUBLIC_IMAGE_URL;
 
-  useEffect(() => {
-    setIsVisible(true);
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveSection(entry.target.id);
-          }
-        });
-      },
-      { threshold: 0.3 }
-    );
-
-    const sections = document.querySelectorAll("[data-section]");
-    sections.forEach((section) => observer.observe(section));
-
-    return () => observer.disconnect();
-  }, []);
-
-  const toggleSection = (sectionId: string) => {
-    setExpandedSections((prev) =>
-      prev.includes(sectionId)
-        ? prev.filter((id) => id !== sectionId)
-        : [...prev, sectionId]
-    );
-  };
-
-  const sections = [
-    {
-      id: "overview",
-      title: "Company Overview",
-      icon: <Building2 className="h-6 w-6" />,
-      color: "from-blue-500 to-blue-700",
-      content: (
-        <div className="space-y-4">
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200 transform hover:scale-105 transition-all duration-300">
-              <p className="font-semibold text-gray-600">
-                <strong>Company Name:</strong> Ralithon Technologies
-              </p>
-              <p className="text-gray-600 mt-2">
-                <strong>Nature of Business:</strong> Technology Services &
-                Educational Training
-              </p>
-            </div>
-            <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-indigo-200 transform hover:scale-105 transition-all duration-300">
-              <ul className="list-disc list-inside space-y-2 text-gray-600">
-                <li>Custom website and mobile app development</li>
-                <li>
-                  Skill-based training, internships, and certifications in
-                  emerging technologies (AI/ML, Web3, DevOps, etc.)
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      ),
-    },
-    {
-      id: "objective",
-      title: "Objective",
-      icon: <Target className="h-6 w-6" />,
-      color: "from-green-500 to-green-700",
-      content: (
-        <div className="grid md:grid-cols-3 gap-4">
-          {[
-            "Delivery of digital technology solutions to clients",
-            "Execution of training, internship, and certification programs",
-            "Handling of payments, cancellations, and refunds",
-          ].map((item, index) => (
-            <div
-              key={index}
-              className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-green-200 transform hover:scale-105 transition-all duration-300 hover:shadow-lg"
-              style={{ animationDelay: `${index * 0.1}s` }}
-            >
-              <div className="flex items-center mb-2">
-                <span className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-800 hover:bg-blue-700 rounded-full flex items-center justify-center text-white text-lg mr-3 animate-pulse">
-                  {index + 1}
-                </span>
-              </div>
-              <p className="text-gray-600 text-sm">{item}</p>
-            </div>
-          ))}
-        </div>
-      ),
-    },
-    {
-      id: "services",
-      title: "Scope of Services",
-      icon: <Wrench className="h-6 w-6" />,
-      color: "from-purple-500 to-purple-700",
-      content: (
-        <div className="space-y-8">
-          <div className="relative p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl border border-purple-200 overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-200 rounded-full -mr-16 -mt-16 opacity-50"></div>
-            <h3 className="text-xl font-bold text-gray-600 mb-4 flex items-center">
-              <span className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-800 hover:bg-blue-700 rounded-full flex items-center justify-center text-white text-lg mr-3 animate-pulse">
-                1
-              </span>
-              Tech Development Services
-            </h3>
-            <div className="space-y-3 relative z-10">
-              <p className="text-gray-600">
-                Designing and developing custom websites and mobile
-                applications.
-              </p>
-              <p className="text-gray-600">
-                Technologies used: HTML, CSS, React, Flutter, Python, etc.
-              </p>
-              <p className="text-gray-600">
-                Projects follow Agile methodology with iterative client feedback
-                and milestone-based delivery.
-              </p>
-            </div>
-          </div>
-
-          <div className="relative p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl border border-indigo-200 overflow-hidden">
-            <div className="absolute top-0 left-0 w-32 h-32 bg-blue-200 rounded-full -ml-16 -mt-16 opacity-50"></div>
-            <h3 className="text-xl font-bold text-gray-600 mb-4 flex items-center">
-              <span className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-800 hover:bg-blue-700 rounded-full flex items-center justify-center text-white text-lg mr-3 animate-pulse">
-                2
-              </span>
-              Training & Certification Programs
-            </h3>
-            <div className="space-y-3 relative z-10">
-              <ul className="list-disc list-inside space-y-2 text-gray-600">
-                <li>
-                  Short-term courses in emerging technologies (AI/ML, Web3,
-                  DevOps, etc.)
-                </li>
-                <li>
-                  Internship opportunities based on assessments/interviews
-                </li>
-                <li>
-                  Certificates awarded after successful course completion and
-                  evaluation
-                </li>
-                <li>Nominal, transparent fee structure for all programs</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      ),
-    },
-    {
-      id: "payment",
-      title: "Payment Policy",
-      icon: <CreditCard className="h-6 w-6" />,
-      color: "from-orange-500 to-orange-700",
-      content: (
-        <div className="space-y-4">
-          <div className="p-4 bg-gradient-to-r from-orange-50 to-yellow-50 rounded-xl border border-orange-200 transform hover:scale-105 transition-all duration-300">
-            <p className="text-orange-700">
-              All payments are collected online via Razorpay through secure and
-              verified channels.
-            </p>
-          </div>
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200 transform hover:scale-105 transition-all duration-300">
-              <p className="font-semibold text-gray-600">Tech Development:</p>
-              <p className="text-gray-600">Payments are milestone-based.</p>
-            </div>
-            <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-green-200 transform hover:scale-105 transition-all duration-300">
-              <p className="font-semibold text-gray-600">
-                Training/Internships:
-              </p>
-              <p className="text-gray-600">
-                Fees are prepaid before course commencement.
-              </p>
-            </div>
-          </div>
-          <div className="p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200">
-            <p className="text-gray-700">
-              Invoices are digitally issued for all transactions.
-            </p>
-          </div>
-        </div>
-      ),
-    },
-    {
-      id: "legal",
-      title: "Legal & Compliance",
-      icon: <Scale className="h-6 w-6" />,
-      color: "from-red-500 to-red-700",
-      content: (
-        <div className="space-y-4">
-          {[
-            "Company registered under [MSME / LLP / Pvt. Ltd.] and compliant with Companies Act, 2013.",
-            "Educational services are private, skill-based, and not affiliated with UGC or formal degrees.",
-            "Contracts & Deliverables adhere to Indian Contract Act & IPC provisions where applicable.",
-            "No misleading claims; all offerings are documented & user-agreed via Terms & Conditions.",
-          ].map((item, index) => (
-            <div
-              key={index}
-              className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200 transform hover:scale-105 transition-all duration-300"
-              style={{ animationDelay: `${index * 0.1}s` }}
-            >
-              <p className="text-gray-600">{item}</p>
-            </div>
-          ))}
-        </div>
-      ),
-    },
-    {
-      id: "oversight",
-      title: "Internal Oversight",
-      icon: <Users className="h-6 w-6" />,
-      color: "from-teal-500 to-teal-700",
-      content: (
-        <div className="grid md:grid-cols-2 gap-4">
-          <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-teal-200 transform hover:scale-105 transition-all duration-300">
-            <p className="text-gray-600">
-              All services and training programs are monitored by Operations &
-              Compliance team.
-            </p>
-          </div>
-          <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-cyan-200 transform hover:scale-105 transition-all duration-300">
-            <p className="text-gray-600">
-              Anti-fraud measures and reporting channels are managed by Director
-              & Company Secretary.
-            </p>
-          </div>
-        </div>
-      ),
-    },
-    {
-      id: "business",
-      title: "Business Activity Declaration",
-      icon: <FileText className="h-6 w-6" />,
-      color: "from-violet-500 to-violet-700",
-      content: (
-        <div className="space-y-4">
-          <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-violet-200 transform hover:scale-105 transition-all duration-300">
-            <p className="text-gray-600">
-              Services are digital-only; no physical goods are delivered.
-            </p>
-          </div>
-          <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-purple-200 transform hover:scale-105 transition-all duration-300">
-            <p className="text-gray-600">
-              Payments are non-transferable and non-refundable except as per
-              refund policy below.
-            </p>
-          </div>
-        </div>
-      ),
-    },
-  ];
-
-  const policyTerms = [
-    {
-      id: "payment-terms",
-      title: "Payment Terms",
-      icon: <DollarSign className="h-6 w-6" />,
-      color: "from-emerald-500 to-emerald-700",
-      content: [
-        "All fees are due in advance, payable only via Razorpay.",
-        "Non-transferable & non-refundable, unless explicitly covered under refund policy.",
-        "Ralithon Technologies is not responsible for third-party payment gateway failures, user-side input errors, or indirect losses.",
-      ],
-    },
-    {
-      id: "cancellation",
-      title: "Cancellation Policy",
-      icon: <XCircle className="h-6 w-6" />,
-      color: "from-red-500 to-red-700",
-      content: [
-        "Clients may request cancellation within 12 hours of confirmed payment.",
-        "No cancellation or refunds will be entertained beyond 12 hours.",
-      ],
-    },
-    {
-      id: "refund",
-      title: "Refund & Remediation",
-      icon: <RefreshCw className="h-6 w-6" />,
-      color: "from-blue-500 to-blue-700",
-      content: [
-        "Refund eligibility depends on submission of cancellation request within 12 hours and internal review approval.",
-        "Processing timeline: Up to 15 business days.",
-        "Refund may be rejected if services have been substantially delivered or client-side delays/miscommunications impact deliverables.",
-      ],
-    },
-  ];
-
   return (
-    <div className="min-h-screen bg-gray-100 relative overflow-hidden">
+    <div className="min-h-screen bg-white">
+      {" "}
       {/* Header */}
-      <header
-        className={`bg-white/80 backdrop-blur-lg shadow-xl border-b border-gray-200 sticky top-0 z-50 transition-all duration-700 ${
-          isVisible
-            ? "translate-y-0 opacity-100"
-            : "-translate-y-full opacity-0"
-        }`}
-      >
-        <div className="container mx-auto px-4 py-6">
+      <header className="bg-white shadow-sm border-b border-gray-200">
+        <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                <img
+                  src={`${IMAGE_URL}logo.png`}
+                  alt="Modern office space"
+                  className="rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
+                />
+              </div>
+              <div>
+                <h1 className="text-xl font-semibold text-gray-900">
+                  Ralithon Technologies
+                </h1>
+                <p className="text-sm text-gray-600">
+                  Privacy Policy & Terms of Service
+                </p>
+              </div>
+            </div>
             <div className="flex items-center space-x-4">
               <Link href="/">
                 <Button
                   variant="outline"
                   size="sm"
-                  className="text-gray-600 hover:text-blue-600 transition-colors flex items-center space-x-1"
+                  className="flex items-center space-x-2 bg-transparent"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 19l-7-7 7-7"
-                    />
-                  </svg>
-                  <span className="text-sm">Back</span>
+                  <ArrowLeft className="h-4 w-4" />
+                  <span>Back to Home</span>
                 </Button>
               </Link>
-              <div className="flex items-center space-x-3">
-                <div className="relative">
-                  <img
-                    src={`${IMAGE_URL}logo.png`}
-                    alt="Modern office space"
-                    className="rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 "
-                    style={{ width: "51px" }}
-                  />
-                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-ping"></div>
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-800">
-                    Ralithon Technologies
-                  </h1>
-                  <p className="text-sm text-gray-800 animate-fade-in">
-                    Privacy & Policy / Terms & Conditions
-                  </p>
-                </div>
-              </div>
             </div>
           </div>
         </div>
       </header>
-
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8 max-w-6xl relative z-10">
-        <div
-          className={`text-center mb-12 transition-all duration-1000 ${
-            isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
-          }`}
-        >
-          <div className="relative inline-block">
-            <h2 className="text-3xl md:text-3xl font-bold bg-gradient-to-br from-blue-600 to-blue-800 bg-clip-text text-transparent mb-4">
-              Privacy Policy & Terms
-            </h2>
-            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full animate-pulse"></div>
-          </div>
-          <p className="text-lg text-gray-600 mt-4 max-w-2xl mx-auto">
-            Comprehensive policies and terms governing our technology services
-            and educational programs
+      <main className="container mx-auto px-6 py-12 max-w-6xl">
+        {/* Document Title */}
+        <div className="text-center mb-16">
+          <h1 className="text-4xl font-bold text-gray-900 mb-6">
+            Privacy Policy & Terms of Service
+          </h1>
+          <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            This document outlines our policies, terms, and conditions governing
+            the use of our technology services and educational programs. Please
+            read these terms carefully before using our services.
           </p>
         </div>
 
-        {/* Main Sections */}
-        <div className="space-y-8 mb-12">
-          {sections.map((section, index) => (
-            <Card
-              key={section.id}
-              id={section.id}
-              data-section
-              className={`overflow-hidden border-0 shadow-xl bg-white/70 backdrop-blur-sm hover:shadow-2xl transition-all duration-700 transform hover:scale-[1.02] ${
-                isVisible
-                  ? "translate-y-0 opacity-100"
-                  : "translate-y-10 opacity-0"
-              }`}
-              style={{
-                animationDelay: `${index * 0.1}s`,
-                background:
-                  activeSection === section.id
-                    ? "rgba(255, 255, 255, 0.9)"
-                    : "rgba(255, 255, 255, 0.7)",
-              }}
-            >
-              <CardHeader
-                className="cursor-pointer hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 transition-all duration-300"
-                onClick={() => toggleSection(section.id)}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <div
-                      className={`w-12 h-12 bg-gradient-to-r ${section.color} rounded-xl flex items-center justify-center text-white shadow-lg transform hover:scale-110 transition-all duration-300`}
-                    >
-                      {section.icon}
-                    </div>
-                    <CardTitle className="text-xl bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-                      {section.title}
-                    </CardTitle>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <div
-                      className={`w-2 h-2 rounded-full bg-gradient-to-r ${section.color} animate-pulse`}
-                    ></div>
-                    {expandedSections.includes(section.id) ? (
-                      <ChevronUp className="h-5 w-5 text-gray-500 transform transition-transform duration-300" />
-                    ) : (
-                      <ChevronDown className="h-5 w-5 text-gray-500 transform transition-transform duration-300" />
-                    )}
-                  </div>
-                </div>
-              </CardHeader>
-              <div
-                className={`transition-all duration-500 ease-in-out ${
-                  expandedSections.includes(section.id)
-                    ? "max-h-screen opacity-100"
-                    : "max-h-0 opacity-0 overflow-hidden"
-                }`}
-              >
-                <CardContent className="pt-0 pb-6">
-                  <Separator className="mb-6 bg-gradient-to-r from-transparent via-gray-300 to-transparent" />
-                  <div className="animate-fade-in">{section.content}</div>
-                </CardContent>
-              </div>
-            </Card>
-          ))}
-        </div>
-
-        {/* Policy Terms */}
-        <div className="mb-12">
-          <h2 className="text-3xl font-bold text-center bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-8">
-            Detailed Terms & Conditions
-          </h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            {policyTerms.map((term, index) => (
-              <Card
-                key={term.id}
-                className={`h-full border-0 shadow-xl bg-white/70 backdrop-blur-sm hover:shadow-2xl transition-all duration-700 transform hover:scale-105 hover:-translate-y-2 ${
-                  isVisible
-                    ? "translate-y-0 opacity-100"
-                    : "translate-y-10 opacity-0"
-                }`}
-                style={{
-                  animationDelay: `${(index + sections.length) * 0.1}s`,
-                }}
-              >
-                <CardHeader className="pb-4">
-                  <div className="flex items-center space-x-3">
-                    <div
-                      className={`w-12 h-12 bg-gradient-to-r ${term.color} rounded-xl flex items-center justify-center text-white shadow-lg animate-pulse`}
-                    >
-                      {term.icon}
-                    </div>
-                    <CardTitle className="text-lg bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-                      {term.title}
-                    </CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-3">
-                    {term.content.map((item, idx) => (
-                      <li
-                        key={idx}
-                        className="flex items-start space-x-3 group"
-                      >
-                        <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mt-2 flex-shrink-0 group-hover:scale-150 transition-transform duration-300"></div>
-                        <span className="text-sm text-gray-700 group-hover:text-gray-900 transition-colors duration-300">
-                          {item}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
-            ))}
+        {/* Company Information */}
+        <section className="mb-16">
+          <div className="flex items-center mb-8">
+            <Building2 className="h-6 w-6 mr-3 text-blue-600" />
+            <h2 className="text-2xl font-bold text-gray-900">
+              1. Company Information
+            </h2>
           </div>
-        </div>
 
-        {/* Privacy Assurance */}
-        <Card
-          className={`bg-gradient-to-br from-blue-50 to-blue-100 border-0 shadow-2xl transition-all duration-1000 transform hover:scale-[1.02] ${
-            isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
-          }`}
-        >
-          <CardHeader>
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-teal-600 rounded-xl flex items-center justify-center text-white shadow-lg animate-bounce">
-                <Shield className="h-6 w-6" />
+          <div className="grid md:grid-cols-2 gap-12 mb-8">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Company Details
+              </h3>
+              <div className="space-y-3 text-gray-700">
+                <p>
+                  <span className="font-medium">Company Name:</span> Ralithon
+                  Technologies
+                </p>
+                <p>
+                  <span className="font-medium">Business Type:</span> Technology
+                  Services & Educational Training
+                </p>
+                <p>
+                  <span className="font-medium">Registration:</span> [MSME / LLP
+                  / Pvt. Ltd.]
+                </p>
+                <p>
+                  <span className="font-medium">Compliance:</span> Companies
+                  Act, 2013
+                </p>
               </div>
-              <CardTitle className="text-2xl text-gray-600 bg-clip-text">
-                Privacy Assurance
-              </CardTitle>
             </div>
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-3 gap-6">
-              {[
-                "User information is kept confidential and used only for service execution.",
-                "No personal data is shared with unauthorized third parties.",
-                "Payment data is handled securely via Razorpay following industry-standard encryption.",
-              ].map((item, index) => (
-                <div
-                  key={index}
-                  className="p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-green-200 transform hover:scale-105 transition-all duration-300 hover:shadow-lg"
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
-                  <p className="text-gray-600">{item}</p>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Contact Information
+              </h3>
+              <div className="space-y-3 text-gray-700">
+                <div className="flex items-center">
+                  <Mail className="h-4 w-4 mr-3 text-blue-600" />
+                  <span>shivanshshivhare44@gmail.com</span>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Effective Dates */}
-        <Card
-          className={`mt-8 bg-gradient-to-r from-gray-50 to-gray-100 border-0 shadow-xl transition-all duration-1000 ${
-            isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
-          }`}
-        >
-          <CardContent className="pt-6 text-center">
-            <div className="space-y-4">
-              <div className="flex items-center justify-center space-x-4">
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                  <p className="font-semibold text-gray-800">
-                    Effective Date: 01 Auguest 2025
-                  </p>
+                <div className="flex items-center">
+                  <Phone className="h-4 w-4 mr-3 text-blue-600" />
+                  <span>+91 8109867611</span>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
-                  <p className="font-semibold text-gray-800">
-                    Last Updated: 01 Auguest 2025
-                  </p>
+                <div className="flex items-center">
+                  <MapPin className="h-4 w-4 mr-3 text-blue-600" />
+                  <span>PU-4 behind orbit mall,Indore [M.P.]</span>
                 </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+
+          <Separator className="my-8" />
+        </section>
+
+        {/* Services Overview */}
+        <section className="mb-16">
+          <div className="flex items-center mb-8">
+            <Target className="h-6 w-6 mr-3 text-blue-600" />
+            <h2 className="text-2xl font-bold text-gray-900">
+              2. Services Overview
+            </h2>
+          </div>
+
+          <div className="mb-8">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Our Objectives
+            </h3>
+            <ul className="list-disc list-inside space-y-2 text-gray-700 ml-6">
+              <li>Delivery of digital technology solutions to clients</li>
+              <li>
+                Execution of training, internship, and certification programs
+              </li>
+              <li>
+                Handling of payments, cancellations, and refunds in accordance
+                with our policies
+              </li>
+            </ul>
+          </div>
+
+          <div className="mb-8">
+            <h3 className="text-lg font-semibold text-gray-900 mb-6">
+              Service Categories
+            </h3>
+            <div className="grid md:grid-cols-2 gap-8">
+              <div>
+                <h4 className="font-medium text-gray-900 mb-3 text-blue-600">
+                  Technology Development Services
+                </h4>
+                <ul className="text-gray-700 space-y-2 ml-4">
+                  <li>• Custom website development</li>
+                  <li>• Mobile application development</li>
+                  <li>• Technologies: HTML, CSS, React, Flutter, Python</li>
+                  <li>• Agile methodology with milestone-based delivery</li>
+                  <li>• Iterative client feedback and quality assurance</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-medium text-gray-900 mb-3 text-blue-600">
+                  Training & Certification Programs
+                </h4>
+                <ul className="text-gray-700 space-y-2 ml-4">
+                  <li>• Short-term courses in emerging technologies</li>
+                  <li>
+                    • Specializations: AI/ML, Web3, DevOps, Cloud Computing
+                  </li>
+                  <li>• Internship opportunities based on assessments</li>
+                  <li>• Professional certifications upon completion</li>
+                  <li>• Transparent and nominal fee structure</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <Separator className="my-8" />
+        </section>
+
+        {/* Terms of Service */}
+        <section className="mb-16">
+          <div className="flex items-center mb-8">
+            <FileText className="h-6 w-6 mr-3 text-blue-600" />
+            <h2 className="text-2xl font-bold text-gray-900">
+              3. Terms of Service
+            </h2>
+          </div>
+
+          {/* Payment Terms */}
+          <div className="mb-10">
+            <div className="flex items-center mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">
+                3.1 Payment Terms
+              </h3>
+            </div>
+            <div className="bg-gray-50 p-6 rounded-lg mb-6">
+              <ul className="space-y-3 text-gray-700">
+                <li>
+                  • All fees are due in advance and payable exclusively through
+                  Razorpay payment gateway
+                </li>
+                <li>
+                  • Technology development projects follow milestone-based
+                  payment structure
+                </li>
+                <li>
+                  • Training and internship fees must be paid in full before
+                  course commencement
+                </li>
+                <li>• Digital invoices are issued for all transactions</li>
+                <li>
+                  • Payments are non-transferable and non-refundable except as
+                  specified in our refund policy
+                </li>
+                <li>
+                  • Company is not liable for third-party payment gateway
+                  failures or user input errors
+                </li>
+                <li>
+                  • All transactions are processed through secure, verified
+                  channels
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Cancellation Policy */}
+          <div className="mb-10">
+            <div className="flex items-center mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">
+                3.2 Cancellation Policy
+              </h3>
+            </div>
+            <div className="bg-gray-50 p-6 rounded-lg mb-6">
+              <ul className="space-y-3 text-gray-700">
+                <li>
+                  • Cancellation requests must be submitted within 12 hours of
+                  payment confirmation
+                </li>
+                <li>
+                  • No cancellations or refunds will be processed after the
+                  12-hour window
+                </li>
+                <li>
+                  • Cancellation requests must be submitted in writing to our
+                  support team
+                </li>
+                <li>
+                  • All cancellation requests are subject to internal review and
+                  approval
+                </li>
+                <li>
+                  • Clients must provide valid reasons for cancellation requests
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Refund Policy */}
+          <div className="mb-10">
+            <div className="flex items-center mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">
+                3.3 Refund & Remediation Policy
+              </h3>
+            </div>
+            <div className="bg-gray-50 p-6 rounded-lg mb-6">
+              <ul className="space-y-3 text-gray-700">
+                <li>
+                  • Refund eligibility requires cancellation request within 12
+                  hours and internal approval
+                </li>
+                <li>
+                  • Refund processing timeline: Up to 15 business days from
+                  approval date
+                </li>
+                <li>
+                  • Refunds may be denied if services have been substantially
+                  delivered
+                </li>
+                <li>
+                  • Client-side delays or miscommunications may affect refund
+                  eligibility
+                </li>
+                <li>
+                  • Refunds are processed through the original payment method
+                </li>
+                <li>• Processing fees may be deducted from refund amounts</li>
+              </ul>
+            </div>
+          </div>
+
+          <Separator className="my-8" />
+        </section>
+
+        {/* Legal & Compliance */}
+        <section className="mb-16">
+          <div className="flex items-center mb-8">
+            <Scale className="h-6 w-6 mr-3 text-blue-600" />
+            <h2 className="text-2xl font-bold text-gray-900">
+              4. Legal & Compliance
+            </h2>
+          </div>
+
+          <div className="mb-8">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              4.1 Regulatory Compliance
+            </h3>
+            <ul className="space-y-2 text-gray-700 ml-6">
+              <li>
+                • Company is registered and compliant with Companies Act, 2013
+              </li>
+              <li>
+                • All contracts and deliverables adhere to Indian Contract Act
+                provisions
+              </li>
+              <li>
+                • Educational services are private and skill-based, not
+                affiliated with UGC
+              </li>
+              <li>• No formal degree programs are offered</li>
+              <li>
+                • All business activities comply with applicable Indian laws and
+                regulations
+              </li>
+            </ul>
+          </div>
+
+          <div className="mb-8">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              4.2 Business Practices
+            </h3>
+            <ul className="space-y-2 text-gray-700 ml-6">
+              <li>
+                • All service offerings are clearly documented and agreed upon
+              </li>
+              <li>• No misleading claims or false advertising</li>
+              <li>• Transparent communication regarding service limitations</li>
+              <li>• User agreement required for all Terms & Conditions</li>
+              <li>• Regular compliance audits and reviews</li>
+            </ul>
+          </div>
+
+          <Separator className="my-8" />
+        </section>
+
+        {/* Privacy Policy */}
+        <section className="mb-16">
+          <div className="flex items-center mb-8">
+            <Shield className="h-6 w-6 mr-3 text-blue-600" />
+            <h2 className="text-2xl font-bold text-gray-900">
+              5. Privacy Policy
+            </h2>
+          </div>
+
+          <div className="mb-8">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              5.1 Data Collection & Usage
+            </h3>
+            <ul className="space-y-2 text-gray-700 ml-6">
+              <li>
+                • Personal information is collected only for service execution
+                purposes
+              </li>
+              <li>• User data is kept confidential and secure at all times</li>
+              <li>
+                • Information is not shared with unauthorized third parties
+              </li>
+              <li>
+                • Data retention policies comply with applicable regulations
+              </li>
+              <li>
+                • Users have the right to request data deletion upon service
+                completion
+              </li>
+            </ul>
+          </div>
+
+          <div className="mb-8">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              5.2 Payment Security
+            </h3>
+            <ul className="space-y-2 text-gray-700 ml-6">
+              <li>
+                • All payment data is processed through Razorpay's secure
+                infrastructure
+              </li>
+              <li>• Industry-standard encryption protocols are employed</li>
+              <li>• No payment information is stored on our servers</li>
+              <li>• PCI DSS compliance maintained through payment processor</li>
+              <li>• Regular security audits and vulnerability assessments</li>
+            </ul>
+          </div>
+
+          <div className="mb-8">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              5.3 Data Protection Measures
+            </h3>
+            <ul className="space-y-2 text-gray-700 ml-6">
+              <li>• Secure data transmission using SSL/TLS encryption</li>
+              <li>• Access controls and authentication mechanisms</li>
+              <li>• Regular backup and disaster recovery procedures</li>
+              <li>• Employee training on data protection protocols</li>
+              <li>• Incident response procedures for data breaches</li>
+            </ul>
+          </div>
+
+          <Separator className="my-8" />
+        </section>
+
+        {/* Internal Operations */}
+        <section className="mb-16">
+          <div className="flex items-center mb-8">
+            <Users className="h-6 w-6 mr-3 text-blue-600" />
+            <h2 className="text-2xl font-bold text-gray-900">
+              6. Internal Operations & Oversight
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-12">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                6.1 Service Monitoring
+              </h3>
+              <ul className="space-y-2 text-gray-700 ml-4">
+                <li>• Operations & Compliance team oversight</li>
+                <li>• Regular quality assurance reviews</li>
+                <li>• Continuous service improvement processes</li>
+                <li>• Client feedback integration and analysis</li>
+                <li>• Performance metrics tracking and reporting</li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                6.2 Risk Management
+              </h3>
+              <ul className="space-y-2 text-gray-700 ml-4">
+                <li>• Anti-fraud measures implementation</li>
+                <li>• Director & Company Secretary oversight</li>
+                <li>• Incident reporting channels</li>
+                <li>• Regular compliance audits</li>
+                <li>• Risk assessment and mitigation strategies</li>
+              </ul>
+            </div>
+          </div>
+
+          <Separator className="my-8" />
+        </section>
+
+        {/* Business Declaration */}
+        <section className="mb-16">
+          <div className="flex items-center mb-8">
+            <Wrench className="h-6 w-6 mr-3 text-blue-600" />
+            <h2 className="text-2xl font-bold text-gray-900">
+              7. Business Activity Declaration
+            </h2>
+          </div>
+
+          <div className="bg-gray-50 p-6 rounded-lg">
+            <ul className="space-y-3 text-gray-700">
+              <li>
+                • All services are delivered digitally; no physical goods are
+                provided
+              </li>
+              <li>
+                • Payments are processed for services rendered or to be rendered
+              </li>
+              <li>
+                • Non-transferable payment policy except as outlined in refund
+                terms
+              </li>
+              <li>
+                • Service delivery timelines are communicated clearly to clients
+              </li>
+              <li>
+                • Quality standards maintained across all service offerings
+              </li>
+              <li>• Regular review and updates of service methodologies</li>
+            </ul>
+          </div>
+
+          <Separator className="my-8" />
+        </section>
+
+        {/* Contact & Support */}
+        <section className="mb-16">
+          <div className="flex items-center mb-8">
+            <Mail className="h-6 w-6 mr-3 text-blue-600" />
+            <h2 className="text-2xl font-bold text-gray-900">
+              8. Contact & Support
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-12">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                8.1 General Inquiries
+              </h3>
+              <div className="space-y-3 text-gray-700">
+                <p>
+                  <span className="font-medium">Email:</span>{" "}
+                  shivanshshivhare44@gmail.com
+                </p>
+                <p>
+                  <span className="font-medium">Phone:</span> +91 8109867611
+                </p>
+                <p>
+                  <span className="font-medium">Business Hours:</span> Monday -
+                  Friday, 9:00 AM - 6:00 PM IST
+                </p>
+                <p>
+                  <span className="font-medium">Address:</span> PU-4 behind
+                  orbit mall,Indore [M.P.]
+                </p>
+              </div>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                8.2 Support & Complaints
+              </h3>
+              <div className="space-y-3 text-gray-700">
+                <p>
+                  <span className="font-medium">Support Email:</span>{" "}
+                  shivanshshivhare44@gmail.com
+                </p>
+                <p>
+                  <span className="font-medium">Response Time:</span> Within
+                  24-48 hours
+                </p>
+                <p>
+                  <span className="font-medium">Escalation:</span>{" "}
+                  director@ralithon.com
+                </p>
+                <p>
+                  <span className="font-medium">Complaint Resolution:</span> 5-7
+                  business days
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <Separator className="my-16" />
+        </section>
+
+        {/* Footer Information */}
+        <section className="bg-blue-50 p-8 rounded-lg border border-blue-200">
+          <div className="text-center space-y-6">
+            <div className="flex items-center justify-center space-x-8 text-sm text-gray-600">
+              <div className="flex items-center">
+                <Calendar className="h-4 w-4 mr-2 text-blue-600" />
+                <span>
+                  <strong>Effective Date:</strong> 02 August 2025
+                </span>
+              </div>
+              <div className="flex items-center">
+                <Calendar className="h-4 w-4 mr-2 text-blue-600" />
+                <span>
+                  <strong>Last Updated:</strong> 02 August 2025
+                </span>
+              </div>
+            </div>
+
+            <Separator className="my-6" />
+
+            <div className="max-w-3xl mx-auto">
+              <p className="text-gray-700 leading-relaxed mb-4">
+                By using our services, you acknowledge that you have read,
+                understood, and agree to be bound by these Terms of Service and
+                Privacy Policy. We reserve the right to update these terms at
+                any time, with changes becoming effective immediately upon
+                posting on our website.
+              </p>
+              <p className="text-gray-700 leading-relaxed">
+                For any questions or clarifications regarding these terms,
+                please contact our support team using the information provided
+                above. We are committed to maintaining transparency and
+                addressing any concerns promptly.
+              </p>
+            </div>
+
+            <div className="pt-4 border-t border-blue-200">
+              <p className="text-sm text-gray-500">
+                © 2024 Ralithon Technologies. All rights reserved.
+              </p>
+            </div>
+          </div>
+        </section>
       </main>
-
-      <style jsx>{`
-        @keyframes blob {
-          0% {
-            transform: translate(0px, 0px) scale(1);
-          }
-          33% {
-            transform: translate(30px, -50px) scale(1.1);
-          }
-          66% {
-            transform: translate(-20px, 20px) scale(0.9);
-          }
-          100% {
-            transform: translate(0px, 0px) scale(1);
-          }
-        }
-        .animate-blob {
-          animation: blob 7s infinite;
-        }
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-        .animation-delay-4000 {
-          animation-delay: 4s;
-        }
-        .animate-fade-in {
-          animation: fadeIn 0.6s ease-in-out;
-        }
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
     </div>
   );
 }
