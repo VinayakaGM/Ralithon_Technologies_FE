@@ -15,6 +15,7 @@ import AuthService from "@/services/auth.service";
 import { Eye, EyeOff } from "lucide-react";
 import { OTPVerificationModal } from "../otp-verification-modal-box";
 import authService from "@/services/auth.service";
+import { Captcha } from "../captcha";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -40,6 +41,8 @@ export function AuthModal({
   const [otpError, setOtpError] = useState("");
   const [isVerifyingOTP, setIsVerifyingOTP] = useState(false);
   const [userId, setUserId] = useState<number>(0);
+  const [isCaptchaValid, setIsCaptchaValid] = useState(false);
+  const [captchaReset, setCaptchaReset] = useState(0);
   const [signUpData, setSignUpData] = useState({
     firstName: "",
     lastName: "",
@@ -86,6 +89,8 @@ export function AuthModal({
         checkPassword: "",
       });
       setShowOTPModal(false);
+      setIsCaptchaValid(false);
+      setCaptchaReset((prev) => prev + 1);
     } else {
       setIsSignUp(initialMode === "signup");
     }
@@ -158,6 +163,8 @@ export function AuthModal({
       password: "",
       checkPassword: "",
     });
+    setIsCaptchaValid(false);
+    setCaptchaReset((prev) => prev + 1);
   };
 
   const handleSignUpChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -200,8 +207,19 @@ export function AuthModal({
 
     return !Object.values(newErrors).some((error) => error !== "");
   };
+
+  const handleCaptchaVerify = (isValid: boolean) => {
+    setIsCaptchaValid(isValid);
+  };
+
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!isCaptchaValid) {
+      toast.error("Please complete the verification code");
+      return;
+    }
+
     if (!validateSignUpForm()) {
       toast.error("Please fix the errors in the form");
       return;
@@ -243,6 +261,8 @@ export function AuthModal({
       }
     } catch (error: any) {
       console.error("Registration error:", error);
+      setCaptchaReset((prev) => prev + 1);
+      setIsCaptchaValid(false);
 
       if (
         error.response?.data?.statusCode === 400 &&
@@ -335,6 +355,12 @@ export function AuthModal({
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!isCaptchaValid) {
+      toast.error("Please complete the verification code");
+      return;
+    }
+
     setIsLoadingForSignIn(true);
 
     try {
@@ -360,7 +386,8 @@ export function AuthModal({
         });
       }
     } catch (error: any) {
-      console.error("Sign in error:", error);
+      setCaptchaReset((prev) => prev + 1);
+      setIsCaptchaValid(false);
       toast.error("Login Failed", {
         description:
           error.response?.data?.message ||
@@ -523,11 +550,13 @@ export function AuthModal({
                   )}
                 </div>
               </div>
-
+              <div className="mt-4">
+                <Captcha onVerify={handleCaptchaVerify} reset={captchaReset} />
+              </div>
               <Button
                 type="submit"
                 className="bg-gradient-to-br from-blue-600 to-blue-800 w-full mt-2"
-                disabled={isLoadingForSignUp}
+                disabled={isLoadingForSignUp || !isCaptchaValid}
               >
                 {isLoadingForSignUp ? "Creating account..." : "Sign Up"}
               </Button>
@@ -580,10 +609,13 @@ export function AuthModal({
                   )}
                 </Button>
               </div>
+              <div className="mt-4">
+                <Captcha onVerify={handleCaptchaVerify} reset={captchaReset} />
+              </div>
               <Button
                 type="submit"
                 className="bg-gradient-to-br from-blue-600 to-blue-800 w-full"
-                disabled={isLoadingForSignIn}
+                disabled={isLoadingForSignIn || !isCaptchaValid}
               >
                 {isLoadingForSignIn ? "Signing in..." : "Sign In"}
               </Button>

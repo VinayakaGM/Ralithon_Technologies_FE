@@ -386,7 +386,7 @@ export default function RalithonWebsite() {
   };
 
   const handleContactSubmit = (data: ContactFormData) => {
-    toast.success("Message Sent Successfully! 📧", {
+    toast.success("Message Sent Successfully!", {
       description: `Thank you ${data.fullName}! We'll get back to you within 24 hours.`,
     });
   };
@@ -411,7 +411,7 @@ export default function RalithonWebsite() {
                 Ralithon Technologies
               </span>
             </div>
-            <nav className="hidden lg:flex space-x-8 items-center">
+            <nav className="hidden lg:flex space-x-6 items-center">
               {[
                 { id: "home", label: "Home" },
                 { id: "about", label: "About" },
@@ -436,7 +436,7 @@ export default function RalithonWebsite() {
               ))}
               <Link
                 href="/policy"
-                className={`relative px-4 py-2 font-medium transition-all duration-300 ${
+                className={`relative px-1 py-2 font-medium transition-all duration-300 ${
                   activeSection === "policy"
                     ? "text-transparent bg-clip-text bg-gradient-to-br from-blue-600 to-blue-800"
                     : "text-gray-700 hover:text-blue-600"
@@ -456,9 +456,12 @@ export default function RalithonWebsite() {
                           {currentUser.email.charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="text-sm font-medium text-gray-700">
+                      <span
+                        className="text-sm font-medium text-gray-700"
+                        style={{ marginLeft: "0px" }}
+                      >
                         {userDetails
-                          ? `${userDetails.firstName} ${userDetails.lastName}`
+                          ? `${userDetails.firstName}`
                           : currentUser?.email.split("@")[0]}
                       </span>
                       <ChevronDown className="h-4 w-4 text-gray-500" />
@@ -474,15 +477,13 @@ export default function RalithonWebsite() {
                             : currentUser?.email.split("@")[0]}
                         </p>
                         <p className="text-xs text-gray-500">
-                          {userDetails
-                            ? `${userDetails.firstName} ${userDetails.lastName}`
-                            : currentUser?.email.split("@")[0]}
+                          {!userDetails ? `` : currentUser?.email}
                         </p>
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
 
-                    <DropdownMenuItem asChild>
+                    <DropdownMenuItem asChild style={{ cursor: "pointer" }}>
                       <Link
                         href={
                           currentUser.userType === "ROLE_STUDENT"
