@@ -166,7 +166,7 @@ export function ModernContactForm({ onSubmit }: ModernContactFormProps) {
                 <div>
                   <p className="text-gray-400 text-xs">Email</p>
                   <p className="text-white font-medium text-sm">
-                    shivanshshivhare44@gmail.com
+                    career@ralithontechnologies.in
                   </p>
                 </div>
               </div>
@@ -178,7 +178,7 @@ export function ModernContactForm({ onSubmit }: ModernContactFormProps) {
                 <div>
                   <p className="text-gray-400 text-xs">Support</p>
                   <p className="text-white font-medium text-sm">
-                    +91 8109867611
+                    +91 7999751661
                   </p>
                 </div>
               </div>
