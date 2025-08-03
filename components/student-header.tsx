@@ -17,7 +17,7 @@ export function StudentHeader() {
             <Button
               variant="outline"
               size="sm"
-              className="flex items-center space-x-2 bg-transparent"
+              className="flex items-center space-x-2 bg-gradient-to-br from-blue-600 to-blue-800 text-white"
             >
               <ArrowLeft className="h-4 w-4" />
               <span>Back to Home</span>

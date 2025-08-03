@@ -43,7 +43,7 @@ export default function StudentDashboard() {
   const renderActiveTab = () => {
     switch (activeTab) {
       case "profile":
-        return <ProfileTab user={user} />;
+        return <ProfileTab />;
       case "assessments":
         return <AssessmentsTab />;
       case "courses":
@@ -53,7 +53,7 @@ export default function StudentDashboard() {
       case "achievements":
         return <AchievementsTab />;
       default:
-        return <ProfileTab user={user} />;
+        return <ProfileTab />;
     }
   };
 

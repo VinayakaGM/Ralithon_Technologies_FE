@@ -16,6 +16,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { OTPVerificationModal } from "../otp-verification-modal-box";
 import authService from "@/services/auth.service";
 import { Captcha } from "../captcha";
+import Link from "next/link";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -43,6 +44,7 @@ export function AuthModal({
   const [userId, setUserId] = useState<number>(0);
   const [isCaptchaValid, setIsCaptchaValid] = useState(false);
   const [captchaReset, setCaptchaReset] = useState(0);
+  const [acceptedTerms, setAcceptedTerms] = useState(true);
   const [signUpData, setSignUpData] = useState({
     firstName: "",
     lastName: "",
@@ -88,6 +90,7 @@ export function AuthModal({
         password: "",
         checkPassword: "",
       });
+      setAcceptedTerms(true);
       setShowOTPModal(false);
       setIsCaptchaValid(false);
       setCaptchaReset((prev) => prev + 1);
@@ -163,6 +166,7 @@ export function AuthModal({
       password: "",
       checkPassword: "",
     });
+    setAcceptedTerms(true);
     setIsCaptchaValid(false);
     setCaptchaReset((prev) => prev + 1);
   };
@@ -215,6 +219,11 @@ export function AuthModal({
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!acceptedTerms) {
+      toast.error("You must accept the terms and conditions.");
+      return;
+    }
+
     if (!isCaptchaValid) {
       toast.error("Please complete the verification code");
       return;
@@ -240,6 +249,7 @@ export function AuthModal({
         password: signUpData.password,
         contact: signUpData.contact,
         checkPassword: signUpData.checkPassword,
+        userConstraint: acceptedTerms,
       });
 
       if (response.userId) {
@@ -550,13 +560,36 @@ export function AuthModal({
                   )}
                 </div>
               </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="terms"
+                  checked={acceptedTerms}
+                  onChange={(e) => setAcceptedTerms(e.target.checked)}
+                  className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <label
+                  htmlFor="terms"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  I have read and agree to the&nbsp;
+                  <Link
+                    href="/policy"
+                    className="text-blue-600 hover:underline"
+                  >
+                    Terms and Conditions
+                  </Link>
+                </label>
+              </div>
               <div className="mt-4">
                 <Captcha onVerify={handleCaptchaVerify} reset={captchaReset} />
               </div>
               <Button
                 type="submit"
                 className="bg-gradient-to-br from-blue-600 to-blue-800 w-full mt-2"
-                disabled={isLoadingForSignUp || !isCaptchaValid}
+                disabled={
+                  isLoadingForSignUp || !isCaptchaValid || !acceptedTerms
+                }
               >
                 {isLoadingForSignUp ? "Creating account..." : "Sign Up"}
               </Button>

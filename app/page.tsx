@@ -74,7 +74,6 @@ export default function RalithonWebsite() {
   const [customMessage, setCustomMessage] = useState<string | undefined>();
   const IMAGE_URL = process.env.NEXT_PUBLIC_IMAGE_URL;
   const [showHiringModal, setShowHiringModal] = useState(false);
-  const currentUser = mounted ? AuthService.getCurrentUser() : null;
 
   useEffect(() => {
     const lastClosed = localStorage.getItem("hiringModalClosed");
@@ -96,6 +95,8 @@ export default function RalithonWebsite() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const currentUser = mounted ? AuthService.getCurrentUser() : null;
 
   useEffect(() => {
     const fetchAndStoreUserDetails = async () => {

@@ -21,6 +21,7 @@ export interface RegisterData {
   password: string;
   contact: string;
   checkPassword: string;
+  userConstraint: boolean;
 }
 
 export interface VerifyOTPParams {

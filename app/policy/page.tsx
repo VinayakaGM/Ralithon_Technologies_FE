@@ -30,34 +30,34 @@ export default function PolicyPage() {
       {" "}
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
+        <div className="container mx-auto px-4 py-3 sm:py-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
                 <img
                   src={`${IMAGE_URL}logo.png`}
                   alt="Modern office space"
-                  className="rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
+                  className="rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 w-full h-full object-cover"
                 />
               </div>
               <div>
-                <h1 className="text-xl font-semibold text-gray-900">
+                <h1 className="text-lg sm:text-xl font-semibold text-gray-900 leading-tight">
                   Ralithon Technologies
                 </h1>
-                <p className="text-sm text-gray-600">
+                <p className="text-xs sm:text-sm text-gray-600">
                   Privacy Policy & Terms of Service
                 </p>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
-              <Link href="/">
+            <div className="w-full sm:w-auto self-end sm:self-auto">
+              <Link href="/" className="block">
                 <Button
                   variant="outline"
                   size="sm"
-                  className="flex items-center space-x-2 bg-transparent"
+                  className="w-50 flex items-center justify-center sm:justify-start space-x-2 bg-gradient-to-br from-blue-600 to-blue-800 text-white py-1.5 sm:py-2"
                 >
-                  <ArrowLeft className="h-4 w-4" />
-                  <span>Back to Home</span>
+                  <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="text-sm sm:text-base">Back to Home</span>
                 </Button>
               </Link>
             </div>
@@ -69,7 +69,7 @@ export default function PolicyPage() {
         {/* Document Title */}
         <div className="text-center mb-16">
           <h1 className="text-4xl font-bold text-gray-900 mb-6">
-            Privacy Policy & Terms of Service
+            Terms and Conditions
           </h1>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
             This document outlines our policies, terms, and conditions governing
@@ -78,69 +78,12 @@ export default function PolicyPage() {
           </p>
         </div>
 
-        {/* Company Information */}
-        <section className="mb-16">
-          <div className="flex items-center mb-8">
-            <Building2 className="h-6 w-6 mr-3 text-blue-600" />
-            <h2 className="text-2xl font-bold text-gray-900">
-              1. Company Information
-            </h2>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-12 mb-8">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Company Details
-              </h3>
-              <div className="space-y-3 text-gray-700">
-                <p>
-                  <span className="font-medium">Company Name:</span> Ralithon
-                  Technologies
-                </p>
-                <p>
-                  <span className="font-medium">Business Type:</span> Technology
-                  Services & Educational Training
-                </p>
-                <p>
-                  <span className="font-medium">Registration:</span> [MSME / LLP
-                  / Pvt. Ltd.]
-                </p>
-                <p>
-                  <span className="font-medium">Compliance:</span> Companies
-                  Act, 2013
-                </p>
-              </div>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Contact Information
-              </h3>
-              <div className="space-y-3 text-gray-700">
-                <div className="flex items-center">
-                  <Mail className="h-4 w-4 mr-3 text-blue-600" />
-                  <span>shivanshshivhare44@gmail.com</span>
-                </div>
-                <div className="flex items-center">
-                  <Phone className="h-4 w-4 mr-3 text-blue-600" />
-                  <span>+91 8109867611</span>
-                </div>
-                <div className="flex items-center">
-                  <MapPin className="h-4 w-4 mr-3 text-blue-600" />
-                  <span>PU-4 behind orbit mall,Indore [M.P.]</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <Separator className="my-8" />
-        </section>
-
         {/* Services Overview */}
         <section className="mb-16">
           <div className="flex items-center mb-8">
             <Target className="h-6 w-6 mr-3 text-blue-600" />
             <h2 className="text-2xl font-bold text-gray-900">
-              2. Services Overview
+              1. Services Overview
             </h2>
           </div>
 
@@ -159,41 +102,6 @@ export default function PolicyPage() {
               </li>
             </ul>
           </div>
-
-          <div className="mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">
-              Service Categories
-            </h3>
-            <div className="grid md:grid-cols-2 gap-8">
-              <div>
-                <h4 className="font-medium text-gray-900 mb-3 text-blue-600">
-                  Technology Development Services
-                </h4>
-                <ul className="text-gray-700 space-y-2 ml-4">
-                  <li>• Custom website development</li>
-                  <li>• Mobile application development</li>
-                  <li>• Technologies: HTML, CSS, React, Flutter, Python</li>
-                  <li>• Agile methodology with milestone-based delivery</li>
-                  <li>• Iterative client feedback and quality assurance</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-medium text-gray-900 mb-3 text-blue-600">
-                  Training & Certification Programs
-                </h4>
-                <ul className="text-gray-700 space-y-2 ml-4">
-                  <li>• Short-term courses in emerging technologies</li>
-                  <li>
-                    • Specializations: AI/ML, Web3, DevOps, Cloud Computing
-                  </li>
-                  <li>• Internship opportunities based on assessments</li>
-                  <li>• Professional certifications upon completion</li>
-                  <li>• Transparent and nominal fee structure</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
           <Separator className="my-8" />
         </section>
 
@@ -202,7 +110,7 @@ export default function PolicyPage() {
           <div className="flex items-center mb-8">
             <FileText className="h-6 w-6 mr-3 text-blue-600" />
             <h2 className="text-2xl font-bold text-gray-900">
-              3. Terms of Service
+              2. Terms of Service
             </h2>
           </div>
 
@@ -210,7 +118,7 @@ export default function PolicyPage() {
           <div className="mb-10">
             <div className="flex items-center mb-4">
               <h3 className="text-lg font-semibold text-gray-900">
-                3.1 Payment Terms
+                2.1 Payment Terms
               </h3>
             </div>
             <div className="bg-gray-50 p-6 rounded-lg mb-6">
@@ -248,7 +156,7 @@ export default function PolicyPage() {
           <div className="mb-10">
             <div className="flex items-center mb-4">
               <h3 className="text-lg font-semibold text-gray-900">
-                3.2 Cancellation Policy
+                2.2 Cancellation Policy
               </h3>
             </div>
             <div className="bg-gray-50 p-6 rounded-lg mb-6">
@@ -280,7 +188,7 @@ export default function PolicyPage() {
           <div className="mb-10">
             <div className="flex items-center mb-4">
               <h3 className="text-lg font-semibold text-gray-900">
-                3.3 Refund & Remediation Policy
+                2.3 Refund & Remediation Policy
               </h3>
             </div>
             <div className="bg-gray-50 p-6 rounded-lg mb-6">
@@ -290,7 +198,7 @@ export default function PolicyPage() {
                   hours and internal approval
                 </li>
                 <li>
-                  • Refund processing timeline: Up to 15 business days from
+                  • Refund processing timeline: 45 to 60 business days from
                   approval date
                 </li>
                 <li>
@@ -317,13 +225,13 @@ export default function PolicyPage() {
           <div className="flex items-center mb-8">
             <Scale className="h-6 w-6 mr-3 text-blue-600" />
             <h2 className="text-2xl font-bold text-gray-900">
-              4. Legal & Compliance
+              3. Legal & Compliance
             </h2>
           </div>
 
           <div className="mb-8">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              4.1 Regulatory Compliance
+              3.1 Regulatory Compliance
             </h3>
             <ul className="space-y-2 text-gray-700 ml-6">
               <li>
@@ -347,7 +255,7 @@ export default function PolicyPage() {
 
           <div className="mb-8">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              4.2 Business Practices
+              3.2 Business Practices
             </h3>
             <ul className="space-y-2 text-gray-700 ml-6">
               <li>
@@ -368,13 +276,13 @@ export default function PolicyPage() {
           <div className="flex items-center mb-8">
             <Shield className="h-6 w-6 mr-3 text-blue-600" />
             <h2 className="text-2xl font-bold text-gray-900">
-              5. Privacy Policy
+              4. Privacy Policy
             </h2>
           </div>
 
           <div className="mb-8">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              5.1 Data Collection & Usage
+              4.1 Data Collection & Usage
             </h3>
             <ul className="space-y-2 text-gray-700 ml-6">
               <li>
@@ -397,7 +305,7 @@ export default function PolicyPage() {
 
           <div className="mb-8">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              5.2 Payment Security
+              4.2 Payment Security
             </h3>
             <ul className="space-y-2 text-gray-700 ml-6">
               <li>
@@ -413,7 +321,7 @@ export default function PolicyPage() {
 
           <div className="mb-8">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              5.3 Data Protection Measures
+              4.3 Data Protection Measures
             </h3>
             <ul className="space-y-2 text-gray-700 ml-6">
               <li>• Secure data transmission using SSL/TLS encryption</li>
@@ -432,14 +340,14 @@ export default function PolicyPage() {
           <div className="flex items-center mb-8">
             <Users className="h-6 w-6 mr-3 text-blue-600" />
             <h2 className="text-2xl font-bold text-gray-900">
-              6. Internal Operations & Oversight
+              5. Internal Operations & Oversight
             </h2>
           </div>
 
           <div className="grid md:grid-cols-2 gap-12">
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                6.1 Service Monitoring
+                5.1 Service Monitoring
               </h3>
               <ul className="space-y-2 text-gray-700 ml-4">
                 <li>• Operations & Compliance team oversight</li>
@@ -452,7 +360,7 @@ export default function PolicyPage() {
 
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                6.2 Risk Management
+                5.2 Risk Management
               </h3>
               <ul className="space-y-2 text-gray-700 ml-4">
                 <li>• Anti-fraud measures implementation</li>
@@ -472,7 +380,7 @@ export default function PolicyPage() {
           <div className="flex items-center mb-8">
             <Wrench className="h-6 w-6 mr-3 text-blue-600" />
             <h2 className="text-2xl font-bold text-gray-900">
-              7. Business Activity Declaration
+              6. Business Activity Declaration
             </h2>
           </div>
 
@@ -507,26 +415,26 @@ export default function PolicyPage() {
           <div className="flex items-center mb-8">
             <Mail className="h-6 w-6 mr-3 text-blue-600" />
             <h2 className="text-2xl font-bold text-gray-900">
-              8. Contact & Support
+              7. Contact & Support
             </h2>
           </div>
 
           <div className="grid md:grid-cols-2 gap-12">
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                8.1 General Inquiries
+                7.1 General Inquiries
               </h3>
               <div className="space-y-3 text-gray-700">
                 <p>
                   <span className="font-medium">Email:</span>{" "}
-                  shivanshshivhare44@gmail.com
+                  career@ralithontechnologies.in
                 </p>
                 <p>
-                  <span className="font-medium">Phone:</span> +91 8109867611
+                  <span className="font-medium">Phone:</span> +91 7999751661
                 </p>
                 <p>
                   <span className="font-medium">Business Hours:</span> Monday -
-                  Friday, 9:00 AM - 6:00 PM IST
+                  Friday, 9:00 AM - 8:00 PM IST
                 </p>
                 <p>
                   <span className="font-medium">Address:</span> PU-4 behind
@@ -536,24 +444,20 @@ export default function PolicyPage() {
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                8.2 Support & Complaints
+                7.2 Support & Complaints
               </h3>
               <div className="space-y-3 text-gray-700">
                 <p>
                   <span className="font-medium">Support Email:</span>{" "}
-                  shivanshshivhare44@gmail.com
+                  business@ralithontechnologies.in
                 </p>
                 <p>
                   <span className="font-medium">Response Time:</span> Within
                   24-48 hours
                 </p>
                 <p>
-                  <span className="font-medium">Escalation:</span>{" "}
-                  director@ralithon.com
-                </p>
-                <p>
-                  <span className="font-medium">Complaint Resolution:</span> 5-7
-                  business days
+                  <span className="font-medium">Complaint Resolution:</span>{" "}
+                  25-30 business days
                 </p>
               </div>
             </div>
@@ -600,7 +504,7 @@ export default function PolicyPage() {
 
             <div className="pt-4 border-t border-blue-200">
               <p className="text-sm text-gray-500">
-                © 2024 Ralithon Technologies. All rights reserved.
+                © 2025 Ralithon Technologies. All rights reserved.
               </p>
             </div>
           </div>
