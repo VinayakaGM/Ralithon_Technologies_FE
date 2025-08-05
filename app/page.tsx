@@ -27,6 +27,7 @@ import {
   ClipboardList,
   User,
   LogOut,
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -54,7 +55,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import usersService from "@/services/users.service";
+import usersService, { Course } from "@/services/users.service";
+import AdminCourseService from "@/services/admin.service";
+import authService from "@/services/auth.service";
+
+import { loadRazorpay } from "@/utils/razorpay";
+import type {
+  RazorpayCheckoutResponse,
+  VerifyResponse,
+} from "@/services/razorpay";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 export default function RalithonWebsite() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -72,8 +83,16 @@ export default function RalithonWebsite() {
   const [userDetails, setUserDetails] = useState<any>(null);
   const [showInternshipModal, setShowInternshipModal] = useState(false);
   const [customMessage, setCustomMessage] = useState<string | undefined>();
+  const [courses, setCourses] = useState<any[]>([]);
+  const [loadingCourses, setLoadingCourses] = useState(false);
+  const [courseError, setCourseError] = useState<string | null>(null);
+  const [selectedCourse, setSelectedCourse] = useState<any>(null);
+  const [startDate, setStartDate] = useState("");
+  const [showCourseModal, setShowCourseModal] = useState(false);
   const IMAGE_URL = process.env.NEXT_PUBLIC_IMAGE_URL;
   const [showHiringModal, setShowHiringModal] = useState(false);
+  const [userId, setUserId] = useState<number | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const lastClosed = localStorage.getItem("hiringModalClosed");
@@ -97,6 +116,45 @@ export default function RalithonWebsite() {
   }, []);
 
   const currentUser = mounted ? AuthService.getCurrentUser() : null;
+
+  useEffect(() => {
+    fetchCourses();
+  }, []);
+
+  useEffect(() => {
+    if (currentUser?.userId) {
+      setUserId(currentUser.userId);
+    }
+  }, [currentUser]);
+
+  const fetchCourses = async () => {
+    setLoadingCourses(true);
+    setCourseError(null);
+    try {
+      const response = await AdminCourseService.getAllCourses();
+
+      if (!response) {
+        throw new Error("No response from server");
+      }
+
+      if (response.success && Array.isArray(response.data)) {
+        const activeCourses = response.data.filter(
+          (course) => course.status === true
+        );
+        setCourses(activeCourses);
+      } else {
+        throw new Error(response.message || "Invalid course data format");
+      }
+    } catch (error) {
+      setCourseError(
+        error instanceof Error ? error.message : "An unknown error occurred"
+      );
+      console.error("Failed to fetch courses:", error);
+      setCourses([]);
+    } finally {
+      setLoadingCourses(false);
+    }
+  };
 
   useEffect(() => {
     const fetchAndStoreUserDetails = async () => {
@@ -392,6 +450,110 @@ export default function RalithonWebsite() {
     });
   };
 
+  const handleEnrollCourse = async (course: Course) => {
+    if (!startDate) {
+      toast.error("Please select a start date");
+      return;
+    }
+
+    const convertToDDMMYYYY = (dateString: string): string => {
+      const [year, month, day] = dateString.split("-");
+      return `${day}-${month}-${year}`;
+    };
+
+    try {
+      const payload = {
+        id: course.courseId,
+        startDate: convertToDDMMYYYY(startDate),
+        orderType: "COURSE",
+        isPaymentDone: false,
+      };
+
+      const enrollResponse = await usersService.enrollInCourse(userId, payload);
+
+      if (!enrollResponse.success) {
+        toast.error("Enrollment failed: " + enrollResponse.message);
+        return;
+      }
+
+      toast.success(`Successfully enrolled in ${course.courseName}!`);
+      setShowCourseModal(false);
+
+      const token = authService.getAuthToken();
+      await loadRazorpay();
+
+      const data = enrollResponse.data;
+
+      if (!data.orderId || !data.razorpayKey) {
+        toast.error("Payment setup failed. Please try again.");
+        return;
+      }
+
+      const options = {
+        key: data.razorpayKey,
+        amount: data.amount,
+        currency: data.currency,
+        name: "Ralithon Technologies",
+        description: `Payment for ${course.courseName}`,
+        order_id: data.orderId,
+        handler: async function (response: RazorpayCheckoutResponse) {
+          try {
+            const verifyResp = await axios.post<VerifyResponse>(
+              `${process.env.NEXT_PUBLIC_BASE_API_URL}payment/verify/${userId}`,
+              {
+                razorpayOrderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
+              },
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+
+            if (verifyResp.data.status) {
+              toast.success("Payment successful!");
+              router.push("/student-dashboard");
+            } else {
+              toast.error("Payment verification failed");
+            }
+          } catch (verErr: any) {
+            toast.error(
+              "Payment verification error: " +
+                (verErr.message || "Unknown error")
+            );
+          }
+        },
+        prefill: {
+          email: currentUser?.email,
+          contact: userDetails.phoneNumber,
+        },
+        theme: {
+          color: "#3399cc",
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+
+      rzp.on("payment.failed", function (response: any) {
+        toast.error(
+          "Payment failed: " + (response.error.description || "Unknown error")
+        );
+      });
+
+      rzp.open();
+    } catch (error: any) {
+      console.error("Error:", error);
+      toast.error(
+        error.response?.data?.message ||
+          error.message ||
+          "An error occurred during enrollment"
+      );
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white">
       <header className="bg-white shadow-lg sticky top-0 z-40 border-b border-gray-200">
@@ -419,6 +581,7 @@ export default function RalithonWebsite() {
                 { id: "services", label: "Services" },
                 { id: "internships", label: "Internships" },
                 { id: "contact", label: "Contact" },
+                { id: "courses", label: "Courses" },
               ].map((item) => (
                 <button
                   key={item.id}
@@ -454,7 +617,7 @@ export default function RalithonWebsite() {
                     >
                       <Avatar className="h-8 w-8">
                         <AvatarFallback className="bg-gradient-to-br from-blue-600 to-blue-800 text-white">
-                          {currentUser.email.charAt(0).toUpperCase()}
+                          {currentUser.email?.charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       <span
@@ -463,7 +626,7 @@ export default function RalithonWebsite() {
                       >
                         {userDetails
                           ? `${userDetails.firstName}`
-                          : currentUser?.email.split("@")[0]}
+                          : currentUser?.email?.split("@")[0]}
                       </span>
                       <ChevronDown className="h-4 w-4 text-gray-500" />
                     </Button>
@@ -475,7 +638,7 @@ export default function RalithonWebsite() {
                         <p className="text-sm font-medium text-gray-900">
                           {userDetails
                             ? `${userDetails.firstName} ${userDetails.lastName}`
-                            : currentUser?.email.split("@")[0]}
+                            : currentUser?.email?.split("@")[0]}
                         </p>
                         <p className="text-xs text-gray-500">
                           {!userDetails ? `` : currentUser?.email}
@@ -553,6 +716,7 @@ export default function RalithonWebsite() {
                 { id: "services", label: "Services" },
                 { id: "internships", label: "Internships" },
                 { id: "contact", label: "Contact" },
+                { id: "courses", label: "Courses" },
               ].map((item) => (
                 <button
                   key={item.id}
@@ -1008,11 +1172,7 @@ export default function RalithonWebsite() {
                   <Button
                     className="w-full flex items-center justify-between bg-blue-600 hover:bg-blue-700"
                     onClick={() => {
-                      // Handle assessment start
-                      alert(
-                        `Starting assessment for ${selectedInternship.title}`
-                      );
-                      setShowInternshipModal(false);
+                      () => handleEnrollCourse(selectedCourse);
                     }}
                   >
                     <span>Take Assessment</span>
@@ -1021,8 +1181,6 @@ export default function RalithonWebsite() {
                   <Button
                     className="w-full flex items-center justify-between bg-green-600 hover:bg-green-700"
                     onClick={() => {
-                      // Handle course enrollment
-                      alert(`Enrolling in ${selectedInternship.title} course`);
                       setShowInternshipModal(false);
                     }}
                   >
@@ -1044,6 +1202,335 @@ export default function RalithonWebsite() {
                     className="w-full"
                     onClick={() => {
                       setShowInternshipModal(false);
+                      scrollToSection("contact");
+                    }}
+                  >
+                    Contact Us
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Our Courses Section - Same structure as Internships */}
+      <section id="courses" className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <div
+            data-animate
+            className={`text-center mb-16 transform transition-all duration-1000 ${
+              visibleElements.has("courses-header")
+                ? "translate-y-0 opacity-100"
+                : "translate-y-10 opacity-0"
+            }`}
+            id="courses-header"
+          >
+            <h2 className="text-4xl font-bold text-gray-800 mb-6">
+              Our Courses
+            </h2>
+            <div className="w-20 h-1 bg-gradient-to-br from-blue-600 to-blue-800 mx-auto mb-8"></div>
+          </div>
+
+          {loadingCourses ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+              {[...Array(4)].map((_, i) => (
+                <Card key={i} className="animate-pulse">
+                  <div className="h-48 bg-gray-200 rounded-t-lg"></div>
+                  <div className="p-4 space-y-3">
+                    <div className="h-6 bg-gray-200 rounded w-3/4"></div>
+                    <div className="h-4 bg-gray-200 rounded w-full"></div>
+                    <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+                    <div className="h-10 bg-gray-200 rounded mt-4"></div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          ) : courseError ? (
+            <div className="text-center py-8">
+              <p className="text-red-500">{courseError}</p>
+              <Button onClick={fetchCourses} className="mt-4">
+                Retry
+              </Button>
+            </div>
+          ) : courses.length === 0 ? (
+            <div className="text-center py-8">
+              <p>No courses available at the moment.</p>
+            </div>
+          ) : (
+            <>
+              {/* Course Cards - Same structure as Internship cards */}
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                {courses.map((course, index) => (
+                  <Card
+                    key={index}
+                    data-animate
+                    className={`overflow-hidden hover:shadow-xl transition-all duration-500 transform hover:scale-105 ${"translate-y-0 opacity-100"}`}
+                    id={`course-${index}`}
+                    style={{ animationDelay: `${index * 150}ms` }}
+                  >
+                    <div className="relative">
+                      <img
+                        src={course.awsUrl || `${IMAGE_URL}placeholder.svg`}
+                        alt={course.courseName}
+                        className="w-full h-48 object-cover"
+                      />
+                      <div className="absolute top-4 left-4 bg-white rounded-full p-2 shadow-lg">
+                        <BookOpen className="h-8 w-8 text-blue-600" />
+                      </div>
+                    </div>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-lg text-gray-800 text-center mb-2 truncate">
+                        {course.courseName}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <p className="text-sm text-gray-600 leading-relaxed">
+                        {course.description || "No description available"}
+                      </p>
+                      <div className="flex justify-between items-center py-2 rounded-md text-sm flex-wrap gap-2 sm:flex-nowrap">
+                        <div className="text-gray-800 font-medium">
+                          Duration:{" "}
+                          <span className="font-normal">
+                            {course.durationInWeek
+                              ? `${course.durationInWeek} weeks`
+                              : "Flexible"}
+                          </span>
+                        </div>
+                        <div
+                          className={`text-xs font-bold rounded-full px-3 py-1 whitespace-nowrap ${
+                            course.courseType?.toLowerCase() === "free"
+                              ? "bg-green-100 text-green-600"
+                              : "bg-red-100 text-red-600"
+                          }`}
+                        >
+                          {course.courseType?.toUpperCase() || "PAID"}
+                        </div>
+                      </div>
+
+                      <Button
+                        size="sm"
+                        className="w-full bg-gradient-to-br from-blue-600 to-blue-800 hover:bg-blue-700 text-sm py-2"
+                        onClick={() => {
+                          setSelectedCourse(course);
+                          if (currentUser) {
+                            setShowCourseModal(true);
+                          } else {
+                            setShowAuthModal(true);
+                            setCustomMessage(
+                              `Please register or sign in to enroll in ${course.courseName}`
+                            );
+                          }
+                        }}
+                      >
+                        Enroll Now
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              {/* Description text - Same structure as Internships */}
+              <div
+                data-animate
+                className={`text-center transform transition-all duration-1000 ${
+                  visibleElements.has("courses-cta")
+                    ? "translate-y-0 opacity-100"
+                    : "translate-y-10 opacity-0"
+                }`}
+                id="courses-cta"
+              >
+                <p className="text-lg text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
+                  Explore our comprehensive course offerings designed to help
+                  you gain practical skills and advance your career. Our
+                  programs provide real-world experience, expert instruction,
+                  and the opportunity to work on relevant projects in your field
+                  of interest.
+                </p>
+              </div>
+            </>
+          )}
+        </div>
+      </section>
+      {selectedCourse && (
+        <div
+          className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity ${
+            showCourseModal ? "opacity-100" : "opacity-0 pointer-events-none"
+          }`}
+        >
+          <div
+            className={`bg-white rounded-lg p-6 max-w-2xl w-full mx-4 transform transition-all ${
+              showCourseModal ? "scale-100" : "scale-95"
+            }`}
+          >
+            <div className="flex justify-between items-start mb-4">
+              <div className="flex items-center space-x-4">
+                <div className="bg-blue-100 p-3 rounded-full">
+                  <BookOpen className="h-8 w-8 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-800">
+                    {selectedCourse.courseName}
+                  </h3>
+                  <div className="flex items-center space-x-2 mt-1">
+                    <span
+                      className={`text-xs font-bold rounded-full px-3 py-1 ${
+                        selectedCourse.courseType?.toLowerCase() === "free"
+                          ? "bg-green-100 text-green-600"
+                          : "bg-red-100 text-red-600"
+                      }`}
+                    >
+                      {selectedCourse.courseType?.toUpperCase() || "PAID"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowCourseModal(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <img
+                  src={selectedCourse.awsUrl || `${IMAGE_URL}placeholder.svg`}
+                  alt={selectedCourse.courseName}
+                  className="w-full h-48 object-cover rounded-lg mb-4"
+                />
+                <p className="text-gray-700 mb-4">
+                  {selectedCourse.description || "No description available"}
+                </p>
+
+                <div className="bg-gray-50 p-4 rounded-lg mb-4">
+                  <h4 className="font-semibold text-gray-800 mb-3">
+                    Course Details
+                  </h4>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-sm font-medium text-gray-600">
+                        Duration:
+                      </span>
+                      <span className="text-sm text-gray-800">
+                        {selectedCourse.durationInWeek
+                          ? `${selectedCourse.durationInWeek} weeks`
+                          : "Flexible"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm font-medium text-gray-600">
+                        Course Type:
+                      </span>
+                      <span className="text-sm text-gray-800">
+                        {selectedCourse.courseType || "Paid"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm font-medium text-gray-600">
+                        Course Fee:
+                      </span>
+                      <span className="text-sm text-gray-800">
+                        {selectedCourse.courseFee
+                          ? `₹ ${selectedCourse.courseFee.toFixed(2)}`
+                          : "Free"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm font-medium text-gray-600">
+                        Status:
+                      </span>
+                      <span
+                        className={`text-sm ${
+                          selectedCourse.status
+                            ? "text-green-600"
+                            : "text-gray-600"
+                        }`}
+                      >
+                        {selectedCourse.status ? "Active" : "Inactive"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h4 className="font-bold text-lg text-gray-800">
+                  Get Started With This Course
+                </h4>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    When would you like to start?
+                  </label>
+                  <input
+                    type="date"
+                    min={new Date().toISOString().split("T")[0]}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    onChange={(e) => setStartDate(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-3">
+                  <Button
+                    className="w-full flex items-center justify-between bg-blue-600 hover:bg-blue-700"
+                    onClick={() => handleEnrollCourse(selectedCourse)}
+                  >
+                    <span>Take Assessment</span>
+                    <ClipboardList className="h-5 w-5" />
+                  </Button>
+                  <Button
+                    className={`w-full flex items-center justify-between
+                        bg-green-600 hover:bg-green-700
+                    }`}
+                    onClick={() => handleEnrollCourse(selectedCourse)}
+                  >
+                    <span>
+                      {selectedCourse.courseType?.toLowerCase() === "free"
+                        ? "Enroll Now (Free)"
+                        : `Pay $${selectedCourse.courseFee.toFixed(2)}`}
+                    </span>
+                    <BookOpen className="h-5 w-5" />
+                  </Button>
+                </div>
+
+                <div className="pt-4 border-t border-gray-200">
+                  <h5 className="font-semibold text-gray-800 mb-2">
+                    What's included:
+                  </h5>
+                  <ul className="text-sm text-gray-600 mb-3 space-y-2">
+                    <li className="flex items-start">
+                      <Check className="h-4 w-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                      <span>Hands-on projects and exercises</span>
+                    </li>
+                    <li className="flex items-start">
+                      <Check className="h-4 w-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                      <span>Certificate of completion</span>
+                    </li>
+                    <li className="flex items-start">
+                      <Check className="h-4 w-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                      <span>Expert instructor support</span>
+                    </li>
+                    {selectedCourse.courseType?.toLowerCase() === "paid" && (
+                      <li className="flex items-start">
+                        <Check className="h-4 w-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                        <span>Priority support and career guidance</span>
+                      </li>
+                    )}
+                  </ul>
+                </div>
+
+                <div className="pt-4 border-t border-gray-200">
+                  <h5 className="font-semibold text-gray-800 mb-2">
+                    Need help deciding?
+                  </h5>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Contact our course coordinator for guidance on this program.
+                  </p>
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => {
+                      setShowCourseModal(false);
                       scrollToSection("contact");
                     }}
                   >
@@ -1152,20 +1639,6 @@ export default function RalithonWebsite() {
                   href="#"
                   className="flex items-center space-x-3 text-gray-400 hover:text-white transition-colors"
                 >
-                  <Instagram className="h-5 w-5" />
-                  <span>Instagram</span>
-                </a>
-                <a
-                  href="#"
-                  className="flex items-center space-x-3 text-gray-400 hover:text-white transition-colors"
-                >
-                  <Facebook className="h-5 w-5" />
-                  <span>Facebook</span>
-                </a>
-                <a
-                  href="#"
-                  className="flex items-center space-x-3 text-gray-400 hover:text-white transition-colors"
-                >
                   <Linkedin className="h-5 w-5" />
                   <span>LinkedIn</span>
                 </a>
@@ -1187,7 +1660,7 @@ export default function RalithonWebsite() {
               <div className="space-y-3">
                 <div className="flex items-center space-x-3 text-gray-400">
                   <Mail className="h-5 w-5" />
-                  <span>shivanshshivhare44@gmail.com</span>
+                  <span>career@ralithontechnologies.in</span>
                 </div>
                 <div className="flex items-center space-x-3 text-gray-400">
                   <MapPin className="h-5 w-5" />

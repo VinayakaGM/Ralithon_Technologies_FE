@@ -11,7 +11,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -36,45 +35,43 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Plus, MoreHorizontal } from "lucide-react";
 import AdminCourseService, {
-  AssessmentFormData,
-  Assessment,
+  NotesFormData,
+  Notes,
 } from "@/services/admin.service";
 import { toast } from "sonner";
 
-export function AssessmentMonitoringTab() {
+export function NotesManagement() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [assessments, setAssessments] = useState<Assessment[]>([]);
-  const [editingAssessment, setEditingAssessment] = useState<Assessment | null>(
-    null
-  );
+  const [notes, setNotes] = useState<Notes[]>([]);
+  const [editingNote, setEditingNote] = useState<Notes | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const [formData, setFormData] = useState<AssessmentFormData>({
-    subjectName: "",
+  const [formData, setFormData] = useState<NotesFormData>({
+    subject: "",
     topic: "",
-    assessmentType: "Free",
+    notesType: "Free",
     price: 0,
   });
 
   const [fileData, setFileData] = useState<File | null>(null);
 
   useEffect(() => {
-    fetchAssessments();
+    fetchNotes();
   }, []);
 
-  const fetchAssessments = async () => {
+  const fetchNotes = async () => {
     setIsLoading(true);
     try {
-      const response = await AdminCourseService.getAllAssessments();
-      if (response.success && response.assessments) {
-        setAssessments(response.assessments);
+      const response = await AdminCourseService.getAllNotes();
+      if (response.success && response.notes) {
+        setNotes(response.notes);
       } else {
-        setError(response.message || "Failed to fetch assessments");
+        setError(response.message || "Failed to fetch notes");
       }
     } catch (error: any) {
-      setError(error.message || "Failed to fetch assessments");
+      setError(error.message || "Failed to fetch notes");
     } finally {
       setIsLoading(false);
     }
@@ -101,57 +98,61 @@ export function AssessmentMonitoringTab() {
     setError(null);
 
     try {
-      if (!editingAssessment && !fileData) {
+      if (!editingNote && !fileData) {
         toast.error("Please upload a file");
+        return;
       }
 
       let response;
-      if (editingAssessment) {
-        response = await AdminCourseService.updateAssessment(
-          editingAssessment.assessmentId,
-          formData,
-          fileData ? { file: fileData } : undefined
-        );
+      if (editingNote) {
+        // Note: Update functionality needs to be implemented in the service
+        // For now, we'll just show a message
+        toast.info("Update functionality will be implemented soon");
+        return;
       } else {
-        response = await AdminCourseService.createAssessment(formData, {
+        response = await AdminCourseService.uploadNotes(formData, {
           file: fileData!,
         });
       }
 
       if (response.success) {
+        toast.success(
+          editingNote
+            ? "Note updated successfully"
+            : "Note created successfully"
+        );
         setIsAddDialogOpen(false);
         setFormData({
-          subjectName: "",
+          subject: "",
           topic: "",
-          assessmentType: "Free",
+          notesType: "Free",
           price: 0,
         });
         setFileData(null);
-        setEditingAssessment(null);
-        await fetchAssessments();
+        setEditingNote(null);
+        await fetchNotes();
       } else {
         setError(
           response.message ||
-            `Failed to ${editingAssessment ? "update" : "create"} assessment`
+            `Failed to ${editingNote ? "update" : "create"} note`
         );
       }
     } catch (error: any) {
       setError(
-        error.message ||
-          `Failed to ${editingAssessment ? "update" : "create"} assessment`
+        error.message || `Failed to ${editingNote ? "update" : "create"} note`
       );
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleEditClick = (assessment: Assessment) => {
-    setEditingAssessment(assessment);
+  const handleEditClick = (note: Notes) => {
+    setEditingNote(note);
     setFormData({
-      subjectName: assessment.subjectName,
-      topic: assessment.topicName,
-      assessmentType: assessment.assessmentType,
-      price: assessment.price,
+      subject: note.subject,
+      topic: note.topic || "",
+      notesType: note.notesType,
+      price: note.price,
     });
     setIsAddDialogOpen(true);
   };
@@ -165,19 +166,13 @@ export function AssessmentMonitoringTab() {
     </label>
   );
 
-  const handleDeleteAssessment = async (assessmentId: number) => {
-    if (confirm("Are you sure you want to delete this assessment?")) {
+  const handleDeleteNote = async (notesId: number) => {
+    if (confirm("Are you sure you want to delete this note?")) {
       try {
-        // You'll need to implement deleteAssessment in your service
-        // const response = await AdminCourseService.deleteAssessment(assessmentId);
-        // if (response.success) {
-        //   await fetchAssessments();
-        // } else {
-        //   setError(response.message || "Failed to delete assessment");
-        // }
-        setError("Delete functionality not implemented yet");
+        // You'll need to implement deleteNote in your service
+        toast.info("Delete functionality will be implemented soon");
       } catch (error: any) {
-        setError(error.message || "Failed to delete assessment");
+        setError(error.message || "Failed to delete note");
       }
     }
   };
@@ -186,21 +181,19 @@ export function AssessmentMonitoringTab() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">
-            Assessment Management
-          </h2>
-          <p className="text-gray-600">Create and manage all assessments</p>
+          <h2 className="text-2xl font-bold text-gray-900">Notes Management</h2>
+          <p className="text-gray-600">Create and manage all study notes</p>
         </div>
         <Dialog
           open={isAddDialogOpen}
           onOpenChange={(open) => {
             setIsAddDialogOpen(open);
             if (!open) {
-              setEditingAssessment(null);
+              setEditingNote(null);
               setFormData({
-                subjectName: "",
+                subject: "",
                 topic: "",
-                assessmentType: "Free",
+                notesType: "Free",
                 price: 0,
               });
               setFileData(null);
@@ -210,20 +203,18 @@ export function AssessmentMonitoringTab() {
           <DialogTrigger asChild>
             <Button className="bg-gradient-to-br from-blue-600 to-blue-800">
               <Plus className="h-4 w-4 mr-2" />
-              Add Assessment
+              Add Notes
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>
-                {editingAssessment
-                  ? "Edit Assessment"
-                  : "Create New Assessment"}
+                {editingNote ? "Edit Notes" : "Create New Notes"}
               </DialogTitle>
               <DialogDescription>
-                {editingAssessment
-                  ? "Update the assessment details"
-                  : "Add a new assessment to the platform"}
+                {editingNote
+                  ? "Update the notes details"
+                  : "Add new study notes to the platform"}
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
@@ -231,21 +222,21 @@ export function AssessmentMonitoringTab() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <RequiredLabel name="subjectName" label="Subject Name" />
+                  <RequiredLabel name="subject" label="Subject" />
                   <Input
-                    id="subjectName"
-                    name="subjectName"
-                    placeholder="Enter subject name"
-                    value={formData.subjectName}
+                    id="subject"
+                    name="subject"
+                    placeholder="Enter subject"
+                    value={formData.subject}
                     onChange={handleInputChange}
                   />
                 </div>
                 <div className="space-y-2">
-                  <RequiredLabel name="topic" label="Topic Name" />
+                  <RequiredLabel name="topic" label="Topic" />
                   <Input
                     id="topic"
                     name="topic"
-                    placeholder="Enter topic name"
+                    placeholder="Enter topic"
                     value={formData.topic}
                     onChange={handleInputChange}
                   />
@@ -254,19 +245,16 @@ export function AssessmentMonitoringTab() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <RequiredLabel
-                    name="assessmentType"
-                    label="Assessment Type"
-                  />
+                  <RequiredLabel name="notesType" label="Notes Type" />
                   <select
-                    id="assessmentType"
-                    name="assessmentType"
+                    id="notesType"
+                    name="notesType"
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    value={formData.assessmentType}
+                    value={formData.notesType}
                     onChange={(e) =>
                       setFormData((prev) => ({
                         ...prev,
-                        assessmentType: e.target.value as "Free" | "Paid",
+                        notesType: e.target.value as "Free" | "Paid",
                       }))
                     }
                   >
@@ -283,23 +271,23 @@ export function AssessmentMonitoringTab() {
                     placeholder="Enter price"
                     value={formData.price}
                     onChange={handleInputChange}
-                    disabled={formData.assessmentType === "Free"}
+                    disabled={formData.notesType === "Free"}
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <RequiredLabel name="file" label="Assessment Material" />
-                {editingAssessment?.awsUrl && (
+                <RequiredLabel name="file" label="Notes Material" />
+                {editingNote?.downloadUrl && (
                   <div className="mb-2">
                     <p className="text-sm text-gray-600">Current file:</p>
                     <a
-                      href={editingAssessment.awsUrl}
+                      href={editingNote.downloadUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-600 hover:underline text-sm"
                     >
-                      {editingAssessment.awsUrl.split("/").pop()}
+                      {editingNote.downloadUrl.split("/").pop()}
                     </a>
                   </div>
                 )}
@@ -311,7 +299,7 @@ export function AssessmentMonitoringTab() {
                 />
                 <p className="text-xs text-muted-foreground">
                   Accepted formats: PDF, Word, PowerPoint, Excel, Images
-                  {editingAssessment && " (Leave empty to keep current file)"}
+                  {editingNote && " (Leave empty to keep current file)"}
                 </p>
               </div>
 
@@ -320,7 +308,7 @@ export function AssessmentMonitoringTab() {
                   variant="outline"
                   onClick={() => {
                     setIsAddDialogOpen(false);
-                    setEditingAssessment(null);
+                    setEditingNote(null);
                   }}
                   disabled={isSubmitting}
                 >
@@ -332,12 +320,12 @@ export function AssessmentMonitoringTab() {
                   className="bg-gradient-to-br from-blue-600 to-blue-800"
                 >
                   {isSubmitting
-                    ? editingAssessment
+                    ? editingNote
                       ? "Updating..."
                       : "Creating..."
-                    : editingAssessment
-                    ? "Update Assessment"
-                    : "Create Assessment"}
+                    : editingNote
+                    ? "Update Notes"
+                    : "Create Notes"}
                 </Button>
               </div>
             </div>
@@ -350,36 +338,34 @@ export function AssessmentMonitoringTab() {
         <Card>
           <CardContent className="p-4">
             <div className="text-2xl font-bold text-blue-600">
-              {assessments.length}
+              {notes.length}
             </div>
-            <div className="text-sm text-gray-600">Total Assessments</div>
+            <div className="text-sm text-gray-600">Total Notes</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
             <div className="text-2xl font-bold text-green-600">
-              {assessments.filter((a) => a.assessmentType === "Free").length}
+              {notes.filter((n) => n.notesType === "Free").length}
             </div>
-            <div className="text-sm text-gray-600">Free Assessments</div>
+            <div className="text-sm text-gray-600">Free Notes</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
             <div className="text-2xl font-bold text-purple-600">
-              {assessments.filter((a) => a.assessmentType === "Paid").length}
+              {notes.filter((n) => n.notesType === "Paid").length}
             </div>
-            <div className="text-sm text-gray-600">Paid Assessments</div>
+            <div className="text-sm text-gray-600">Paid Notes</div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Assessments Table */}
+      {/* Notes Table */}
       <Card>
         <CardHeader>
-          <CardTitle>All Assessments</CardTitle>
-          <CardDescription>
-            Manage assessment content and materials
-          </CardDescription>
+          <CardTitle>All Notes</CardTitle>
+          <CardDescription>Manage study notes and materials</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -394,33 +380,44 @@ export function AssessmentMonitoringTab() {
                   <TableHead>Topic</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>Price</TableHead>
+                  <TableHead>Download</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {assessments.map((assessment) => (
-                  <TableRow key={assessment.assessmentId}>
+                {notes.map((note) => (
+                  <TableRow key={note.notesId}>
                     <TableCell className="font-medium">
-                      {assessment.subjectName}
+                      {note.subject}
                     </TableCell>
-                    <TableCell>{assessment.topicName}</TableCell>
+                    <TableCell>{note.topic}</TableCell>
                     <TableCell>
                       <Badge
                         variant={
-                          assessment.assessmentType === "Paid"
-                            ? "default"
-                            : "secondary"
+                          note.notesType === "Paid" ? "default" : "secondary"
                         }
                         className={
-                          assessment.assessmentType === "Paid"
+                          note.notesType === "Paid"
                             ? "bg-green-100 text-green-800"
                             : "bg-blue-100 text-blue-800"
                         }
                       >
-                        {assessment.assessmentType}
+                        {note.notesType}
                       </Badge>
                     </TableCell>
-                    <TableCell>₹ {assessment.price || 0}</TableCell>
+                    <TableCell>₹ {note.price || 0}</TableCell>
+                    <TableCell>
+                      {note.downloadUrl && (
+                        <a
+                          href={note.downloadUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:underline text-sm"
+                        >
+                          Download
+                        </a>
+                      )}
+                    </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -430,19 +427,18 @@ export function AssessmentMonitoringTab() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem
-                            onClick={() => handleEditClick(assessment)}
+                            onClick={() => handleEditClick(note)}
                           >
-                            Edit Assessment
+                            Edit Notes
                           </DropdownMenuItem>
-                          <DropdownMenuItem>View Materials</DropdownMenuItem>
                           <DropdownMenuItem
                             className="text-red-600"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleDeleteAssessment(assessment.assessmentId);
+                              handleDeleteNote(note.notesId);
                             }}
                           >
-                            Delete Assessment
+                            Delete Notes
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

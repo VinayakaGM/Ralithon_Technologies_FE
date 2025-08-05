@@ -7,6 +7,7 @@ import {
   Award,
   BarChart3,
   Bell,
+  NotebookText,
 } from "lucide-react";
 import {
   Sidebar,
@@ -38,6 +39,12 @@ const menuItems = [
     title: "Course Management",
     icon: BookOpen,
     description: "Manage courses and content",
+  },
+  {
+    id: "notes",
+    title: "Notes",
+    icon: NotebookText,
+    description: "Manage and view notes",
   },
   {
     id: "certificates",

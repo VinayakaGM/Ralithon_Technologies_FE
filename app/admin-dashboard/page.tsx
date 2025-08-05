@@ -12,6 +12,7 @@ import { CertificateManagementTab } from "@/components/admin-tabs/certificate-ma
 import { AnalyticsTab } from "@/components/admin-tabs/analytics-tab";
 import { NotificationsTab } from "@/components/admin-tabs/notifications-tab";
 import authService from "@/services/auth.service";
+import { NotesManagement } from "@/components/admin-tabs/notes-tab";
 
 export default function AdminDashboard() {
   const [user, setUser] = useState<any>(null);
@@ -49,6 +50,8 @@ export default function AdminDashboard() {
         return <AssessmentMonitoringTab />;
       case "courses":
         return <CourseManagementTab />;
+      case "notes":
+        return <NotesManagement />;
       case "certificates":
         return <CertificateManagementTab />;
       case "analytics":

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -35,57 +35,126 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Plus, MoreHorizontal, Users, BookOpen, Calendar } from "lucide-react";
-
-const courses = [
-  {
-    id: 1,
-    title: "Web Development Basics",
-    instructor: "Dr. Sarah Johnson",
-    students: 156,
-    lessons: 24,
-    duration: "8 weeks",
-    status: "active",
-    createdDate: "2023-12-01",
-    passingCriteria: 70,
-  },
-  {
-    id: 2,
-    title: "Advanced React Development",
-    instructor: "Prof. Michael Chen",
-    students: 89,
-    lessons: 18,
-    duration: "6 weeks",
-    status: "active",
-    createdDate: "2024-01-05",
-    passingCriteria: 75,
-  },
-  {
-    id: 3,
-    title: "Database Management Systems",
-    instructor: "Dr. Emily Rodriguez",
-    students: 203,
-    lessons: 16,
-    duration: "5 weeks",
-    status: "completed",
-    createdDate: "2023-11-15",
-    passingCriteria: 70,
-  },
-  {
-    id: 4,
-    title: "Python for Data Science",
-    instructor: "Prof. David Kim",
-    students: 134,
-    lessons: 20,
-    duration: "10 weeks",
-    status: "draft",
-    createdDate: "2024-01-20",
-    passingCriteria: 80,
-  },
-];
+import { Plus, MoreHorizontal } from "lucide-react";
+import AdminCourseService, {
+  CourseFormData,
+  Course,
+} from "@/services/admin.service";
 
 export function CourseManagementTab() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const [formData, setFormData] = useState<CourseFormData>({
+    courseName: "",
+    description: "",
+    courseFee: 0,
+    durationInWeek: 0,
+    courseType: "",
+    status: true,
+  });
+
+  const [fileData, setFileData] = useState<File | null>(null);
+
+  useEffect(() => {
+    fetchCourses();
+  }, []);
+
+  const fetchCourses = async () => {
+    setIsLoading(true);
+    try {
+      const response = await AdminCourseService.getAllCourses();
+      if (response.success && response.courses) {
+        setCourses(response.courses);
+      } else {
+        setError(response.message || "Failed to fetch courses");
+      }
+    } catch (error: any) {
+      setError(error.message || "Failed to fetch courses");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]:
+        name === "courseFee" || name === "durationInWeek"
+          ? Number(value)
+          : value,
+    }));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setFileData(e.target.files[0]);
+    }
+  };
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      if (!fileData) {
+        throw new Error("Please upload a file");
+      }
+
+      const response = await AdminCourseService.createCourse(formData, {
+        file: fileData,
+      });
+
+      if (response.success) {
+        setIsAddDialogOpen(false);
+        await fetchCourses(); // Refresh the course list
+      } else {
+        setError(response.message || "Failed to create course");
+      }
+    } catch (error: any) {
+      setError(error.message || "Failed to create course");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const RequiredLabel = ({ name, label }: { name: string; label: string }) => (
+    <label
+      htmlFor={name}
+      className="block text-sm font-medium text-gray-700 mb-1"
+    >
+      {label} <span className="text-red-500">*</span>
+    </label>
+  );
+
+  const getStatusBadge = (status: boolean) => {
+    return status ? "Active" : "Inactive";
+  };
+
+  const getStatusVariant = (status: boolean) => {
+    return status ? "default" : "secondary";
+  };
+
+  const handleDeleteCourse = async (courseId: number) => {
+    if (confirm("Are you sure you want to delete this course?")) {
+      try {
+        const response = await AdminCourseService.deleteCourse(courseId);
+        if (response.success) {
+          await fetchCourses();
+        } else {
+          setError(response.message || "Failed to delete course");
+        }
+      } catch (error: any) {
+        setError(error.message || "Failed to delete course");
+      }
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -111,46 +180,124 @@ export function CourseManagementTab() {
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
+              {error && <div className="text-red-500 text-sm">{error}</div>}
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="title">Course Title</Label>
-                  <Input id="title" placeholder="Enter course title" />
+                  <RequiredLabel name="courseName" label="Course Name" />
+                  <Input
+                    id="courseName"
+                    name="courseName"
+                    placeholder="Enter course name"
+                    value={formData.courseName}
+                    onChange={handleInputChange}
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="instructor">Instructor</Label>
-                  <Input id="instructor" placeholder="Enter instructor name" />
+                  <RequiredLabel name="courseType" label="Course Type" />
+                  <select
+                    id="courseType"
+                    name="courseType"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    value={formData.courseType}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        courseType: e.target.value as "PAID" | "FREE",
+                      }))
+                    }
+                  >
+                    <option value="">Select course type</option>
+                    <option value="PAID">Paid</option>
+                    <option value="FREE">Free</option>
+                  </select>
                 </div>
               </div>
+
               <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
+                <RequiredLabel name="description" label="Description" />
                 <Textarea
                   id="description"
+                  name="description"
                   placeholder="Enter course description"
+                  value={formData.description}
+                  onChange={handleInputChange}
                 />
               </div>
+
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="duration">Duration</Label>
-                  <Input id="duration" placeholder="e.g., 8 weeks" />
+                  <RequiredLabel name="courseFee" label="Course Fee" />
+                  <Input
+                    id="courseFee"
+                    name="courseFee"
+                    type="number"
+                    placeholder="Enter course fee"
+                    value={formData.courseFee}
+                    onChange={handleInputChange}
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lessons">Total Lessons</Label>
-                  <Input id="lessons" type="number" placeholder="24" />
+                  <RequiredLabel
+                    name="durationInWeek"
+                    label="Duration (Weeks)"
+                  />
+                  <Input
+                    id="durationInWeek"
+                    name="durationInWeek"
+                    type="number"
+                    placeholder="Enter duration in weeks"
+                    value={formData.durationInWeek}
+                    onChange={handleInputChange}
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="passing">Passing Criteria (%)</Label>
-                  <Input id="passing" type="number" placeholder="70" />
+                  <RequiredLabel name="status" label="Status" />
+                  <select
+                    id="status"
+                    name="status"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    value={formData.status ? "true" : "false"}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        status: e.target.value === "true",
+                      }))
+                    }
+                  >
+                    <option value="true">Active</option>
+                    <option value="false">Inactive</option>
+                  </select>
                 </div>
               </div>
-              <div className="flex justify-end space-x-2">
+
+              <div className="space-y-2">
+                <RequiredLabel name="file" label="Course Material" />
+                <Input
+                  id="file"
+                  type="file"
+                  accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png"
+                  onChange={handleFileChange}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Accepted formats: PDF, Word, PowerPoint, Excel, Images
+                </p>
+              </div>
+
+              <div className="flex justify-end space-x-2 pt-4">
                 <Button
                   variant="outline"
                   onClick={() => setIsAddDialogOpen(false)}
+                  disabled={isSubmitting}
                 >
                   Cancel
                 </Button>
-                <Button onClick={() => setIsAddDialogOpen(false)}>
-                  Create Course
+                <Button
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                  className="bg-gradient-to-br from-blue-600 to-blue-800"
+                >
+                  {isSubmitting ? "Creating..." : "Create Course"}
                 </Button>
               </div>
             </div>
@@ -171,7 +318,7 @@ export function CourseManagementTab() {
         <Card>
           <CardContent className="p-4">
             <div className="text-2xl font-bold text-green-600">
-              {courses.filter((c) => c.status === "active").length}
+              {courses.filter((c) => c.status).length}
             </div>
             <div className="text-sm text-gray-600">Active Courses</div>
           </CardContent>
@@ -179,7 +326,7 @@ export function CourseManagementTab() {
         <Card>
           <CardContent className="p-4">
             <div className="text-2xl font-bold text-purple-600">
-              {courses.reduce((sum, c) => sum + c.students, 0)}
+              {/* Assuming you might want to add enrollment data later */}0
             </div>
             <div className="text-sm text-gray-600">Total Enrollments</div>
           </CardContent>
@@ -187,9 +334,9 @@ export function CourseManagementTab() {
         <Card>
           <CardContent className="p-4">
             <div className="text-2xl font-bold text-orange-600">
-              {courses.filter((c) => c.status === "completed").length}
+              {courses.filter((c) => !c.status).length}
             </div>
-            <div className="text-sm text-gray-600">Completed Courses</div>
+            <div className="text-sm text-gray-600">Inactive Courses</div>
           </CardContent>
         </Card>
       </div>
@@ -203,93 +350,92 @@ export function CourseManagementTab() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Course</TableHead>
-                <TableHead>Instructor</TableHead>
-                <TableHead>Students</TableHead>
-                <TableHead>Lessons</TableHead>
-                <TableHead>Duration</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Created</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {courses.map((course) => (
-                <TableRow key={course.id}>
-                  <TableCell>
-                    <div>
-                      <div className="font-medium">{course.title}</div>
-                      <div className="text-sm text-gray-500">
-                        Passing: {course.passingCriteria}%
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>{course.instructor}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center">
-                      <Users className="h-4 w-4 mr-1 text-gray-400" />
-                      {course.students}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center">
-                      <BookOpen className="h-4 w-4 mr-1 text-gray-400" />
-                      {course.lessons}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center">
-                      <Calendar className="h-4 w-4 mr-1 text-gray-400" />
-                      {course.duration}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={
-                        course.status === "active"
-                          ? "default"
-                          : course.status === "completed"
-                          ? "secondary"
-                          : "outline"
-                      }
-                      className={
-                        course.status === "active"
-                          ? "bg-green-100 text-green-800"
-                          : course.status === "completed"
-                          ? "bg-blue-100 text-blue-800"
-                          : ""
-                      }
-                    >
-                      {course.status.charAt(0).toUpperCase() +
-                        course.status.slice(1)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{course.createdDate}</TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>Edit Course</DropdownMenuItem>
-                        <DropdownMenuItem>Manage Students</DropdownMenuItem>
-                        <DropdownMenuItem>View Analytics</DropdownMenuItem>
-                        <DropdownMenuItem>Schedule Assessment</DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600">
-                          Delete Course
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+          {isLoading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Course</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Fee</TableHead>
+                  <TableHead>Duration</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {courses.map((course) => (
+                  <TableRow key={course.courseId}>
+                    <TableCell>
+                      <div>
+                        <div className="font-medium">{course.courseName}</div>
+                        <div className="text-sm text-gray-500">
+                          {course.description}
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={
+                          course.courseType === "PAID" ? "default" : "secondary"
+                        }
+                        className={
+                          course.courseType === "PAID"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-blue-100 text-blue-800"
+                        }
+                      >
+                        {course.courseType}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>₹ {course.courseFee}</TableCell>
+                    <TableCell>{course.durationInWeek} weeks</TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={getStatusVariant(course.status)}
+                        className={
+                          course.status
+                            ? "bg-green-100 text-green-800"
+                            : "bg-gray-100 text-gray-800"
+                        }
+                      >
+                        {getStatusBadge(course.status)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem>Edit Course</DropdownMenuItem>
+                          <DropdownMenuItem>Manage Students</DropdownMenuItem>
+                          <DropdownMenuItem>View Analytics</DropdownMenuItem>
+                          <DropdownMenuItem>
+                            Schedule Assessment
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="text-red-600"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteCourse(course.courseId);
+                            }}
+                          >
+                            Delete Course
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
     </div>
