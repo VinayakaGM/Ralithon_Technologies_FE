@@ -144,9 +144,9 @@ export function CertificatesTab() {
                       <Eye className="w-4 h-4 mr-1" />
                       Preview
                     </Button>
-                    <Button variant="outline" size="sm">
+                    {/* <Button variant="outline" size="sm">
                       Verify Credential
-                    </Button>
+                    </Button> */}
                   </div>
                 )}
               </div>

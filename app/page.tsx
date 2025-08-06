@@ -28,6 +28,7 @@ import {
   User,
   LogOut,
   Check,
+  LucideLinkedin,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -66,6 +67,8 @@ import type {
 } from "@/services/razorpay";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 
 export default function RalithonWebsite() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -202,20 +205,6 @@ export default function RalithonWebsite() {
     };
   }, []);
 
-  const handleLogout = () => {
-    try {
-      AuthService.logout();
-      setIsDropdownOpen(false);
-      toast.success("Logged Out Successfully! 👋", {
-        description:
-          "You have been safely logged out. Thank you for visiting Ralithon Technologies!",
-      });
-    } catch (error) {
-      toast.error("Logout Failed", {
-        description: "There was an issue logging you out. Please try again.",
-      });
-    }
-  };
 
   const heroSlides = [
     {
@@ -522,7 +511,7 @@ export default function RalithonWebsite() {
           } catch (verErr: any) {
             toast.error(
               "Payment verification error: " +
-                (verErr.message || "Unknown error")
+              (verErr.message || "Unknown error")
             );
           }
         },
@@ -548,256 +537,28 @@ export default function RalithonWebsite() {
       console.error("Error:", error);
       toast.error(
         error.response?.data?.message ||
-          error.message ||
-          "An error occurred during enrollment"
+        error.message ||
+        "An error occurred during enrollment"
       );
     }
   };
 
   return (
     <div className="min-h-screen bg-white">
-      <header className="bg-white shadow-lg sticky top-0 z-40 border-b border-gray-200">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div
-              className="flex items-center space-x-3 cursor-pointer hover:opacity-80 transition-opacity"
-              onClick={() => scrollToSection("home")}
-            >
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center shadow-lg">
-                <img
-                  src={`${IMAGE_URL}logo.png`}
-                  alt="Modern office space"
-                  className="rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
-                />
-              </div>
-              <span className="text-2xl font-bold text-gray-800">
-                Ralithon Technologies
-              </span>
-            </div>
-            <nav className="hidden lg:flex space-x-6 items-center">
-              {[
-                { id: "home", label: "Home" },
-                { id: "about", label: "About" },
-                { id: "services", label: "Services" },
-                { id: "internships", label: "Internships" },
-                { id: "contact", label: "Contact" },
-                { id: "courses", label: "Courses" },
-              ].map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => scrollToSection(item.id)}
-                  className={`relative px-1 py-2 font-medium transition-all duration-300 ${
-                    activeSection === item.id
-                      ? "text-transparent bg-clip-text bg-gradient-to-br from-blue-600 to-blue-800"
-                      : "text-gray-700 hover:text-blue-600"
-                  }`}
-                >
-                  {item.label}
-                  {activeSection === item.id && (
-                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 transform scale-x-100 transition-transform duration-300"></div>
-                  )}
-                </button>
-              ))}
-              <Link
-                href="/policy"
-                className={`relative px-1 py-2 font-medium transition-all duration-300 ${
-                  activeSection === "policy"
-                    ? "text-transparent bg-clip-text bg-gradient-to-br from-blue-600 to-blue-800"
-                    : "text-gray-700 hover:text-blue-600"
-                }`}
-              >
-                Policy
-              </Link>
-              {currentUser ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="flex items-center space-x-2 hover:bg-gray-100"
-                    >
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback className="bg-gradient-to-br from-blue-600 to-blue-800 text-white">
-                          {currentUser.email?.charAt(0).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span
-                        className="text-sm font-medium text-gray-700"
-                        style={{ marginLeft: "0px" }}
-                      >
-                        {userDetails
-                          ? `${userDetails.firstName}`
-                          : currentUser?.email?.split("@")[0]}
-                      </span>
-                      <ChevronDown className="h-4 w-4 text-gray-500" />
-                    </Button>
-                  </DropdownMenuTrigger>
-
-                  <DropdownMenuContent align="end" className="w-56">
-                    <DropdownMenuLabel>
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium text-gray-900">
-                          {userDetails
-                            ? `${userDetails.firstName} ${userDetails.lastName}`
-                            : currentUser?.email?.split("@")[0]}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          {!userDetails ? `` : currentUser?.email}
-                        </p>
-                      </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-
-                    <DropdownMenuItem asChild style={{ cursor: "pointer" }}>
-                      <Link
-                        href={
-                          currentUser.userType === "ROLE_STUDENT"
-                            ? "/student-dashboard"
-                            : "/admin-dashboard"
-                        }
-                        className="w-full"
-                      >
-                        <div className="flex items-center w-full">
-                          <User className="mr-2 h-4 w-4" />
-                          <span>
-                            {currentUser.userType === "ROLE_STUDENT"
-                              ? "Student Dashboard"
-                              : "Admin Dashboard"}
-                          </span>
-                        </div>
-                      </Link>
-                    </DropdownMenuItem>
-
-                    <DropdownMenuSeparator />
-
-                    <DropdownMenuItem
-                      onClick={handleLogout}
-                      className="text-red-600 cursor-pointer"
-                    >
-                      <LogOut className="mr-2 h-4 w-4" />
-                      Logout
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ) : (
-                <Button
-                  className="bg-gradient-to-br from-blue-600 to-blue-800 hover:bg-blue-700 text-white px-6 py-2 rounded-full"
-                  onClick={() => setShowAuthModal(true)}
-                >
-                  Sign Up / Sign In
-                </Button>
-              )}
-            </nav>
-
-            {/* Mobile Menu Button */}
-            <Button
-              className="lg:hidden bg-transparent"
-              variant="outline"
-              size="sm"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              {mobileMenuOpen ? (
-                <X className="h-5 w-5" />
-              ) : (
-                <Menu className="h-5 w-5" />
-              )}
-            </Button>
-          </div>
-
-          {/* Mobile Menu */}
-          <div
-            className={`lg:hidden overflow-hidden transition-all duration-500 ${
-              mobileMenuOpen ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
-            }`}
-          >
-            <nav className="pt-4 pb-2 space-y-2">
-              {[
-                { id: "home", label: "Home" },
-                { id: "about", label: "About" },
-                { id: "services", label: "Services" },
-                { id: "internships", label: "Internships" },
-                { id: "contact", label: "Contact" },
-                { id: "courses", label: "Courses" },
-              ].map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    scrollToSection && scrollToSection(item.id);
-                    setMobileMenuOpen(false);
-                  }}
-                  className={`block w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-300 ${
-                    activeSection === item.id
-                      ? "text-transparent bg-clip-text bg-gradient-to-br from-blue-600 to-blue-800 text-blue-600"
-                      : "text-gray-700 hover:bg-gray-100 hover:text-blue-600"
-                  }`}
-                >
-                  {item.label}
-                </button>
-              ))}
-
-              <Link
-                href="/policy"
-                className={`block w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-300 ${
-                  activeSection === "policy"
-                    ? "text-transparent bg-clip-text bg-gradient-to-br from-blue-600 to-blue-800 text-blue-600"
-                    : "text-gray-700 hover:bg-gray-100 hover:text-blue-600"
-                }`}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Policy
-              </Link>
-
-              {currentUser && (
-                <>
-                  <Link
-                    href={
-                      currentUser.userType === "ROLE_STUDENT"
-                        ? "/student-dashboard"
-                        : "/admin-dashboard"
-                    }
-                    className="block w-full text-left px-4 py-3 rounded-lg font-medium text-gray-700 hover:bg-gray-100 hover:text-blue-600"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {currentUser.userType === "ROLE_STUDENT"
-                      ? "Student Dashboard"
-                      : "Admin Dashboard"}
-                  </Link>
-                  <button
-                    onClick={() => {
-                      handleLogout();
-                      setMobileMenuOpen(false);
-                    }}
-                    className="block w-full text-left px-4 py-3 rounded-lg font-medium text-gray-700 hover:bg-gray-100 hover:text-blue-600"
-                  >
-                    Logout
-                  </button>
-                </>
-              )}
-
-              {!currentUser && (
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    setShowAuthModal(true);
-                  }}
-                  className="block w-full text-left px-4 py-3 rounded-lg font-medium text-gray-700 hover:bg-gray-100 hover:text-blue-600"
-                >
-                  Sign Up / Sign In
-                </button>
-              )}
-            </nav>
-          </div>
-        </div>
-      </header>
-
+      <Header
+        activeSection={activeSection}
+        setActiveSection={setActiveSection}
+        setShowAuthModal={setShowAuthModal}
+        scrollToSection={scrollToSection}
+      />
       <section id="home" className="relative h-screen overflow-hidden">
         {heroSlides.map((slide, index) => (
           <div
             key={index}
-            className={`absolute inset-0 transition-all duration-1000 ${
-              index === currentSlide
+            className={`absolute inset-0 transition-all duration-1000 ${index === currentSlide
                 ? "opacity-100 scale-100"
                 : "opacity-0 scale-105"
-            }`}
+              }`}
           >
             <div className="absolute inset-0 bg-black bg-opacity-50"></div>
             <Image
@@ -810,30 +571,27 @@ export default function RalithonWebsite() {
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-center text-white max-w-4xl px-4">
                 <h1
-                  className={`text-5xl md:text-6xl font-bold mb-6 transform transition-all duration-1000 ${
-                    index === currentSlide
+                  className={`text-5xl md:text-6xl font-bold mb-6 transform transition-all duration-1000 ${index === currentSlide
                       ? "translate-y-0 opacity-100"
                       : "translate-y-10 opacity-0"
-                  }`}
+                    }`}
                 >
                   {slide.title}
                 </h1>
                 <p
-                  className={`text-xl md:text-2xl mb-8 transform transition-all duration-1000 delay-300 ${
-                    index === currentSlide
+                  className={`text-xl md:text-2xl mb-8 transform transition-all duration-1000 delay-300 ${index === currentSlide
                       ? "translate-y-0 opacity-100"
                       : "translate-y-10 opacity-0"
-                  }`}
+                    }`}
                 >
                   {slide.subtitle}
                 </p>
                 <Button
                   size="lg"
-                  className={`bg-gradient-to-br from-blue-600 to-blue-800 hover:bg-blue-700 text-lg px-8 py-4 transform transition-all duration-1000 delay-500 hover:scale-105 ${
-                    index === currentSlide
+                  className={`bg-gradient-to-br from-blue-600 to-blue-800 hover:bg-blue-700 text-lg px-8 py-4 transform transition-all duration-1000 delay-500 hover:scale-105 ${index === currentSlide
                       ? "translate-y-0 opacity-100"
                       : "translate-y-10 opacity-0"
-                  }`}
+                    }`}
                   onClick={() => scrollToSection("about")}
                 >
                   Read More <ArrowRight className="ml-2 h-5 w-5" />
@@ -848,9 +606,8 @@ export default function RalithonWebsite() {
           {heroSlides.map((_, index) => (
             <button
               key={index}
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                index === currentSlide ? "bg-white" : "bg-white bg-opacity-50"
-              }`}
+              className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentSlide ? "bg-white" : "bg-white bg-opacity-50"
+                }`}
               onClick={() => setCurrentSlide(index)}
             />
           ))}
@@ -862,11 +619,10 @@ export default function RalithonWebsite() {
         <div className="container mx-auto px-4">
           <div
             data-animate
-            className={`text-center mb-16 transform transition-all duration-1000 ${
-              visibleElements.has("about-header")
+            className={`text-center mb-16 transform transition-all duration-1000 ${visibleElements.has("about-header")
                 ? "translate-y-0 opacity-100"
                 : "translate-y-10 opacity-0"
-            }`}
+              }`}
             id="about-header"
           >
             <h2 className="text-4xl font-bold text-gray-800 mb-6">
@@ -879,11 +635,10 @@ export default function RalithonWebsite() {
             {/* About Company Details - Only company information */}
             <div
               data-animate
-              className={`transform transition-all duration-1000 delay-200 ${
-                visibleElements.has("about-content")
+              className={`transform transition-all duration-1000 delay-200 ${visibleElements.has("about-content")
                   ? "translate-x-0 opacity-100"
                   : "-translate-x-10 opacity-0"
-              }`}
+                }`}
               id="about-content"
             >
               <h3 className="text-3xl font-bold text-gray-800 mb-6">
@@ -925,11 +680,10 @@ export default function RalithonWebsite() {
             {/* Amazing Photographs */}
             <div
               data-animate
-              className={`transform transition-all duration-1000 delay-400 ${
-                visibleElements.has("about-images")
+              className={`transform transition-all duration-1000 delay-400 ${visibleElements.has("about-images")
                   ? "translate-x-0 opacity-100"
                   : "translate-x-10 opacity-0"
-              }`}
+                }`}
               id="about-images"
             >
               <div className="grid grid-cols-2 gap-4">
@@ -968,11 +722,10 @@ export default function RalithonWebsite() {
         <div className="container mx-auto px-4">
           <div
             data-animate
-            className={`text-center mb-16 transform transition-all duration-1000 ${
-              visibleElements.has("services-header")
+            className={`text-center mb-16 transform transition-all duration-1000 ${visibleElements.has("services-header")
                 ? "translate-y-0 opacity-100"
                 : "translate-y-10 opacity-0"
-            }`}
+              }`}
             id="services-header"
           >
             <h2 className="text-4xl font-bold text-gray-800 mb-6">
@@ -993,11 +746,10 @@ export default function RalithonWebsite() {
               <Card
                 key={index}
                 data-animate
-                className={`text-center hover:shadow-xl transition-all duration-500 transform hover:scale-105 ${
-                  visibleElements.has(`service-${index}`)
+                className={`text-center hover:shadow-xl transition-all duration-500 transform hover:scale-105 ${visibleElements.has(`service-${index}`)
                     ? "translate-y-0 opacity-100"
                     : "translate-y-10 opacity-0"
-                }`}
+                  }`}
                 id={`service-${index}`}
                 style={{ animationDelay: `${index * 200}ms` }}
               >
@@ -1023,11 +775,10 @@ export default function RalithonWebsite() {
         <div className="container mx-auto px-4">
           <div
             data-animate
-            className={`text-center mb-16 transform transition-all duration-1000 ${
-              visibleElements.has("internships-header")
+            className={`text-center mb-16 transform transition-all duration-1000 ${visibleElements.has("internships-header")
                 ? "translate-y-0 opacity-100"
                 : "translate-y-10 opacity-0"
-            }`}
+              }`}
             id="internships-header"
           >
             <h2 className="text-4xl font-bold text-gray-800 mb-6">
@@ -1042,11 +793,10 @@ export default function RalithonWebsite() {
               <Card
                 key={index}
                 data-animate
-                className={`overflow-hidden hover:shadow-xl transition-all duration-500 transform hover:scale-105 ${
-                  visibleElements.has(`internship-${index}`)
+                className={`overflow-hidden hover:shadow-xl transition-all duration-500 transform hover:scale-105 ${visibleElements.has(`internship-${index}`)
                     ? "translate-y-0 opacity-100"
                     : "translate-y-10 opacity-0"
-                }`}
+                  }`}
                 id={`internship-${index}`}
                 style={{ animationDelay: `${index * 150}ms` }}
               >
@@ -1092,11 +842,10 @@ export default function RalithonWebsite() {
           {/* Text about internships and general Apply Now button */}
           <div
             data-animate
-            className={`text-center transform transition-all duration-1000 ${
-              visibleElements.has("internships-cta")
+            className={`text-center transform transition-all duration-1000 ${visibleElements.has("internships-cta")
                 ? "translate-y-0 opacity-100"
                 : "translate-y-10 opacity-0"
-            }`}
+              }`}
             id="internships-cta"
           >
             <p className="text-lg text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
@@ -1114,16 +863,14 @@ export default function RalithonWebsite() {
 
       {selectedInternship && (
         <div
-          className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity ${
-            showInternshipModal
+          className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity ${showInternshipModal
               ? "opacity-100"
               : "opacity-0 pointer-events-none"
-          }`}
+            }`}
         >
           <div
-            className={`bg-white rounded-lg p-6 max-w-2xl w-full mx-4 transform transition-all ${
-              showInternshipModal ? "scale-100" : "scale-95"
-            }`}
+            className={`bg-white rounded-lg p-6 max-w-2xl w-full mx-4 transform transition-all ${showInternshipModal ? "scale-100" : "scale-95"
+              }`}
           >
             <div className="flex justify-between items-start mb-4">
               <div className="flex items-center space-x-4">
@@ -1151,9 +898,9 @@ export default function RalithonWebsite() {
                   alt={selectedInternship.title}
                   className="w-full h-48 object-cover rounded-lg mb-4"
                 />
-                <p className="text-gray-700 mb-4">
+                {/* <p className="text-gray-700 mb-4">
                   {selectedInternship.description}
-                </p>
+                </p> */}
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <h4 className="font-semibold text-gray-800 mb-2">
                     Skills you'll learn:
@@ -1188,26 +935,6 @@ export default function RalithonWebsite() {
                     <BookOpen className="h-5 w-5" />
                   </Button>
                 </div>
-
-                <div className="pt-4 border-t border-gray-200">
-                  <h5 className="font-semibold text-gray-800 mb-2">
-                    Need help deciding?
-                  </h5>
-                  <p className="text-sm text-gray-600 mb-3">
-                    Contact our internship coordinator for guidance on which
-                    option is right for you.
-                  </p>
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => {
-                      setShowInternshipModal(false);
-                      scrollToSection("contact");
-                    }}
-                  >
-                    Contact Us
-                  </Button>
-                </div>
               </div>
             </div>
           </div>
@@ -1219,11 +946,10 @@ export default function RalithonWebsite() {
         <div className="container mx-auto px-4">
           <div
             data-animate
-            className={`text-center mb-16 transform transition-all duration-1000 ${
-              visibleElements.has("courses-header")
+            className={`text-center mb-16 transform transition-all duration-1000 ${visibleElements.has("courses-header")
                 ? "translate-y-0 opacity-100"
                 : "translate-y-10 opacity-0"
-            }`}
+              }`}
             id="courses-header"
           >
             <h2 className="text-4xl font-bold text-gray-800 mb-6">
@@ -1298,11 +1024,10 @@ export default function RalithonWebsite() {
                           </span>
                         </div>
                         <div
-                          className={`text-xs font-bold rounded-full px-3 py-1 whitespace-nowrap ${
-                            course.courseType?.toLowerCase() === "free"
+                          className={`text-xs font-bold rounded-full px-3 py-1 whitespace-nowrap ${course.courseType?.toLowerCase() === "free"
                               ? "bg-green-100 text-green-600"
                               : "bg-red-100 text-red-600"
-                          }`}
+                            }`}
                         >
                           {course.courseType?.toUpperCase() || "PAID"}
                         </div>
@@ -1333,11 +1058,10 @@ export default function RalithonWebsite() {
               {/* Description text - Same structure as Internships */}
               <div
                 data-animate
-                className={`text-center transform transition-all duration-1000 ${
-                  visibleElements.has("courses-cta")
+                className={`text-center transform transition-all duration-1000 ${visibleElements.has("courses-cta")
                     ? "translate-y-0 opacity-100"
                     : "translate-y-10 opacity-0"
-                }`}
+                  }`}
                 id="courses-cta"
               >
                 <p className="text-lg text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
@@ -1354,14 +1078,12 @@ export default function RalithonWebsite() {
       </section>
       {selectedCourse && (
         <div
-          className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity ${
-            showCourseModal ? "opacity-100" : "opacity-0 pointer-events-none"
-          }`}
+          className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity ${showCourseModal ? "opacity-100" : "opacity-0 pointer-events-none"
+            }`}
         >
           <div
-            className={`bg-white rounded-lg p-6 max-w-2xl w-full mx-4 transform transition-all ${
-              showCourseModal ? "scale-100" : "scale-95"
-            }`}
+            className={`bg-white rounded-lg p-6 max-w-2xl w-full mx-4 transform transition-all ${showCourseModal ? "scale-100" : "scale-95"
+              }`}
           >
             <div className="flex justify-between items-start mb-4">
               <div className="flex items-center space-x-4">
@@ -1374,11 +1096,10 @@ export default function RalithonWebsite() {
                   </h3>
                   <div className="flex items-center space-x-2 mt-1">
                     <span
-                      className={`text-xs font-bold rounded-full px-3 py-1 ${
-                        selectedCourse.courseType?.toLowerCase() === "free"
+                      className={`text-xs font-bold rounded-full px-3 py-1 ${selectedCourse.courseType?.toLowerCase() === "free"
                           ? "bg-green-100 text-green-600"
                           : "bg-red-100 text-red-600"
-                      }`}
+                        }`}
                     >
                       {selectedCourse.courseType?.toUpperCase() || "PAID"}
                     </span>
@@ -1442,11 +1163,10 @@ export default function RalithonWebsite() {
                         Status:
                       </span>
                       <span
-                        className={`text-sm ${
-                          selectedCourse.status
+                        className={`text-sm ${selectedCourse.status
                             ? "text-green-600"
                             : "text-gray-600"
-                        }`}
+                          }`}
                       >
                         {selectedCourse.status ? "Active" : "Inactive"}
                       </span>
@@ -1518,25 +1238,6 @@ export default function RalithonWebsite() {
                     )}
                   </ul>
                 </div>
-
-                <div className="pt-4 border-t border-gray-200">
-                  <h5 className="font-semibold text-gray-800 mb-2">
-                    Need help deciding?
-                  </h5>
-                  <p className="text-sm text-gray-600 mb-3">
-                    Contact our course coordinator for guidance on this program.
-                  </p>
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => {
-                      setShowCourseModal(false);
-                      scrollToSection("contact");
-                    }}
-                  >
-                    Contact Us
-                  </Button>
-                </div>
               </div>
             </div>
           </div>
@@ -1548,11 +1249,10 @@ export default function RalithonWebsite() {
         <div className="container mx-auto px-4">
           <div
             data-animate
-            className={`transform transition-all duration-1000 ${
-              visibleElements.has("contact-form")
+            className={`transform transition-all duration-1000 ${visibleElements.has("contact-form")
                 ? "translate-y-0 opacity-100"
                 : "translate-y-10 opacity-0"
-            }`}
+              }`}
             id="contact-form"
           >
             <ModernContactForm onSubmit={handleContactSubmit} />
@@ -1565,11 +1265,10 @@ export default function RalithonWebsite() {
         <div className="container mx-auto px-4">
           <div
             data-animate
-            className={`text-center mb-16 transform transition-all duration-1000 ${
-              visibleElements.has("faq-header")
+            className={`text-center mb-16 transform transition-all duration-1000 ${visibleElements.has("faq-header")
                 ? "translate-y-0 opacity-100"
                 : "translate-y-10 opacity-0"
-            }`}
+              }`}
             id="faq-header"
           >
             <h2 className="text-4xl font-bold text-gray-800 mb-6">
@@ -1587,11 +1286,10 @@ export default function RalithonWebsite() {
               <Card
                 key={index}
                 data-animate
-                className={`p-6 hover:shadow-lg transition-all duration-500 ${
-                  visibleElements.has(`faq-${index}`)
+                className={`p-6 hover:shadow-lg transition-all duration-500 ${visibleElements.has(`faq-${index}`)
                     ? "translate-y-0 opacity-100"
                     : "translate-y-10 opacity-0"
-                }`}
+                  }`}
                 id={`faq-${index}`}
                 style={{ animationDelay: `${index * 150}ms` }}
               >
@@ -1605,111 +1303,7 @@ export default function RalithonWebsite() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-gray-300 py-16">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-4 gap-8">
-            {/* About Us */}
-            <div>
-              <h3 className="text-xl font-bold text-white mb-4">About Us</h3>
-              <p className="text-gray-400 mb-4 leading-relaxed">
-                Ralithon Technologies is a leading IT company providing
-                innovative technology solutions and comprehensive services to
-                help businesses succeed in the digital world.
-              </p>
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <img
-                    src={`${IMAGE_URL}logo.png`}
-                    alt="Modern office space"
-                    className="rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
-                  />
-                </div>
-                <span className="font-bold text-white">
-                  Ralithon Technologies
-                </span>
-              </div>
-            </div>
-
-            {/* Follow Us */}
-            <div>
-              <h3 className="text-xl font-bold text-white mb-4">Follow Us</h3>
-              <div className="space-y-3">
-                <a
-                  href="#"
-                  className="flex items-center space-x-3 text-gray-400 hover:text-white transition-colors"
-                >
-                  <Linkedin className="h-5 w-5" />
-                  <span>LinkedIn</span>
-                </a>
-                <a
-                  href="#"
-                  className="flex items-center space-x-3 text-gray-400 hover:text-white transition-colors"
-                >
-                  <Twitter className="h-5 w-5" />
-                  <span>Twitter</span>
-                </a>
-              </div>
-            </div>
-
-            {/* Contact Info */}
-            <div>
-              <h3 className="text-xl font-bold text-white mb-4">
-                Contact Info
-              </h3>
-              <div className="space-y-3">
-                <div className="flex items-center space-x-3 text-gray-400">
-                  <Mail className="h-5 w-5" />
-                  <span>career@ralithontechnologies.in</span>
-                </div>
-                <div className="flex items-center space-x-3 text-gray-400">
-                  <MapPin className="h-5 w-5" />
-                  <span>PU-4 behind orbit mall,Indore [M.P.]</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Links */}
-            <div>
-              <h3 className="text-xl font-bold text-white mb-4">Quick Links</h3>
-              <div className="space-y-3">
-                {[
-                  { id: "home", label: "Home" },
-                  { id: "about", label: "About" },
-                  { id: "services", label: "Services" },
-                  { id: "internships", label: "Internships" },
-                  { id: "contact", label: "Contact" },
-                ].map((link) => (
-                  <button
-                    key={link.id}
-                    onClick={() => scrollToSection(link.id)}
-                    className="block text-gray-400 hover:text-white transition-colors"
-                  >
-                    {link.label}
-                  </button>
-                ))}
-                <Link
-                  href="/policy"
-                  className="block text-gray-400 hover:text-white transition-colors"
-                >
-                  Policy
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          {/* Copyright Message */}
-          <div className="border-t border-gray-700 mt-12 pt-8 text-center">
-            <p className="text-gray-400">
-              © 2025 Designed by{" "}
-              <span className="text-white font-semibold">
-                Ralithon Technologies
-              </span>
-              . All rights reserved.
-            </p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
 
       {/* Signup / Signin modal */}
       <AuthModal
