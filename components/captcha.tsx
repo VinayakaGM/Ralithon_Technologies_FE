@@ -97,7 +97,7 @@ export function Captcha({ onVerify, reset }: CaptchaProps) {
   };
 
   const verifyCaptcha = (input: string) => {
-    const valid = input.toLowerCase() === captchaText.toLowerCase();
+    const valid = input === captchaText;
     setIsValid(valid);
     onVerify(valid);
     return valid;

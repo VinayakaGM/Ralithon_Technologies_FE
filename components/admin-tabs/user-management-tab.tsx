@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -26,80 +26,118 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Search, MoreHorizontal, UserPlus, Filter } from "lucide-react";
+import { Search, MoreHorizontal, Filter } from "lucide-react";
+import UserService from "@/services/users.service";
 
-const users = [
-  {
-    id: 1,
-    name: "John Doe",
-    email: "john.doe@email.com",
-    role: "ROLE_STUDENT",
-    status: "active",
-    joinDate: "2024-01-15",
-    lastActive: "2024-01-25",
-    coursesEnrolled: 3,
-    profilePicture: "/placeholder.svg?height=32&width=32",
-  },
-  {
-    id: 2,
-    name: "Jane Smith",
-    email: "jane.smith@email.com",
-    role: "ROLE_STUDENT",
-    status: "active",
-    joinDate: "2024-01-10",
-    lastActive: "2024-01-24",
-    coursesEnrolled: 5,
-    profilePicture: "/placeholder.svg?height=32&width=32",
-  },
-  {
-    id: 3,
-    name: "Mike Johnson",
-    email: "mike.johnson@email.com",
-    role: "ROLE_ADMIN",
-    status: "active",
-    joinDate: "2023-12-01",
-    lastActive: "2024-01-25",
-    coursesEnrolled: 0,
-    profilePicture: "/placeholder.svg?height=32&width=32",
-  },
-  {
-    id: 4,
-    name: "Sarah Wilson",
-    email: "sarah.wilson@email.com",
-    role: "ROLE_STUDENT",
-    status: "inactive",
-    joinDate: "2024-01-05",
-    lastActive: "2024-01-20",
-    coursesEnrolled: 2,
-    profilePicture: "/placeholder.svg?height=32&width=32",
-  },
-  {
-    id: 5,
-    name: "David Brown",
-    email: "david.brown@email.com",
-    role: "ROLE_STUDENT",
-    status: "active",
-    joinDate: "2024-01-12",
-    lastActive: "2024-01-25",
-    coursesEnrolled: 4,
-    profilePicture: "/placeholder.svg?height=32&width=32",
-  },
-];
+interface ApiUser {
+  userId: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: "ROLE_STUDENT" | "ROLE_ADMIN";
+  phoneNumber: string;
+  status: boolean;
+  coursesEnrolled: number | null;
+  memberSince: string | null;
+  certificatesEarned: number | null;
+}
 
 export function UserManagementTab() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredUsers, setFilteredUsers] = useState(users);
+  const [users, setUsers] = useState<ApiUser[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<ApiUser[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [roleFilter, setRoleFilter] = useState<
+    "all" | "ROLE_STUDENT" | "ROLE_ADMIN"
+  >("all");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "active" | "inactive"
+  >("all");
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await UserService.getAllUsers();
+        if (response.success) {
+          setUsers(response.data);
+          setFilteredUsers(response.data);
+        } else {
+          setError(response.message || "Failed to fetch users");
+        }
+      } catch (err) {
+        setError("An error occurred while fetching users");
+        console.error("Error fetching users:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   const handleSearch = (term: string) => {
     setSearchTerm(term);
-    const filtered = users.filter(
-      (user) =>
-        user.name.toLowerCase().includes(term.toLowerCase()) ||
-        user.email.toLowerCase().includes(term.toLowerCase()) ||
-        user.role.toLowerCase().includes(term.toLowerCase())
-    );
+    applyFilters(term, roleFilter, statusFilter);
+  };
+
+  const applyFilters = (
+    searchTerm: string,
+    role: typeof roleFilter,
+    status: typeof statusFilter
+  ) => {
+    let filtered = [...users];
+
+    if (searchTerm) {
+      filtered = filtered.filter(
+        (user) =>
+          `${user.firstName} ${user.lastName}`
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.role.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    if (role !== "all") {
+      filtered = filtered.filter((user) => user.role === role);
+    }
+
+    if (status !== "all") {
+      filtered = filtered.filter((user) =>
+        status === "active" ? user.status : !user.status
+      );
+    }
+
     setFilteredUsers(filtered);
   };
+
+  const handleRoleFilterChange = (role: typeof roleFilter) => {
+    setRoleFilter(role);
+    applyFilters(searchTerm, role, statusFilter);
+  };
+
+  const handleStatusFilterChange = (status: typeof statusFilter) => {
+    setStatusFilter(status);
+    applyFilters(searchTerm, roleFilter, status);
+  };
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "N/A";
+    return new Date(dateString).toLocaleDateString();
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        Loading users...
+      </div>
+    );
+  }
+
+  if (error) {
+    return <div className="text-red-500 text-center p-4">Error: {error}</div>;
+  }
 
   return (
     <div className="space-y-6">
@@ -110,10 +148,6 @@ export function UserManagementTab() {
             Manage all registered users and their permissions
           </p>
         </div>
-        <Button className="bg-gradient-to-br from-blue-600 to-blue-800">
-          <UserPlus className="h-4 w-4 mr-2" />
-          Add User
-        </Button>
       </div>
 
       {/* Stats Cards */}
@@ -145,7 +179,7 @@ export function UserManagementTab() {
         <Card>
           <CardContent className="p-4">
             <div className="text-2xl font-bold text-orange-600">
-              {users.filter((u) => u.status === "active").length}
+              {users.filter((u) => u.status).length}
             </div>
             <div className="text-sm text-gray-600">Active Users</div>
           </CardContent>
@@ -171,10 +205,86 @@ export function UserManagementTab() {
                 className="pl-10"
               />
             </div>
-            <Button variant="outline">
-              <Filter className="h-4 w-4 mr-2" />
-              Filter
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">
+                  <Filter className="h-4 w-4 mr-2" />
+                  Filter
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56">
+                <div className="p-2">
+                  <h4 className="text-sm font-medium mb-2">Role</h4>
+                  <div className="space-y-1">
+                    <button
+                      className={`w-full text-left px-3 py-1.5 text-sm rounded-md transition-colors duration-75 ${
+                        roleFilter === "all"
+                          ? "bg-gradient-to-br from-blue-600 to-blue-800 text-white"
+                          : "text-gray-600 hover:bg-blue-50"
+                      }`}
+                      onClick={() => handleRoleFilterChange("all")}
+                    >
+                      All Roles
+                    </button>
+                    <button
+                      className={`w-full text-left px-3 py-1.5 text-sm rounded-md transition-colors duration-75 ${
+                        roleFilter === "ROLE_STUDENT"
+                          ? "bg-gradient-to-br from-blue-600 to-blue-800 text-white"
+                          : "text-gray-600 hover:bg-blue-50"
+                      }`}
+                      onClick={() => handleRoleFilterChange("ROLE_STUDENT")}
+                    >
+                      Students
+                    </button>
+                    <button
+                      className={`w-full text-left px-3 py-1.5 text-sm rounded-md transition-colors duration-75 ${
+                        roleFilter === "ROLE_ADMIN"
+                          ? "bg-gradient-to-br from-blue-600 to-blue-800 text-white"
+                          : "text-gray-600 hover:bg-blue-50"
+                      }`}
+                      onClick={() => handleRoleFilterChange("ROLE_ADMIN")}
+                    >
+                      Administrators
+                    </button>
+                  </div>
+                </div>
+                <div className="p-2">
+                  <h4 className="text-sm font-medium mb-2">Status</h4>
+                  <div className="space-y-1">
+                    <button
+                      className={`w-full text-left px-3 py-1.5 text-sm rounded-md transition-colors duration-75 ${
+                        statusFilter === "all"
+                          ? "bg-gradient-to-br from-blue-600 to-blue-800 text-white"
+                          : "text-gray-600 hover:bg-blue-50"
+                      }`}
+                      onClick={() => handleStatusFilterChange("all")}
+                    >
+                      All Statuses
+                    </button>
+                    <button
+                      className={`w-full text-left px-3 py-1.5 text-sm rounded-md transition-colors duration-75 ${
+                        statusFilter === "active"
+                          ? "bg-gradient-to-br from-blue-600 to-blue-800 text-white"
+                          : "text-gray-600 hover:bg-blue-50"
+                      }`}
+                      onClick={() => handleStatusFilterChange("active")}
+                    >
+                      Active
+                    </button>
+                    <button
+                      className={`w-full text-left px-3 py-1.5 text-sm rounded-md transition-colors duration-75 ${
+                        statusFilter === "inactive"
+                          ? "bg-gradient-to-br from-blue-600 to-blue-800 text-white"
+                          : "text-gray-600 hover:bg-blue-50"
+                      }`}
+                      onClick={() => handleStatusFilterChange("inactive")}
+                    >
+                      Inactive
+                    </button>
+                  </div>
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           <Table>
@@ -185,81 +295,87 @@ export function UserManagementTab() {
                 <TableHead>Status</TableHead>
                 <TableHead>Courses</TableHead>
                 <TableHead>Join Date</TableHead>
-                <TableHead>Last Active</TableHead>
+                <TableHead>Phone</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredUsers.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell>
-                    <div className="flex items-center space-x-3">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage
-                          src={user.profilePicture || "/placeholder.svg"}
-                          alt={user.name}
-                        />
-                        <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="font-medium">{user.name}</div>
-                        <div className="text-sm text-gray-500">
-                          {user.email}
+              {filteredUsers.length > 0 ? (
+                filteredUsers.map((user) => (
+                  <TableRow key={user.userId}>
+                    <TableCell>
+                      <div className="flex items-center space-x-3">
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback>
+                            {user.firstName.charAt(0)}
+                            {user.lastName.charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="font-medium">
+                            {user.firstName} {user.lastName}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {user.email}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={
-                        user.role === "ROLE_ADMIN" ? "default" : "secondary"
-                      }
-                      className={
-                        user.role === "ROLE_ADMIN"
-                          ? "bg-gradient-to-br from-blue-600 to-blue-800"
-                          : ""
-                      }
-                    >
-                      {user.role === "ROLE_ADMIN" ? "Admin" : "Student"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={
-                        user.status === "active" ? "default" : "secondary"
-                      }
-                      className={
-                        user.status === "active"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-gray-100 text-gray-800"
-                      }
-                    >
-                      {user.status.charAt(0).toUpperCase() +
-                        user.status.slice(1)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{user.coursesEnrolled}</TableCell>
-                  <TableCell>{user.joinDate}</TableCell>
-                  <TableCell>{user.lastActive}</TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>View Profile</DropdownMenuItem>
-                        <DropdownMenuItem>Edit User</DropdownMenuItem>
-                        <DropdownMenuItem>Reset Password</DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600">
-                          {user.status === "active" ? "Deactivate" : "Activate"}
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={
+                          user.role === "ROLE_ADMIN" ? "default" : "secondary"
+                        }
+                        className={
+                          user.role === "ROLE_ADMIN"
+                            ? "bg-gradient-to-br from-blue-600 to-blue-800"
+                            : ""
+                        }
+                      >
+                        {user.role === "ROLE_ADMIN" ? "Admin" : "Student"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={user.status ? "default" : "secondary"}
+                        className={
+                          user.status
+                            ? "bg-green-100 text-green-800"
+                            : "bg-gray-100 text-gray-800"
+                        }
+                      >
+                        {user.status ? "Active" : "Inactive"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{user.coursesEnrolled ?? 0}</TableCell>
+                    <TableCell>{formatDate(user.memberSince)}</TableCell>
+                    <TableCell>{user.phoneNumber}</TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem>View Profile</DropdownMenuItem>
+                          <DropdownMenuItem>Edit User</DropdownMenuItem>
+                          <DropdownMenuItem>Reset Password</DropdownMenuItem>
+                          <DropdownMenuItem className="text-red-600">
+                            {user.status ? "Deactivate" : "Activate"}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center py-8">
+                    No users found matching your criteria
                   </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </CardContent>

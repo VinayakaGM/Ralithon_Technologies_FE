@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   Card,
   CardContent,
@@ -26,6 +26,7 @@ interface UserData {
   memberSince: string;
   coursesEnrolled: number;
   certificatesEarned: number;
+  profileImage?: string;
 }
 
 export function ProfileTab() {
@@ -39,6 +40,10 @@ export function ProfileTab() {
     email: "",
     phoneNumber: "",
   });
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const currentUser = authService.getCurrentUser();
 
@@ -61,6 +66,9 @@ export function ProfileTab() {
             email: response.data.email,
             phoneNumber: response.data.phoneNumber,
           });
+          if (response.data.profileImage) {
+            setImagePreview(response.data.profileImage);
+          }
         } else {
           setError(response.message || "Failed to fetch user data");
         }
@@ -83,23 +91,73 @@ export function ProfileTab() {
     }));
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Check file size (max 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        toast("Error", {
+          description: "Image size should be less than 2MB",
+        });
+        return;
+      }
+
+      // Check file type
+      if (!file.type.match("image.*")) {
+        toast("Error", {
+          description: "Only image files are allowed",
+        });
+        return;
+      }
+
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setImagePreview(event.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+
+      // Convert image to base64 for upload
+      const fileReader = new FileReader();
+      fileReader.onload = () => {
+        setProfileImage(fileReader.result as string);
+      };
+      fileReader.readAsDataURL(file);
+    }
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
+  };
+
   const handleSaveChanges = async () => {
     if (!user) return;
 
     try {
-      const response = await UserService.updateUser(user.userId, {
-        userId: user.userId,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        phoneNumber: formData.phoneNumber,
-        email: user.email,
-        role: user.role,
-        status: user.status,
-      });
+      setIsUploading(true);
+      const response = await UserService.updateUser(
+        user.userId,
+        {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          phoneNumber: formData.phoneNumber,
+        },
+        profileImage || null
+      );
 
       if (response.success) {
-        setUser((prev) => (prev ? { ...prev, ...formData } : null));
+        setUser((prev) => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            phoneNumber: formData.phoneNumber,
+            profileImage: response.data.profileImage || prev.profileImage,
+          };
+        });
         setEditMode(false);
+        setProfileImage(null);
         toast("Success", {
           description: "Profile updated successfully",
         });
@@ -115,6 +173,8 @@ export function ProfileTab() {
       toast("Error", {
         description: "An error occurred while updating profile",
       });
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -155,7 +215,7 @@ export function ProfileTab() {
             <div className="flex items-center space-x-4">
               <Avatar className="h-20 w-20">
                 <AvatarImage
-                  src={"/placeholder.svg"}
+                  src={imagePreview || "/placeholder.svg"}
                   alt={`${user.firstName} ${user.lastName}`}
                 />
                 <AvatarFallback className="text-lg">
@@ -164,7 +224,20 @@ export function ProfileTab() {
                 </AvatarFallback>
               </Avatar>
               <div>
-                <Button variant="outline" size="sm">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleImageChange}
+                  accept="image/*"
+                  className="hidden"
+                  disabled={!editMode}
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={triggerFileInput}
+                  disabled={!editMode}
+                >
                   Change Photo
                 </Button>
                 <p className="text-xs text-gray-500 mt-1">JPG, PNG up to 2MB</p>
@@ -213,10 +286,19 @@ export function ProfileTab() {
                   <Button
                     className="bg-gradient-to-br from-blue-600 to-blue-800 hover:bg-blue-700"
                     onClick={handleSaveChanges}
+                    disabled={isUploading}
                   >
-                    Save Changes
+                    {isUploading ? "Saving..." : "Save Changes"}
                   </Button>
-                  <Button variant="outline" onClick={() => setEditMode(false)}>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setEditMode(false);
+                      setImagePreview(user.profileImage || null);
+                      setProfileImage(null);
+                    }}
+                    disabled={isUploading}
+                  >
                     Cancel
                   </Button>
                 </>
