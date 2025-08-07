@@ -164,8 +164,8 @@ export function Header({
     { id: "about", label: "About" },
     { id: "services", label: "Services" },
     { id: "internships", label: "Internships" },
-    { id: "contact", label: "Contact" },
     { id: "courses", label: "Courses" },
+    { id: "contact", label: "Contact" },
   ];
 
   return (
