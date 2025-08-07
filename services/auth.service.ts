@@ -118,7 +118,7 @@ class AuthService {
       return JSON.parse(userStr) as User;
     } catch (error) {
       console.error("Error parsing user data:", error);
-      this.logout(); // Clear corrupted data
+      this.logout();
       return null;
     }
   }

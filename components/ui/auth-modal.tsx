@@ -17,6 +17,7 @@ import { OTPVerificationModal } from "../otp-verification-modal-box";
 import authService from "@/services/auth.service";
 import { Captcha } from "../captcha";
 import Link from "next/link";
+import { useSession } from "@/context/SessionContext";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -49,7 +50,7 @@ export function AuthModal({
     firstName: "",
     lastName: "",
     emailId: "",
-    contact: "",
+    contact: "+91",
     password: "",
     checkPassword: "",
   });
@@ -326,7 +327,10 @@ export function AuthModal({
             toast.success("Welcome! 👋", {
               description: `You've been automatically logged in. Welcome to Ralithon Technologies!`,
             });
+            localStorage.setItem("authToken", loginResponse.token);
 
+            const { login } = useSession();
+            login();
             setShowOTPModal(false);
             onClose();
             if (onAuthSuccess) onAuthSuccess();
@@ -412,20 +416,22 @@ export function AuthModal({
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] w-[90vw] max-h-[90vh] overflow-y-auto rounded-lg">
           <DialogHeader>
-            <DialogTitle style={{ display: "flex", justifyContent: "center" }}>
+            <DialogTitle className="text-center">
               {isSignUp ? "Create an account" : "Sign in to your account"}
             </DialogTitle>
-          </DialogHeader>{" "}
+          </DialogHeader>
+
           {customMessage && (
             <div className="bg-blue-50 p-3 rounded-md text-sm text-blue-800 mb-4">
               {customMessage}
             </div>
           )}
+
           {isSignUp ? (
             <form onSubmit={handleSignUp} className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="firstName">First Name</Label>
                   <Input
@@ -454,7 +460,7 @@ export function AuthModal({
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="emailId">Email ID</Label>
                   <Input
@@ -484,8 +490,7 @@ export function AuthModal({
                   )}
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                {/* Password Field */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="password">Password</Label>
                   <div className="relative">
@@ -524,7 +529,6 @@ export function AuthModal({
                   )}
                 </div>
 
-                {/* Confirm Password Field */}
                 <div className="space-y-2">
                   <Label htmlFor="checkPassword">Confirm Password</Label>
                   <div className="relative">
@@ -560,13 +564,13 @@ export function AuthModal({
                   )}
                 </div>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-start space-x-2">
                 <input
                   type="checkbox"
                   id="terms"
                   checked={acceptedTerms}
                   onChange={(e) => setAcceptedTerms(e.target.checked)}
-                  className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 mt-1"
                 />
                 <label
                   htmlFor="terms"
@@ -576,6 +580,7 @@ export function AuthModal({
                   <Link
                     href="/policy"
                     className="text-blue-600 hover:underline"
+                    target="_blank"
                   >
                     Terms and Conditions
                   </Link>
@@ -632,13 +637,13 @@ export function AuthModal({
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="absolute right-0 top-7 h-4/5 px-3 hover:bg-transparent" // Adjusted positioning
+                  className="absolute right-0 top-7 h-4/5 px-3 hover:bg-transparent"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
-                    <EyeOff className="h-4 w-4 mb-6 mt-0" />
+                    <EyeOff className="h-4 w-4" />
                   ) : (
-                    <Eye className="h-4 w-4 mb-6 mt-0" />
+                    <Eye className="h-4 w-4" />
                   )}
                 </Button>
               </div>

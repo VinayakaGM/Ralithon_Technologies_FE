@@ -14,21 +14,11 @@ import {
   BarChart,
   Database,
   Calculator,
-  Mail,
-  MapPin,
-  Instagram,
-  Facebook,
-  Linkedin,
-  Twitter,
-  Menu,
   X,
   ChevronDown,
   BookOpen,
   ClipboardList,
-  User,
-  LogOut,
   Check,
-  LucideLinkedin,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -46,16 +36,6 @@ import {
   ModernContactForm,
   type ContactFormData,
 } from "@/components/ui/Contact-form";
-import Link from "next/link";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import usersService, { Course } from "@/services/users.service";
 import AdminCourseService from "@/services/admin.service";
 import authService from "@/services/auth.service";
@@ -66,7 +46,7 @@ import type {
   VerifyResponse,
 } from "@/services/razorpay";
 import axios from "axios";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 
@@ -95,7 +75,9 @@ export default function RalithonWebsite() {
   const IMAGE_URL = process.env.NEXT_PUBLIC_IMAGE_URL;
   const [showHiringModal, setShowHiringModal] = useState(false);
   const [userId, setUserId] = useState<number | null>(null);
+  const [faqExpanded, setFaqExpanded] = useState(false);
   const router = useRouter();
+  const pathName = usePathname();
 
   useEffect(() => {
     const lastClosed = localStorage.getItem("hiringModalClosed");
@@ -117,6 +99,19 @@ export default function RalithonWebsite() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // In your component
+  useEffect(() => {
+    const hash = window.location.hash.substring(1);
+    if (hash) {
+      const element = document.getElementById(hash);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+        // Clean URL after scroll
+        window.history.replaceState(null, "", window.location.pathname);
+      }
+    }
+  }, [pathName]);
 
   const currentUser = mounted ? AuthService.getCurrentUser() : null;
 
@@ -204,7 +199,6 @@ export default function RalithonWebsite() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
 
   const heroSlides = [
     {
@@ -511,7 +505,7 @@ export default function RalithonWebsite() {
           } catch (verErr: any) {
             toast.error(
               "Payment verification error: " +
-              (verErr.message || "Unknown error")
+                (verErr.message || "Unknown error")
             );
           }
         },
@@ -537,8 +531,8 @@ export default function RalithonWebsite() {
       console.error("Error:", error);
       toast.error(
         error.response?.data?.message ||
-        error.message ||
-        "An error occurred during enrollment"
+          error.message ||
+          "An error occurred during enrollment"
       );
     }
   };
@@ -555,10 +549,11 @@ export default function RalithonWebsite() {
         {heroSlides.map((slide, index) => (
           <div
             key={index}
-            className={`absolute inset-0 transition-all duration-1000 ${index === currentSlide
+            className={`absolute inset-0 transition-all duration-1000 ${
+              index === currentSlide
                 ? "opacity-100 scale-100"
                 : "opacity-0 scale-105"
-              }`}
+            }`}
           >
             <div className="absolute inset-0 bg-black bg-opacity-50"></div>
             <Image
@@ -571,27 +566,30 @@ export default function RalithonWebsite() {
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-center text-white max-w-4xl px-4">
                 <h1
-                  className={`text-5xl md:text-6xl font-bold mb-6 transform transition-all duration-1000 ${index === currentSlide
+                  className={`text-5xl md:text-6xl font-bold mb-6 transform transition-all duration-1000 ${
+                    index === currentSlide
                       ? "translate-y-0 opacity-100"
                       : "translate-y-10 opacity-0"
-                    }`}
+                  }`}
                 >
                   {slide.title}
                 </h1>
                 <p
-                  className={`text-xl md:text-2xl mb-8 transform transition-all duration-1000 delay-300 ${index === currentSlide
+                  className={`text-xl md:text-2xl mb-8 transform transition-all duration-1000 delay-300 ${
+                    index === currentSlide
                       ? "translate-y-0 opacity-100"
                       : "translate-y-10 opacity-0"
-                    }`}
+                  }`}
                 >
                   {slide.subtitle}
                 </p>
                 <Button
                   size="lg"
-                  className={`bg-gradient-to-br from-blue-600 to-blue-800 hover:bg-blue-700 text-lg px-8 py-4 transform transition-all duration-1000 delay-500 hover:scale-105 ${index === currentSlide
+                  className={`bg-gradient-to-br from-blue-600 to-blue-800 hover:bg-blue-700 text-lg px-8 py-4 transform transition-all duration-1000 delay-500 hover:scale-105 ${
+                    index === currentSlide
                       ? "translate-y-0 opacity-100"
                       : "translate-y-10 opacity-0"
-                    }`}
+                  }`}
                   onClick={() => scrollToSection("about")}
                 >
                   Read More <ArrowRight className="ml-2 h-5 w-5" />
@@ -606,8 +604,9 @@ export default function RalithonWebsite() {
           {heroSlides.map((_, index) => (
             <button
               key={index}
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentSlide ? "bg-white" : "bg-white bg-opacity-50"
-                }`}
+              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                index === currentSlide ? "bg-white" : "bg-white bg-opacity-50"
+              }`}
               onClick={() => setCurrentSlide(index)}
             />
           ))}
@@ -619,10 +618,11 @@ export default function RalithonWebsite() {
         <div className="container mx-auto px-4">
           <div
             data-animate
-            className={`text-center mb-16 transform transition-all duration-1000 ${visibleElements.has("about-header")
+            className={`text-center mb-16 transform transition-all duration-1000 ${
+              visibleElements.has("about-header")
                 ? "translate-y-0 opacity-100"
                 : "translate-y-10 opacity-0"
-              }`}
+            }`}
             id="about-header"
           >
             <h2 className="text-4xl font-bold text-gray-800 mb-6">
@@ -635,10 +635,11 @@ export default function RalithonWebsite() {
             {/* About Company Details - Only company information */}
             <div
               data-animate
-              className={`transform transition-all duration-1000 delay-200 ${visibleElements.has("about-content")
+              className={`transform transition-all duration-1000 delay-200 ${
+                visibleElements.has("about-content")
                   ? "translate-x-0 opacity-100"
                   : "-translate-x-10 opacity-0"
-                }`}
+              }`}
               id="about-content"
             >
               <h3 className="text-3xl font-bold text-gray-800 mb-6">
@@ -680,10 +681,11 @@ export default function RalithonWebsite() {
             {/* Amazing Photographs */}
             <div
               data-animate
-              className={`transform transition-all duration-1000 delay-400 ${visibleElements.has("about-images")
+              className={`transform transition-all duration-1000 delay-400 ${
+                visibleElements.has("about-images")
                   ? "translate-x-0 opacity-100"
                   : "translate-x-10 opacity-0"
-                }`}
+              }`}
               id="about-images"
             >
               <div className="grid grid-cols-2 gap-4">
@@ -722,10 +724,11 @@ export default function RalithonWebsite() {
         <div className="container mx-auto px-4">
           <div
             data-animate
-            className={`text-center mb-16 transform transition-all duration-1000 ${visibleElements.has("services-header")
+            className={`text-center mb-16 transform transition-all duration-1000 ${
+              visibleElements.has("services-header")
                 ? "translate-y-0 opacity-100"
                 : "translate-y-10 opacity-0"
-              }`}
+            }`}
             id="services-header"
           >
             <h2 className="text-4xl font-bold text-gray-800 mb-6">
@@ -746,10 +749,11 @@ export default function RalithonWebsite() {
               <Card
                 key={index}
                 data-animate
-                className={`text-center hover:shadow-xl transition-all duration-500 transform hover:scale-105 ${visibleElements.has(`service-${index}`)
+                className={`text-center hover:shadow-xl transition-all duration-500 transform hover:scale-105 ${
+                  visibleElements.has(`service-${index}`)
                     ? "translate-y-0 opacity-100"
                     : "translate-y-10 opacity-0"
-                  }`}
+                }`}
                 id={`service-${index}`}
                 style={{ animationDelay: `${index * 200}ms` }}
               >
@@ -775,10 +779,11 @@ export default function RalithonWebsite() {
         <div className="container mx-auto px-4">
           <div
             data-animate
-            className={`text-center mb-16 transform transition-all duration-1000 ${visibleElements.has("internships-header")
+            className={`text-center mb-16 transform transition-all duration-1000 ${
+              visibleElements.has("internships-header")
                 ? "translate-y-0 opacity-100"
                 : "translate-y-10 opacity-0"
-              }`}
+            }`}
             id="internships-header"
           >
             <h2 className="text-4xl font-bold text-gray-800 mb-6">
@@ -793,10 +798,11 @@ export default function RalithonWebsite() {
               <Card
                 key={index}
                 data-animate
-                className={`overflow-hidden hover:shadow-xl transition-all duration-500 transform hover:scale-105 ${visibleElements.has(`internship-${index}`)
+                className={`overflow-hidden hover:shadow-xl transition-all duration-500 transform hover:scale-105 ${
+                  visibleElements.has(`internship-${index}`)
                     ? "translate-y-0 opacity-100"
                     : "translate-y-10 opacity-0"
-                  }`}
+                }`}
                 id={`internship-${index}`}
                 style={{ animationDelay: `${index * 150}ms` }}
               >
@@ -842,10 +848,11 @@ export default function RalithonWebsite() {
           {/* Text about internships and general Apply Now button */}
           <div
             data-animate
-            className={`text-center transform transition-all duration-1000 ${visibleElements.has("internships-cta")
+            className={`text-center transform transition-all duration-1000 ${
+              visibleElements.has("internships-cta")
                 ? "translate-y-0 opacity-100"
                 : "translate-y-10 opacity-0"
-              }`}
+            }`}
             id="internships-cta"
           >
             <p className="text-lg text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
@@ -863,14 +870,16 @@ export default function RalithonWebsite() {
 
       {selectedInternship && (
         <div
-          className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity ${showInternshipModal
+          className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity ${
+            showInternshipModal
               ? "opacity-100"
               : "opacity-0 pointer-events-none"
-            }`}
+          }`}
         >
           <div
-            className={`bg-white rounded-lg p-6 max-w-2xl w-full mx-4 transform transition-all ${showInternshipModal ? "scale-100" : "scale-95"
-              }`}
+            className={`bg-white rounded-lg p-6 max-w-2xl w-full mx-4 transform transition-all ${
+              showInternshipModal ? "scale-100" : "scale-95"
+            }`}
           >
             <div className="flex justify-between items-start mb-4">
               <div className="flex items-center space-x-4">
@@ -946,10 +955,11 @@ export default function RalithonWebsite() {
         <div className="container mx-auto px-4">
           <div
             data-animate
-            className={`text-center mb-16 transform transition-all duration-1000 ${visibleElements.has("courses-header")
+            className={`text-center mb-16 transform transition-all duration-1000 ${
+              visibleElements.has("courses-header")
                 ? "translate-y-0 opacity-100"
                 : "translate-y-10 opacity-0"
-              }`}
+            }`}
             id="courses-header"
           >
             <h2 className="text-4xl font-bold text-gray-800 mb-6">
@@ -1024,10 +1034,11 @@ export default function RalithonWebsite() {
                           </span>
                         </div>
                         <div
-                          className={`text-xs font-bold rounded-full px-3 py-1 whitespace-nowrap ${course.courseType?.toLowerCase() === "free"
+                          className={`text-xs font-bold rounded-full px-3 py-1 whitespace-nowrap ${
+                            course.courseType?.toLowerCase() === "free"
                               ? "bg-green-100 text-green-600"
                               : "bg-red-100 text-red-600"
-                            }`}
+                          }`}
                         >
                           {course.courseType?.toUpperCase() || "PAID"}
                         </div>
@@ -1058,10 +1069,11 @@ export default function RalithonWebsite() {
               {/* Description text - Same structure as Internships */}
               <div
                 data-animate
-                className={`text-center transform transition-all duration-1000 ${visibleElements.has("courses-cta")
+                className={`text-center transform transition-all duration-1000 ${
+                  visibleElements.has("courses-cta")
                     ? "translate-y-0 opacity-100"
                     : "translate-y-10 opacity-0"
-                  }`}
+                }`}
                 id="courses-cta"
               >
                 <p className="text-lg text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
@@ -1078,12 +1090,14 @@ export default function RalithonWebsite() {
       </section>
       {selectedCourse && (
         <div
-          className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity ${showCourseModal ? "opacity-100" : "opacity-0 pointer-events-none"
-            }`}
+          className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity ${
+            showCourseModal ? "opacity-100" : "opacity-0 pointer-events-none"
+          }`}
         >
           <div
-            className={`bg-white rounded-lg p-6 max-w-2xl w-full mx-4 transform transition-all ${showCourseModal ? "scale-100" : "scale-95"
-              }`}
+            className={`bg-white rounded-lg p-6 max-w-2xl w-full mx-4 transform transition-all ${
+              showCourseModal ? "scale-100" : "scale-95"
+            }`}
           >
             <div className="flex justify-between items-start mb-4">
               <div className="flex items-center space-x-4">
@@ -1096,10 +1110,11 @@ export default function RalithonWebsite() {
                   </h3>
                   <div className="flex items-center space-x-2 mt-1">
                     <span
-                      className={`text-xs font-bold rounded-full px-3 py-1 ${selectedCourse.courseType?.toLowerCase() === "free"
+                      className={`text-xs font-bold rounded-full px-3 py-1 ${
+                        selectedCourse.courseType?.toLowerCase() === "free"
                           ? "bg-green-100 text-green-600"
                           : "bg-red-100 text-red-600"
-                        }`}
+                      }`}
                     >
                       {selectedCourse.courseType?.toUpperCase() || "PAID"}
                     </span>
@@ -1163,10 +1178,11 @@ export default function RalithonWebsite() {
                         Status:
                       </span>
                       <span
-                        className={`text-sm ${selectedCourse.status
+                        className={`text-sm ${
+                          selectedCourse.status
                             ? "text-green-600"
                             : "text-gray-600"
-                          }`}
+                        }`}
                       >
                         {selectedCourse.status ? "Active" : "Inactive"}
                       </span>
@@ -1249,10 +1265,11 @@ export default function RalithonWebsite() {
         <div className="container mx-auto px-4">
           <div
             data-animate
-            className={`transform transition-all duration-1000 ${visibleElements.has("contact-form")
+            className={`transform transition-all duration-1000 ${
+              visibleElements.has("contact-form")
                 ? "translate-y-0 opacity-100"
                 : "translate-y-10 opacity-0"
-              }`}
+            }`}
             id="contact-form"
           >
             <ModernContactForm onSubmit={handleContactSubmit} />
@@ -1261,49 +1278,78 @@ export default function RalithonWebsite() {
       </section>
 
       {/* FAQ Section */}
-      <section id="faq" className="py-20 bg-gray-50">
+      <section id="faq" className="py-8 bg-gray-50">
         <div className="container mx-auto px-4">
           <div
             data-animate
-            className={`text-center mb-16 transform transition-all duration-1000 ${visibleElements.has("faq-header")
+            className={`text-center mb-4 transform transition-all duration-1000 ${
+              visibleElements.has("faq-header")
                 ? "translate-y-0 opacity-100"
                 : "translate-y-10 opacity-0"
-              }`}
+            }`}
             id="faq-header"
           >
             <h2 className="text-4xl font-bold text-gray-800 mb-6">
               Frequently Asked Questions
             </h2>
             <div className="w-20 h-1 bg-gradient-to-br from-blue-600 to-blue-800 mx-auto mb-8"></div>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
               Find answers to common questions about our services and internship
               programs.
             </p>
+
+            {/* Expand/Collapse Button */}
+            <Button
+              onClick={() => setFaqExpanded(!faqExpanded)}
+              className="bg-gradient-to-br from-blue-600 to-blue-800 hover:bg-blue-700 text-white px-6 py-3 rounded-full flex items-center space-x-2 mx-auto"
+            >
+              <span>{faqExpanded ? "Hide FAQs" : "View All FAQs"}</span>
+              <ChevronDown
+                className={`h-5 w-5 transition-transform duration-300 ${
+                  faqExpanded ? "rotate-180" : "rotate-0"
+                }`}
+              />
+            </Button>
           </div>
 
-          <div className="max-w-3xl mx-auto space-y-6">
-            {faqData.map((faq, index) => (
-              <Card
-                key={index}
-                data-animate
-                className={`p-6 hover:shadow-lg transition-all duration-500 ${visibleElements.has(`faq-${index}`)
-                    ? "translate-y-0 opacity-100"
-                    : "translate-y-10 opacity-0"
+          {/* Collapsible FAQ Content */}
+          <div
+            className={`max-w-4xl mx-auto overflow-hidden transition-all duration-500 ease-in-out ${
+              faqExpanded ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
+            }`}
+          >
+            <div className="space-y-6 pt-8">
+              {faqData.map((faq, index) => (
+                <Card
+                  key={index}
+                  data-animate
+                  className={`px-6 py-4 hover:shadow-lg transition-all duration-500 transform ${
+                    faqExpanded && visibleElements.has(`faq-${index}`)
+                      ? "translate-y-0 opacity-100"
+                      : "translate-y-10 opacity-0"
                   }`}
-                id={`faq-${index}`}
-                style={{ animationDelay: `${index * 150}ms` }}
-              >
-                <h3 className="text-lg font-semibold text-gray-800 mb-3">
-                  {faq.question}
-                </h3>
-                <p className="text-gray-600 leading-relaxed">{faq.answer}</p>
-              </Card>
-            ))}
+                  id={`faq-${index}`}
+                  style={{
+                    animationDelay: faqExpanded ? `${index * 150}ms` : "0ms",
+                    transitionDelay: faqExpanded ? `${index * 100}ms` : "0ms",
+                  }}
+                >
+                  <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-start">
+                    {faq.question}
+                  </h3>
+                  <p className="text-gray-600 leading-relaxed ">{faq.answer}</p>
+                </Card>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      <Footer />
+      <Footer
+        activeSection={activeSection}
+        setActiveSection={setActiveSection}
+        scrollToSection={scrollToSection}
+      />
 
       {/* Signup / Signin modal */}
       <AuthModal

@@ -10,7 +10,9 @@ export function StudentHeader() {
     <header className="bg-white shadow-lg border-b border-gray-200 px-4 py-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <SidebarTrigger />
+          <div className="lg:hidden">
+            <SidebarTrigger />
+          </div>
         </div>
         <div className="flex items-center space-x-4">
           <Link href="/">

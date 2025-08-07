@@ -12,6 +12,7 @@ import {
   SidebarMenuItem,
   SidebarHeader,
 } from "@/components/ui/sidebar";
+import { useRouter } from "next/navigation";
 
 const menuItems = [
   {
@@ -51,16 +52,24 @@ export function StudentSidebar({
   setActiveTab,
 }: StudentSidebarProps) {
   const IMAGE_URL = process.env.NEXT_PUBLIC_IMAGE_URL;
+  const router = useRouter();
+
+  const handleLogoClick = () => {
+    router.push("/");
+  };
+
   return (
     <Sidebar className="border-r border-gray-200 bg-white">
       <SidebarHeader className="p-4 border-b border-gray-200">
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 flex items-center justify-center">
-            <img
-              src={`${IMAGE_URL}logo.png`}
-               alt="Ralithon Technologies"
-            />
-          </div>
+          <button
+            onClick={handleLogoClick}
+            className="hover:opacity-80 transition-opacity"
+          >
+            <div className="w-8 h-8 flex items-center justify-center">
+              <img src={`${IMAGE_URL}logo.png`} alt="Ralithon Technologies" />
+            </div>
+          </button>
           <h2 className="text-lg font-bold text-gray-800">Student Portal</h2>
         </div>
       </SidebarHeader>
@@ -83,15 +92,6 @@ export function StudentSidebar({
                     <item.icon className="h-5 w-5 mr-3" />
                     <div className="text-left">
                       <div className="font-medium">{item.title}</div>
-                      <div
-                        className={`text-xs ${
-                          activeTab === item.id
-                            ? "text-blue-100"
-                            : "text-gray-500"
-                        }`}
-                      >
-                        {item.description}
-                      </div>
                     </div>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

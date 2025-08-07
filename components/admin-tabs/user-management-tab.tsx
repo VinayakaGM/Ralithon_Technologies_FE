@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Search, MoreHorizontal, Filter } from "lucide-react";
 import UserService from "@/services/users.service";
+import { Pagination } from "../Pagination";
 
 interface ApiUser {
   userId: number;
@@ -42,6 +43,8 @@ interface ApiUser {
   certificatesEarned: number | null;
 }
 
+const USERS_PER_PAGE = 8;
+
 export function UserManagementTab() {
   const [searchTerm, setSearchTerm] = useState("");
   const [users, setUsers] = useState<ApiUser[]>([]);
@@ -54,6 +57,7 @@ export function UserManagementTab() {
   const [statusFilter, setStatusFilter] = useState<
     "all" | "active" | "inactive"
   >("all");
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -78,6 +82,7 @@ export function UserManagementTab() {
 
   const handleSearch = (term: string) => {
     setSearchTerm(term);
+    setCurrentPage(1); // Reset to first page when searching
     applyFilters(term, roleFilter, statusFilter);
   };
 
@@ -114,18 +119,31 @@ export function UserManagementTab() {
 
   const handleRoleFilterChange = (role: typeof roleFilter) => {
     setRoleFilter(role);
+    setCurrentPage(1); // Reset to first page when changing role filter
     applyFilters(searchTerm, role, statusFilter);
   };
 
   const handleStatusFilterChange = (status: typeof statusFilter) => {
     setStatusFilter(status);
+    setCurrentPage(1); // Reset to first page when changing status filter
     applyFilters(searchTerm, roleFilter, status);
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
   };
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return "N/A";
     return new Date(dateString).toLocaleDateString();
   };
+
+  // Calculate pagination data
+  const totalUsers = filteredUsers.length;
+  const totalPages = Math.ceil(totalUsers / USERS_PER_PAGE);
+  const startIndex = (currentPage - 1) * USERS_PER_PAGE;
+  const endIndex = startIndex + USERS_PER_PAGE;
+  const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
 
   if (loading) {
     return (
@@ -300,8 +318,8 @@ export function UserManagementTab() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredUsers.length > 0 ? (
-                filteredUsers.map((user) => (
+              {paginatedUsers.length > 0 ? (
+                paginatedUsers.map((user) => (
                   <TableRow key={user.userId}>
                     <TableCell>
                       <div className="flex items-center space-x-3">
@@ -378,6 +396,15 @@ export function UserManagementTab() {
               )}
             </TableBody>
           </Table>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          )}
         </CardContent>
       </Card>
     </div>
