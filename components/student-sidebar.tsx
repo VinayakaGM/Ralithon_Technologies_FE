@@ -12,37 +12,33 @@ import {
   SidebarMenuItem,
   SidebarHeader,
 } from "@/components/ui/sidebar";
+import { useRouter } from "next/navigation";
 
 const menuItems = [
   {
     id: "profile",
     title: "Profile",
     icon: User,
-    description: "View and update personal info",
   },
   {
     id: "assessments",
     title: "Assessments",
     icon: FileText,
-    description: "View tests and scores",
   },
   {
     id: "courses",
     title: "Enrolled Courses",
     icon: BookOpen,
-    description: "Your active courses",
   },
   {
     id: "certificates",
     title: "Certificates",
     icon: Award,
-    description: "Download certificates",
   },
   {
     id: "achievements",
     title: "Achievements",
     icon: Trophy,
-    description: "Badges and milestones",
   },
 ];
 
@@ -56,25 +52,29 @@ export function StudentSidebar({
   setActiveTab,
 }: StudentSidebarProps) {
   const IMAGE_URL = process.env.NEXT_PUBLIC_IMAGE_URL;
+  const router = useRouter();
+
+  const handleLogoClick = () => {
+    router.push("/");
+  };
+
   return (
     <Sidebar className="border-r border-gray-200 bg-white">
-      <SidebarHeader className="p-6 border-b border-gray-200">
+      <SidebarHeader className="p-4 border-b border-gray-200">
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center">
-            <img
-              src={`${IMAGE_URL}logo.png`}
-              alt="Modern office space"
-              className="rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
-            />
-          </div>
+          <button
+            onClick={handleLogoClick}
+            className="hover:opacity-80 transition-opacity"
+          >
+            <div className="w-8 h-8 flex items-center justify-center">
+              <img src={`${IMAGE_URL}logo.png`} alt="Ralithon Technologies" />
+            </div>
+          </button>
           <h2 className="text-lg font-bold text-gray-800">Student Portal</h2>
         </div>
       </SidebarHeader>
       <SidebarContent className="p-4">
         <SidebarGroup>
-          <SidebarGroupLabel className="text-gray-600 font-semibold mb-4">
-            Learning Hub
-          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-3" style={{ gap: "10px" }}>
               {menuItems.map((item) => (
@@ -92,15 +92,6 @@ export function StudentSidebar({
                     <item.icon className="h-5 w-5 mr-3" />
                     <div className="text-left">
                       <div className="font-medium">{item.title}</div>
-                      <div
-                        className={`text-xs ${
-                          activeTab === item.id
-                            ? "text-blue-100"
-                            : "text-gray-500"
-                        }`}
-                      >
-                        {item.description}
-                      </div>
                     </div>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

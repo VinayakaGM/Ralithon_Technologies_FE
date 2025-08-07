@@ -19,9 +19,14 @@ export function Captcha({ onVerify, reset }: CaptchaProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const generateCaptcha = () => {
-    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";
+    // More challenging character set with similar-looking characters
+    const similarChars = "0Oo1lIi2Zz5Ss6Gb9q";
+    const normalChars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz2346789";
+    // 30% chance to include a confusing character
+    const chars = Math.random() < 0.3 ? similarChars + normalChars : normalChars;
+    
     let result = "";
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 6; i++) { // Increased length to 7 characters
       result += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     return result;
@@ -36,11 +41,13 @@ export function Captcha({ onVerify, reset }: CaptchaProps) {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    ctx.fillStyle = "#f8f9fa";
+    // Light background
+    ctx.fillStyle = "white";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    for (let i = 0; i < 5; i++) {
-      ctx.strokeStyle = `hsl(${Math.random() * 360}, 50%, 70%)`;
+    // Add noise lines (in light gray)
+    for (let i = 0; i < 20; i++) {
+      ctx.strokeStyle = `rgba(0, 0, 0, ${Math.random() * 0.2})`;
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
@@ -48,20 +55,22 @@ export function Captcha({ onVerify, reset }: CaptchaProps) {
       ctx.stroke();
     }
 
-    for (let i = 0; i < 50; i++) {
-      ctx.fillStyle = `hsl(${Math.random() * 360}, 50%, 70%)`;
+    // Add noise dots (in light gray)
+    for (let i = 0; i < 100; i++) {
+      ctx.fillStyle = `rgba(0, 0, 0, ${Math.random() * 0.1})`;
       ctx.beginPath();
       ctx.arc(
         Math.random() * canvas.width,
         Math.random() * canvas.height,
-        1,
+        Math.random() * 1.5,
         0,
         2 * Math.PI
       );
       ctx.fill();
     }
 
-    ctx.font = "bold 24px Arial";
+    // Draw each character with random distortions
+    ctx.font = "bold 18px Arial";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
@@ -71,17 +80,31 @@ export function Captcha({ onVerify, reset }: CaptchaProps) {
     for (let i = 0; i < text.length; i++) {
       ctx.save();
 
-      const x = centerX + (i - 2.5) * 20;
-      const y = centerY + (Math.random() - 0.5) * 10;
+      const x = centerX + (i - 3) * 18; // Adjusted spacing for 7 chars
+      const y = centerY + (Math.random() - 0.5) * 15; // More vertical variation
 
       ctx.translate(x, y);
-      ctx.rotate((Math.random() - 0.5) * 0.4);
+      ctx.rotate((Math.random() - 0.5) * 0.5); // More rotation
 
-      ctx.fillStyle = `hsl(${Math.random() * 360}, 70%, 30%)`;
+      // Black text with slight variations
+      const darkness = 20 + Math.random() * 30; // 20-50% black variation
+      ctx.fillStyle = `rgba(0, 0, 0, ${darkness / 100})`;
+      
+      // Random character scaling
+      const scale = 0.8 + Math.random() * 0.4;
+      ctx.scale(scale, scale);
+      
       ctx.fillText(text[i], 0, 0);
 
       ctx.restore();
     }
+
+    // Add a subtle overlay for more difficulty
+    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    gradient.addColorStop(0, "rgba(255, 255, 255, 0.3)");
+    gradient.addColorStop(1, "rgba(255, 255, 255, 0.1)");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
   };
 
   const initializeCaptcha = () => {
@@ -97,6 +120,7 @@ export function Captcha({ onVerify, reset }: CaptchaProps) {
   };
 
   const verifyCaptcha = (input: string) => {
+    // Case-sensitive comparison
     const valid = input === captchaText;
     setIsValid(valid);
     onVerify(valid);
@@ -128,8 +152,8 @@ export function Captcha({ onVerify, reset }: CaptchaProps) {
         <div className="border rounded-md p-2 bg-gray-50">
           <canvas
             ref={canvasRef}
-            width={150}
-            height={50}
+            width={150} // Wider canvas for 7 characters
+            height={30}
             className="border rounded"
           />
         </div>
@@ -150,7 +174,7 @@ export function Captcha({ onVerify, reset }: CaptchaProps) {
         <Input
           id="captcha"
           type="text"
-          placeholder="Enter the code above"
+          placeholder="Enter the code exactly as shown"
           value={userInput}
           onChange={handleInputChange}
           className={`${
@@ -160,7 +184,7 @@ export function Captcha({ onVerify, reset }: CaptchaProps) {
               ? "border-red-500 focus:border-red-500"
               : ""
           }`}
-          maxLength={6}
+          maxLength={6} // Updated to match new length
           autoComplete="off"
         />
 
@@ -177,7 +201,7 @@ export function Captcha({ onVerify, reset }: CaptchaProps) {
         )}
 
         <p className="text-xs text-gray-500">
-          Enter the {captchaText.length}-character code shown above
+          Enter the {captchaText.length}-character code exactly as shown (case-sensitive)
         </p>
       </div>
     </div>

@@ -74,7 +74,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
         visibleToasts={1}
         richColors={false}
         closeButton={true}
-        duration={1500}
+        duration={1000}
         toastOptions={{
           style: {},
           className: "",

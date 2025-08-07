@@ -14,19 +14,10 @@ import {
   BarChart,
   Database,
   Calculator,
-  Mail,
-  MapPin,
-  Instagram,
-  Facebook,
-  Linkedin,
-  Twitter,
-  Menu,
   X,
   ChevronDown,
   BookOpen,
   ClipboardList,
-  User,
-  LogOut,
   Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -45,16 +36,6 @@ import {
   ModernContactForm,
   type ContactFormData,
 } from "@/components/ui/Contact-form";
-import Link from "next/link";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import usersService, { Course } from "@/services/users.service";
 import AdminCourseService from "@/services/admin.service";
 import authService from "@/services/auth.service";
@@ -65,7 +46,9 @@ import type {
   VerifyResponse,
 } from "@/services/razorpay";
 import axios from "axios";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 
 export default function RalithonWebsite() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -92,7 +75,9 @@ export default function RalithonWebsite() {
   const IMAGE_URL = process.env.NEXT_PUBLIC_IMAGE_URL;
   const [showHiringModal, setShowHiringModal] = useState(false);
   const [userId, setUserId] = useState<number | null>(null);
+  const [faqExpanded, setFaqExpanded] = useState(false);
   const router = useRouter();
+  const pathName = usePathname();
 
   useEffect(() => {
     const lastClosed = localStorage.getItem("hiringModalClosed");
@@ -114,6 +99,19 @@ export default function RalithonWebsite() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // In your component
+  useEffect(() => {
+    const hash = window.location.hash.substring(1);
+    if (hash) {
+      const element = document.getElementById(hash);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+        // Clean URL after scroll
+        window.history.replaceState(null, "", window.location.pathname);
+      }
+    }
+  }, [pathName]);
 
   const currentUser = mounted ? AuthService.getCurrentUser() : null;
 
@@ -201,21 +199,6 @@ export default function RalithonWebsite() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
-  const handleLogout = () => {
-    try {
-      AuthService.logout();
-      setIsDropdownOpen(false);
-      toast.success("Logged Out Successfully! 👋", {
-        description:
-          "You have been safely logged out. Thank you for visiting Ralithon Technologies!",
-      });
-    } catch (error) {
-      toast.error("Logout Failed", {
-        description: "There was an issue logging you out. Please try again.",
-      });
-    }
-  };
 
   const heroSlides = [
     {
@@ -556,239 +539,12 @@ export default function RalithonWebsite() {
 
   return (
     <div className="min-h-screen bg-white">
-      <header className="bg-white shadow-lg sticky top-0 z-40 border-b border-gray-200">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div
-              className="flex items-center space-x-3 cursor-pointer hover:opacity-80 transition-opacity"
-              onClick={() => scrollToSection("home")}
-            >
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center shadow-lg">
-                <img
-                  src={`${IMAGE_URL}logo.png`}
-                  alt="Modern office space"
-                  className="rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
-                />
-              </div>
-              <span className="text-2xl font-bold text-gray-800">
-                Ralithon Technologies
-              </span>
-            </div>
-            <nav className="hidden lg:flex space-x-6 items-center">
-              {[
-                { id: "home", label: "Home" },
-                { id: "about", label: "About" },
-                { id: "services", label: "Services" },
-                { id: "internships", label: "Internships" },
-                { id: "contact", label: "Contact" },
-                { id: "courses", label: "Courses" },
-              ].map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => scrollToSection(item.id)}
-                  className={`relative px-1 py-2 font-medium transition-all duration-300 ${
-                    activeSection === item.id
-                      ? "text-transparent bg-clip-text bg-gradient-to-br from-blue-600 to-blue-800"
-                      : "text-gray-700 hover:text-blue-600"
-                  }`}
-                >
-                  {item.label}
-                  {activeSection === item.id && (
-                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 transform scale-x-100 transition-transform duration-300"></div>
-                  )}
-                </button>
-              ))}
-              <Link
-                href="/policy"
-                className={`relative px-1 py-2 font-medium transition-all duration-300 ${
-                  activeSection === "policy"
-                    ? "text-transparent bg-clip-text bg-gradient-to-br from-blue-600 to-blue-800"
-                    : "text-gray-700 hover:text-blue-600"
-                }`}
-              >
-                Policy
-              </Link>
-              {currentUser ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="flex items-center space-x-2 hover:bg-gray-100"
-                    >
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback className="bg-gradient-to-br from-blue-600 to-blue-800 text-white">
-                          {currentUser.email?.charAt(0).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span
-                        className="text-sm font-medium text-gray-700"
-                        style={{ marginLeft: "0px" }}
-                      >
-                        {userDetails
-                          ? `${userDetails.firstName}`
-                          : currentUser?.email?.split("@")[0]}
-                      </span>
-                      <ChevronDown className="h-4 w-4 text-gray-500" />
-                    </Button>
-                  </DropdownMenuTrigger>
-
-                  <DropdownMenuContent align="end" className="w-56">
-                    <DropdownMenuLabel>
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium text-gray-900">
-                          {userDetails
-                            ? `${userDetails.firstName} ${userDetails.lastName}`
-                            : currentUser?.email?.split("@")[0]}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          {!userDetails ? `` : currentUser?.email}
-                        </p>
-                      </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-
-                    <DropdownMenuItem asChild style={{ cursor: "pointer" }}>
-                      <Link
-                        href={
-                          currentUser.userType === "ROLE_STUDENT"
-                            ? "/student-dashboard"
-                            : "/admin-dashboard"
-                        }
-                        className="w-full"
-                      >
-                        <div className="flex items-center w-full">
-                          <User className="mr-2 h-4 w-4" />
-                          <span>
-                            {currentUser.userType === "ROLE_STUDENT"
-                              ? "Student Dashboard"
-                              : "Admin Dashboard"}
-                          </span>
-                        </div>
-                      </Link>
-                    </DropdownMenuItem>
-
-                    <DropdownMenuSeparator />
-
-                    <DropdownMenuItem
-                      onClick={handleLogout}
-                      className="text-red-600 cursor-pointer"
-                    >
-                      <LogOut className="mr-2 h-4 w-4" />
-                      Logout
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ) : (
-                <Button
-                  className="bg-gradient-to-br from-blue-600 to-blue-800 hover:bg-blue-700 text-white px-6 py-2 rounded-full"
-                  onClick={() => setShowAuthModal(true)}
-                >
-                  Sign Up / Sign In
-                </Button>
-              )}
-            </nav>
-
-            {/* Mobile Menu Button */}
-            <Button
-              className="lg:hidden bg-transparent"
-              variant="outline"
-              size="sm"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              {mobileMenuOpen ? (
-                <X className="h-5 w-5" />
-              ) : (
-                <Menu className="h-5 w-5" />
-              )}
-            </Button>
-          </div>
-
-          {/* Mobile Menu */}
-          <div
-            className={`lg:hidden overflow-hidden transition-all duration-500 ${
-              mobileMenuOpen ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
-            }`}
-          >
-            <nav className="pt-4 pb-2 space-y-2">
-              {[
-                { id: "home", label: "Home" },
-                { id: "about", label: "About" },
-                { id: "services", label: "Services" },
-                { id: "internships", label: "Internships" },
-                { id: "contact", label: "Contact" },
-                { id: "courses", label: "Courses" },
-              ].map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    scrollToSection && scrollToSection(item.id);
-                    setMobileMenuOpen(false);
-                  }}
-                  className={`block w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-300 ${
-                    activeSection === item.id
-                      ? "text-transparent bg-clip-text bg-gradient-to-br from-blue-600 to-blue-800 text-blue-600"
-                      : "text-gray-700 hover:bg-gray-100 hover:text-blue-600"
-                  }`}
-                >
-                  {item.label}
-                </button>
-              ))}
-
-              <Link
-                href="/policy"
-                className={`block w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-300 ${
-                  activeSection === "policy"
-                    ? "text-transparent bg-clip-text bg-gradient-to-br from-blue-600 to-blue-800 text-blue-600"
-                    : "text-gray-700 hover:bg-gray-100 hover:text-blue-600"
-                }`}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Policy
-              </Link>
-
-              {currentUser && (
-                <>
-                  <Link
-                    href={
-                      currentUser.userType === "ROLE_STUDENT"
-                        ? "/student-dashboard"
-                        : "/admin-dashboard"
-                    }
-                    className="block w-full text-left px-4 py-3 rounded-lg font-medium text-gray-700 hover:bg-gray-100 hover:text-blue-600"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {currentUser.userType === "ROLE_STUDENT"
-                      ? "Student Dashboard"
-                      : "Admin Dashboard"}
-                  </Link>
-                  <button
-                    onClick={() => {
-                      handleLogout();
-                      setMobileMenuOpen(false);
-                    }}
-                    className="block w-full text-left px-4 py-3 rounded-lg font-medium text-gray-700 hover:bg-gray-100 hover:text-blue-600"
-                  >
-                    Logout
-                  </button>
-                </>
-              )}
-
-              {!currentUser && (
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    setShowAuthModal(true);
-                  }}
-                  className="block w-full text-left px-4 py-3 rounded-lg font-medium text-gray-700 hover:bg-gray-100 hover:text-blue-600"
-                >
-                  Sign Up / Sign In
-                </button>
-              )}
-            </nav>
-          </div>
-        </div>
-      </header>
-
+      <Header
+        activeSection={activeSection}
+        setActiveSection={setActiveSection}
+        setShowAuthModal={setShowAuthModal}
+        scrollToSection={scrollToSection}
+      />
       <section id="home" className="relative h-screen overflow-hidden">
         {heroSlides.map((slide, index) => (
           <div
@@ -1151,9 +907,9 @@ export default function RalithonWebsite() {
                   alt={selectedInternship.title}
                   className="w-full h-48 object-cover rounded-lg mb-4"
                 />
-                <p className="text-gray-700 mb-4">
+                {/* <p className="text-gray-700 mb-4">
                   {selectedInternship.description}
-                </p>
+                </p> */}
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <h4 className="font-semibold text-gray-800 mb-2">
                     Skills you'll learn:
@@ -1186,26 +942,6 @@ export default function RalithonWebsite() {
                   >
                     <span>Enroll in Course</span>
                     <BookOpen className="h-5 w-5" />
-                  </Button>
-                </div>
-
-                <div className="pt-4 border-t border-gray-200">
-                  <h5 className="font-semibold text-gray-800 mb-2">
-                    Need help deciding?
-                  </h5>
-                  <p className="text-sm text-gray-600 mb-3">
-                    Contact our internship coordinator for guidance on which
-                    option is right for you.
-                  </p>
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => {
-                      setShowInternshipModal(false);
-                      scrollToSection("contact");
-                    }}
-                  >
-                    Contact Us
                   </Button>
                 </div>
               </div>
@@ -1518,25 +1254,6 @@ export default function RalithonWebsite() {
                     )}
                   </ul>
                 </div>
-
-                <div className="pt-4 border-t border-gray-200">
-                  <h5 className="font-semibold text-gray-800 mb-2">
-                    Need help deciding?
-                  </h5>
-                  <p className="text-sm text-gray-600 mb-3">
-                    Contact our course coordinator for guidance on this program.
-                  </p>
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => {
-                      setShowCourseModal(false);
-                      scrollToSection("contact");
-                    }}
-                  >
-                    Contact Us
-                  </Button>
-                </div>
               </div>
             </div>
           </div>
@@ -1561,11 +1278,11 @@ export default function RalithonWebsite() {
       </section>
 
       {/* FAQ Section */}
-      <section id="faq" className="py-20 bg-gray-50">
+      <section id="faq" className="py-8 bg-gray-50">
         <div className="container mx-auto px-4">
           <div
             data-animate
-            className={`text-center mb-16 transform transition-all duration-1000 ${
+            className={`text-center mb-4 transform transition-all duration-1000 ${
               visibleElements.has("faq-header")
                 ? "translate-y-0 opacity-100"
                 : "translate-y-10 opacity-0"
@@ -1576,140 +1293,63 @@ export default function RalithonWebsite() {
               Frequently Asked Questions
             </h2>
             <div className="w-20 h-1 bg-gradient-to-br from-blue-600 to-blue-800 mx-auto mb-8"></div>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
               Find answers to common questions about our services and internship
               programs.
             </p>
+
+            {/* Expand/Collapse Button */}
+            <Button
+              onClick={() => setFaqExpanded(!faqExpanded)}
+              className="bg-gradient-to-br from-blue-600 to-blue-800 hover:bg-blue-700 text-white px-6 py-3 rounded-full flex items-center space-x-2 mx-auto"
+            >
+              <span>{faqExpanded ? "Hide FAQs" : "View All FAQs"}</span>
+              <ChevronDown
+                className={`h-5 w-5 transition-transform duration-300 ${
+                  faqExpanded ? "rotate-180" : "rotate-0"
+                }`}
+              />
+            </Button>
           </div>
 
-          <div className="max-w-3xl mx-auto space-y-6">
-            {faqData.map((faq, index) => (
-              <Card
-                key={index}
-                data-animate
-                className={`p-6 hover:shadow-lg transition-all duration-500 ${
-                  visibleElements.has(`faq-${index}`)
-                    ? "translate-y-0 opacity-100"
-                    : "translate-y-10 opacity-0"
-                }`}
-                id={`faq-${index}`}
-                style={{ animationDelay: `${index * 150}ms` }}
-              >
-                <h3 className="text-lg font-semibold text-gray-800 mb-3">
-                  {faq.question}
-                </h3>
-                <p className="text-gray-600 leading-relaxed">{faq.answer}</p>
-              </Card>
-            ))}
+          {/* Collapsible FAQ Content */}
+          <div
+            className={`max-w-4xl mx-auto overflow-hidden transition-all duration-500 ease-in-out ${
+              faqExpanded ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
+            }`}
+          >
+            <div className="space-y-6 pt-8">
+              {faqData.map((faq, index) => (
+                <Card
+                  key={index}
+                  data-animate
+                  className={`px-6 py-4 hover:shadow-lg transition-all duration-500 transform ${
+                    faqExpanded && visibleElements.has(`faq-${index}`)
+                      ? "translate-y-0 opacity-100"
+                      : "translate-y-10 opacity-0"
+                  }`}
+                  id={`faq-${index}`}
+                  style={{
+                    animationDelay: faqExpanded ? `${index * 150}ms` : "0ms",
+                    transitionDelay: faqExpanded ? `${index * 100}ms` : "0ms",
+                  }}
+                >
+                  <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-start">
+                    {faq.question}
+                  </h3>
+                  <p className="text-gray-600 leading-relaxed ">{faq.answer}</p>
+                </Card>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-gray-300 py-16">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-4 gap-8">
-            {/* About Us */}
-            <div>
-              <h3 className="text-xl font-bold text-white mb-4">About Us</h3>
-              <p className="text-gray-400 mb-4 leading-relaxed">
-                Ralithon Technologies is a leading IT company providing
-                innovative technology solutions and comprehensive services to
-                help businesses succeed in the digital world.
-              </p>
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <img
-                    src={`${IMAGE_URL}logo.png`}
-                    alt="Modern office space"
-                    className="rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
-                  />
-                </div>
-                <span className="font-bold text-white">
-                  Ralithon Technologies
-                </span>
-              </div>
-            </div>
-
-            {/* Follow Us */}
-            <div>
-              <h3 className="text-xl font-bold text-white mb-4">Follow Us</h3>
-              <div className="space-y-3">
-                <a
-                  href="#"
-                  className="flex items-center space-x-3 text-gray-400 hover:text-white transition-colors"
-                >
-                  <Linkedin className="h-5 w-5" />
-                  <span>LinkedIn</span>
-                </a>
-                <a
-                  href="#"
-                  className="flex items-center space-x-3 text-gray-400 hover:text-white transition-colors"
-                >
-                  <Twitter className="h-5 w-5" />
-                  <span>Twitter</span>
-                </a>
-              </div>
-            </div>
-
-            {/* Contact Info */}
-            <div>
-              <h3 className="text-xl font-bold text-white mb-4">
-                Contact Info
-              </h3>
-              <div className="space-y-3">
-                <div className="flex items-center space-x-3 text-gray-400">
-                  <Mail className="h-5 w-5" />
-                  <span>career@ralithontechnologies.in</span>
-                </div>
-                <div className="flex items-center space-x-3 text-gray-400">
-                  <MapPin className="h-5 w-5" />
-                  <span>PU-4 behind orbit mall,Indore [M.P.]</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Links */}
-            <div>
-              <h3 className="text-xl font-bold text-white mb-4">Quick Links</h3>
-              <div className="space-y-3">
-                {[
-                  { id: "home", label: "Home" },
-                  { id: "about", label: "About" },
-                  { id: "services", label: "Services" },
-                  { id: "internships", label: "Internships" },
-                  { id: "contact", label: "Contact" },
-                ].map((link) => (
-                  <button
-                    key={link.id}
-                    onClick={() => scrollToSection(link.id)}
-                    className="block text-gray-400 hover:text-white transition-colors"
-                  >
-                    {link.label}
-                  </button>
-                ))}
-                <Link
-                  href="/policy"
-                  className="block text-gray-400 hover:text-white transition-colors"
-                >
-                  Policy
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          {/* Copyright Message */}
-          <div className="border-t border-gray-700 mt-12 pt-8 text-center">
-            <p className="text-gray-400">
-              © 2025 Designed by{" "}
-              <span className="text-white font-semibold">
-                Ralithon Technologies
-              </span>
-              . All rights reserved.
-            </p>
-          </div>
-        </div>
-      </footer>
+      <Footer
+        activeSection={activeSection}
+        setActiveSection={setActiveSection}
+        scrollToSection={scrollToSection}
+      />
 
       {/* Signup / Signin modal */}
       <AuthModal

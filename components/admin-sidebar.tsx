@@ -20,6 +20,7 @@ import {
   SidebarMenuItem,
   SidebarHeader,
 } from "@/components/ui/sidebar";
+import { useRouter } from "next/navigation";
 
 const menuItems = [
   {
@@ -73,31 +74,29 @@ interface AdminSidebarProps {
 
 export function AdminSidebar({ activeTab, setActiveTab }: AdminSidebarProps) {
   const IMAGE_URL = process.env.NEXT_PUBLIC_IMAGE_URL;
+  const router = useRouter();
+
+  const handleLogoClick = () => {
+    router.push("/");
+  };
+
   return (
     <Sidebar className="border-r border-gray-200 bg-white">
-      <SidebarHeader className="p-6 border-b border-gray-200">
+      <SidebarHeader className="p-4 border-b border-gray-200">
         <div className="flex items-center space-x-3">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center shadow-lg">
-              <img
-                src={`${IMAGE_URL}logo.png`}
-                alt="Modern office space"
-                className="rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
-              />
+          <button
+            onClick={handleLogoClick}
+            className="hover:opacity-80 transition-opacity"
+          >
+            <div className="w-8 h-8 flex items-center justify-center">
+              <img src={`${IMAGE_URL}logo.png`} alt="Ralithon Technologies" />
             </div>
-            <div>
-              <h2 className="text-lg font-bold text-gray-800">
-                Admin Dashboard
-              </h2>
-            </div>
-          </div>
+          </button>
+          <h2 className="text-lg font-bold text-gray-800">Admin Dashboard</h2>
         </div>
       </SidebarHeader>
       <SidebarContent className="p-4">
         <SidebarGroup>
-          <SidebarGroupLabel className="text-gray-600 font-semibold mb-4">
-            Management Tools
-          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-3" style={{ gap: "10px" }}>
               {menuItems.map((item) => (

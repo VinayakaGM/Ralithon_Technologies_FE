@@ -190,7 +190,7 @@ export function ModernContactForm({ onSubmit }: ModernContactFormProps) {
                 <div>
                   <p className="text-gray-400 text-xs">Address</p>
                   <p className="text-white font-medium text-sm">
-                    PU-4 behind orbit mall, Indore [M.P.]
+                  Indore, Madhya Pradesh
                   </p>
                 </div>
               </div>

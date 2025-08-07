@@ -209,7 +209,6 @@ export function ProfileTab() {
         <Card>
           <CardHeader>
             <CardTitle>Personal Information</CardTitle>
-            <CardDescription>Update your personal details</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center space-x-4">
@@ -314,7 +313,6 @@ export function ProfileTab() {
         <Card>
           <CardHeader>
             <CardTitle>Account Status</CardTitle>
-            <CardDescription>Your current account information</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
