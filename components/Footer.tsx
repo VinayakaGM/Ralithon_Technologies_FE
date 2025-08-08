@@ -70,7 +70,7 @@ export function Footer({
                 { id: "home", label: "Home" },
                 { id: "about", label: "About" },
                 { id: "services", label: "Services" },
-                { id: "internships", label: "Internships" },
+                { id: "internships", label: "Internship & Programs" },
                 { id: "contact", label: "Contact" },
               ].map((item) =>
                 isHomePage ? (

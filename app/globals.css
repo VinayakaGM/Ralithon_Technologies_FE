@@ -3,7 +3,17 @@
 @tailwind utilities;
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Arial, Helvetica, sans-serif;  
+  overflow: -moz-scrollbars-none; 
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+html {
+  -ms-overflow-style: none;  
+  scrollbar-width: none;  
 }
 
 .to-blue-800 {
@@ -236,4 +246,12 @@ color: white !important;
 [data-sonner-toaster] [data-sonner-toast][data-type="default"] [data-close-button]:hover {
   background-color: #e5e7eb !important;
   color: #374151 !important;
+}
+
+.data-\[active\=true\]\:text-sidebar-accent-foreground[data-active="true"] {
+  color: white;
+}
+ 
+.h-4\/5 {
+    height: 52%;
 }

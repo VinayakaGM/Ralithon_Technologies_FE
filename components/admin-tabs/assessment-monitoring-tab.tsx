@@ -34,10 +34,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Plus, MoreHorizontal } from "lucide-react";
+import { Plus, MoreHorizontal, Eye } from "lucide-react";
 import AdminCourseService, {
   AssessmentFormData,
   Assessment,
+  Course,
 } from "@/services/admin.service";
 import { toast } from "sonner";
 
@@ -50,8 +51,14 @@ export function AssessmentMonitoringTab() {
     null
   );
   const [isLoading, setIsLoading] = useState(true);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [isCoursesLoading, setIsCoursesLoading] = useState(false);
+  const [viewAssessment, setViewAssessment] = useState<Assessment | null>(null);
 
-  const [formData, setFormData] = useState<AssessmentFormData>({
+  const [formData, setFormData] = useState<
+    AssessmentFormData & { courseId: number }
+  >({
+    courseId: 0,
     subjectName: "",
     topic: "",
     assessmentType: "Free",
@@ -62,6 +69,7 @@ export function AssessmentMonitoringTab() {
 
   useEffect(() => {
     fetchAssessments();
+    fetchCourses();
   }, []);
 
   const fetchAssessments = async () => {
@@ -80,14 +88,48 @@ export function AssessmentMonitoringTab() {
     }
   };
 
+  const fetchCourses = async () => {
+    setIsCoursesLoading(true);
+    try {
+      const response = await AdminCourseService.getAllCourses();
+      if (response.success && response.courses) {
+        setCourses(response.courses);
+      } else {
+        setError(response.message || "Failed to fetch courses");
+      }
+    } catch (error: any) {
+      setError(error.message || "Failed to fetch courses");
+    } finally {
+      setIsCoursesLoading(false);
+    }
+  };
+
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: name === "price" ? Number(value) : value,
-    }));
+
+    if (name === "assessmentType") {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+        price: value === "Free" ? 0 : prev.price,
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]:
+          name === "price"
+            ? value === ""
+              ? ""
+              : Number(value)
+            : name === "courseId"
+            ? Number(value)
+            : value,
+      }));
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -100,27 +142,58 @@ export function AssessmentMonitoringTab() {
     setIsSubmitting(true);
     setError(null);
 
+    // Validate required fields
+    if (
+      !formData.courseId ||
+      !formData.subjectName.trim() ||
+      !formData.topic.trim() ||
+      !formData.assessmentType
+    ) {
+      toast.error("Please fill in all required fields");
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Additional validation for paid assessments
+    if (formData.assessmentType === "Paid" && formData.price === "") {
+      toast.error("Please enter price for paid assessments");
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       if (!editingAssessment && !fileData) {
         toast.error("Please upload a file");
+        return;
       }
+
+      const submissionData = {
+        ...formData,
+        price: formData.price === "" ? 0 : Number(formData.price),
+      };
 
       let response;
       if (editingAssessment) {
         response = await AdminCourseService.updateAssessment(
           editingAssessment.assessmentId,
-          formData,
+          submissionData,
           fileData ? { file: fileData } : undefined
         );
       } else {
-        response = await AdminCourseService.createAssessment(formData, {
+        response = await AdminCourseService.createAssessment(submissionData, {
           file: fileData!,
         });
       }
 
       if (response.success) {
+        toast.success(
+          editingAssessment
+            ? "Assessment updated successfully"
+            : "Assessment created successfully"
+        );
         setIsAddDialogOpen(false);
         setFormData({
+          courseId: 0,
           subjectName: "",
           topic: "",
           assessmentType: "Free",
@@ -148,12 +221,17 @@ export function AssessmentMonitoringTab() {
   const handleEditClick = (assessment: Assessment) => {
     setEditingAssessment(assessment);
     setFormData({
+      courseId: assessment.courseId || 0,
       subjectName: assessment.subjectName,
       topic: assessment.topicName,
       assessmentType: assessment.assessmentType,
       price: assessment.price,
     });
     setIsAddDialogOpen(true);
+  };
+
+  const handleViewAssessment = (assessment: Assessment) => {
+    setViewAssessment(assessment);
   };
 
   const RequiredLabel = ({ name, label }: { name: string; label: string }) => (
@@ -198,6 +276,7 @@ export function AssessmentMonitoringTab() {
             if (!open) {
               setEditingAssessment(null);
               setFormData({
+                courseId: 0,
                 subjectName: "",
                 topic: "",
                 assessmentType: "Free",
@@ -228,6 +307,25 @@ export function AssessmentMonitoringTab() {
             </DialogHeader>
             <div className="grid gap-4 py-4">
               {error && <div className="text-red-500 text-sm">{error}</div>}
+
+              <div className="space-y-2">
+                <RequiredLabel name="courseId" label="Course" />
+                <select
+                  id="courseId"
+                  name="courseId"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  value={formData.courseId}
+                  onChange={handleInputChange}
+                  disabled={isCoursesLoading}
+                >
+                  <option value={0}>Select a course</option>
+                  {courses.map((course) => (
+                    <option key={course.courseId} value={course.courseId}>
+                      {course.courseName}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -263,12 +361,7 @@ export function AssessmentMonitoringTab() {
                     name="assessmentType"
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     value={formData.assessmentType}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        assessmentType: e.target.value as "Free" | "Paid",
-                      }))
-                    }
+                    onChange={handleInputChange}
                   >
                     <option value="Free">Free</option>
                     <option value="Paid">Paid</option>
@@ -281,9 +374,10 @@ export function AssessmentMonitoringTab() {
                     name="price"
                     type="number"
                     placeholder="Enter price"
-                    value={formData.price}
+                    value={formData.price === 0 ? "" : formData.price}
                     onChange={handleInputChange}
                     disabled={formData.assessmentType === "Free"}
+                    required={formData.assessmentType === "Paid"}
                   />
                 </div>
               </div>
@@ -345,6 +439,57 @@ export function AssessmentMonitoringTab() {
         </Dialog>
       </div>
 
+      {/* View Assessment Dialog */}
+      {/* View Assessment Dialog */}
+      <Dialog
+        open={!!viewAssessment}
+        onOpenChange={(open) => !open && setViewAssessment(null)}
+      >
+        <DialogContent className="max-w-2xl">
+          {viewAssessment && (
+            <>
+              <DialogHeader>
+                <DialogTitle>{viewAssessment.subjectName}</DialogTitle>
+                <DialogDescription>
+                  {viewAssessment.topicName}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm font-medium">Assessment Type</p>
+                    <p className="text-sm text-gray-600">
+                      {viewAssessment.assessmentType}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">Price</p>
+                    <p className="text-sm text-gray-600">
+                      ₹ {viewAssessment.price || 0}
+                    </p>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-sm font-medium">Assessment File</p>
+                  {viewAssessment.awsUrl ? (
+                    <a
+                      href={viewAssessment.awsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline text-sm flex items-center"
+                    >
+                      <Eye className="h-4 w-4 mr-2" />
+                      {viewAssessment.awsUrl.split("/").pop()}
+                    </a>
+                  ) : (
+                    <p className="text-sm text-gray-600">No file available</p>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
@@ -434,7 +579,11 @@ export function AssessmentMonitoringTab() {
                           >
                             Edit Assessment
                           </DropdownMenuItem>
-                          <DropdownMenuItem>View Materials</DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleViewAssessment(assessment)}
+                          >
+                            View Assessment
+                          </DropdownMenuItem>
                           <DropdownMenuItem
                             className="text-red-600"
                             onClick={(e) => {

@@ -4,17 +4,21 @@ export interface CourseFormData {
   courseId?: number;
   courseName: string;
   description: string;
-  courseFee: number;
-  durationInWeek: number;
+  courseFee: number | string;
+  durationInWeek: number | string;
   courseType: string;
   awsUrl?: string;
   status: boolean;
 }
 
+export interface CourseFilesData {
+  courseImage?: File;
+  file?: File;
+}
+
 export interface FileFormData {
   file: File;
 }
-
 export interface CourseResponse {
   success: boolean;
   message?: string;
@@ -33,13 +37,15 @@ export interface Course {
 }
 
 export interface AssessmentFormData {
+  courseId: number;
   subjectName: string;
   topic: string;
   assessmentType: string;
-  price: number;
+  price: number | string;
 }
 
 export interface Assessment {
+  courseId: number;
   assessmentId: number;
   subjectName: string;
   topicName: string;
@@ -49,6 +55,7 @@ export interface Assessment {
 }
 
 export interface NotesFormData {
+  courseId: number;
   subject: string;
   topic: string;
   notesType: string;
@@ -56,6 +63,7 @@ export interface NotesFormData {
 }
 
 export interface Notes {
+  courseId: number;
   notesId: number;
   subject: string;
   topic: string;
@@ -87,15 +95,29 @@ class AdminCourseService {
 
   async createCourse(
     courseData: CourseFormData,
-    fileData: FileFormData
+    files: CourseFilesData
   ): Promise<CourseResponse> {
     try {
       const formData = new FormData();
 
-      formData.append("subject", JSON.stringify(courseData));
+      formData.append(
+        "subject",
+        JSON.stringify({
+          courseName: courseData.courseName,
+          description: courseData.description,
+          courseFee: courseData.courseFee,
+          durationInWeek: courseData.durationInWeek,
+          courseType: courseData.courseType,
+          status: courseData.status,
+        })
+      );
 
-      if (fileData.file) {
-        formData.append("file", fileData.file);
+      if (files.courseImage) {
+        formData.append("courseImage", files.courseImage);
+      }
+
+      if (files.file) {
+        formData.append("file", files.file);
       }
 
       const response = await axios.post(`${API_URL}courses/create`, formData, {
@@ -123,6 +145,7 @@ class AdminCourseService {
       };
     }
   }
+
   async getAllCourses(): Promise<CourseResponse & { courses?: Course[] }> {
     try {
       const response = await axios.get(`${API_URL}courses`, {
@@ -174,13 +197,22 @@ class AdminCourseService {
   }
 
   async createAssessment(
-    assessmentData: AssessmentFormData,
+    assessmentData: AssessmentFormData & { courseId: number },
     fileData: FileFormData
   ): Promise<CourseResponse> {
     try {
       const formData = new FormData();
 
-      formData.append("data", JSON.stringify(assessmentData));
+      formData.append(
+        "data",
+        JSON.stringify({
+          courseId: assessmentData.courseId,
+          subjectName: assessmentData.subjectName,
+          topic: assessmentData.topic,
+          assessmentType: assessmentData.assessmentType,
+          price: assessmentData.price,
+        })
+      );
 
       if (fileData.file) {
         formData.append("file", fileData.file);

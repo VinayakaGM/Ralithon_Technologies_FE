@@ -33,10 +33,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Plus, MoreHorizontal } from "lucide-react";
+import { Plus, MoreHorizontal, X } from "lucide-react";
 import AdminCourseService, {
   NotesFormData,
   Notes,
+  Course,
 } from "@/services/admin.service";
 import { toast } from "sonner";
 
@@ -45,10 +46,12 @@ export function NotesManagement() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notes, setNotes] = useState<Notes[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
   const [editingNote, setEditingNote] = useState<Notes | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const [formData, setFormData] = useState<NotesFormData>({
+    courseId: 0,
     subject: "",
     topic: "",
     notesType: "Free",
@@ -59,6 +62,7 @@ export function NotesManagement() {
 
   useEffect(() => {
     fetchNotes();
+    fetchCourses();
   }, []);
 
   const fetchNotes = async () => {
@@ -77,13 +81,26 @@ export function NotesManagement() {
     }
   };
 
+  const fetchCourses = async () => {
+    try {
+      const response = await AdminCourseService.getAllCourses();
+      if (response.success && response.courses) {
+        setCourses(response.courses);
+      }
+    } catch (error: any) {
+      console.error("Failed to fetch courses:", error);
+    }
+  };
+
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === "price" ? Number(value) : value,
+      [name]: name === "price" || name === "courseId" ? Number(value) : value,
     }));
   };
 
@@ -97,12 +114,38 @@ export function NotesManagement() {
     setIsSubmitting(true);
     setError(null);
 
-    try {
-      if (!editingNote && !fileData) {
-        toast.error("Please upload a file");
-        return;
-      }
+    // Validate required fields
+    if (!formData.courseId) {
+      toast.error("Please select a course");
+      setIsSubmitting(false);
+      return;
+    }
 
+    if (!formData.subject.trim()) {
+      toast.error("Please enter a subject");
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!formData.topic.trim()) {
+      toast.error("Please enter a topic");
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (formData.notesType === "Paid" && formData.price <= 0) {
+      toast.error("Please enter a valid price for paid notes");
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!editingNote && !fileData) {
+      toast.error("Please upload a file");
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
       let response;
       if (editingNote) {
         // Note: Update functionality needs to be implemented in the service
@@ -110,7 +153,13 @@ export function NotesManagement() {
         toast.info("Update functionality will be implemented soon");
         return;
       } else {
-        response = await AdminCourseService.uploadNotes(formData, {
+        // If notesType is Free, set price to 0 regardless of input
+        const submissionData = {
+          ...formData,
+          price: formData.notesType === "Free" ? 0 : formData.price,
+        };
+
+        response = await AdminCourseService.uploadNotes(submissionData, {
           file: fileData!,
         });
       }
@@ -123,6 +172,7 @@ export function NotesManagement() {
         );
         setIsAddDialogOpen(false);
         setFormData({
+          courseId: 0,
           subject: "",
           topic: "",
           notesType: "Free",
@@ -149,6 +199,7 @@ export function NotesManagement() {
   const handleEditClick = (note: Notes) => {
     setEditingNote(note);
     setFormData({
+      courseId: note.courseId || 0,
       subject: note.subject,
       topic: note.topic || "",
       notesType: note.notesType,
@@ -157,12 +208,25 @@ export function NotesManagement() {
     setIsAddDialogOpen(true);
   };
 
+  const handleClearPrice = () => {
+    setFormData((prev) => ({ ...prev, price: 0 }));
+  };
+
   const RequiredLabel = ({ name, label }: { name: string; label: string }) => (
     <label
       htmlFor={name}
       className="block text-sm font-medium text-gray-700 mb-1"
     >
       {label} <span className="text-red-500">*</span>
+    </label>
+  );
+
+  const OptionalLabel = ({ name, label }: { name: string; label: string }) => (
+    <label
+      htmlFor={name}
+      className="block text-sm font-medium text-gray-700 mb-1"
+    >
+      {label}
     </label>
   );
 
@@ -191,6 +255,7 @@ export function NotesManagement() {
             if (!open) {
               setEditingNote(null);
               setFormData({
+                courseId: 0,
                 subject: "",
                 topic: "",
                 notesType: "Free",
@@ -220,6 +285,25 @@ export function NotesManagement() {
             <div className="grid gap-4 py-4">
               {error && <div className="text-red-500 text-sm">{error}</div>}
 
+              <div className="space-y-2">
+                <RequiredLabel name="courseId" label="Course" />
+                <select
+                  id="courseId"
+                  name="courseId"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  value={formData.courseId}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="">Select a course</option>
+                  {courses.map((course) => (
+                    <option key={course.courseId} value={course.courseId}>
+                      {course.courseName}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <RequiredLabel name="subject" label="Subject" />
@@ -229,6 +313,7 @@ export function NotesManagement() {
                     placeholder="Enter subject"
                     value={formData.subject}
                     onChange={handleInputChange}
+                    required
                   />
                 </div>
                 <div className="space-y-2">
@@ -239,6 +324,7 @@ export function NotesManagement() {
                     placeholder="Enter topic"
                     value={formData.topic}
                     onChange={handleInputChange}
+                    required
                   />
                 </div>
               </div>
@@ -251,28 +337,52 @@ export function NotesManagement() {
                     name="notesType"
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     value={formData.notesType}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        notesType: e.target.value as "Free" | "Paid",
-                      }))
-                    }
+                    onChange={handleInputChange}
+                    required
                   >
                     <option value="Free">Free</option>
                     <option value="Paid">Paid</option>
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <RequiredLabel name="price" label="Price (₹)" />
-                  <Input
-                    id="price"
-                    name="price"
-                    type="number"
-                    placeholder="Enter price"
-                    value={formData.price}
-                    onChange={handleInputChange}
-                    disabled={formData.notesType === "Free"}
-                  />
+                  {formData.notesType === "Paid" ? (
+                    <>
+                      <RequiredLabel name="price" label="Price (₹)" />
+                      <div className="relative">
+                        <Input
+                          id="price"
+                          name="price"
+                          type="number"
+                          placeholder="Enter price"
+                          value={formData.price || ""}
+                          onChange={handleInputChange}
+                          min={0}
+                          required={formData.notesType === "Paid"}
+                        />
+                        {formData.price > 0 && (
+                          <button
+                            type="button"
+                            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                            onClick={handleClearPrice}
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        )}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <OptionalLabel name="price" label="Price (₹)" />
+                      <Input
+                        id="price"
+                        name="price"
+                        type="number"
+                        placeholder="Not applicable"
+                        value={0}
+                        disabled
+                      />
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -296,6 +406,7 @@ export function NotesManagement() {
                   type="file"
                   accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png"
                   onChange={handleFileChange}
+                  required={!editingNote}
                 />
                 <p className="text-xs text-muted-foreground">
                   Accepted formats: PDF, Word, PowerPoint, Excel, Images
@@ -377,7 +488,6 @@ export function NotesManagement() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Subject</TableHead>
-                  <TableHead>Topic</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>Price</TableHead>
                   <TableHead>Download</TableHead>
@@ -387,10 +497,7 @@ export function NotesManagement() {
               <TableBody>
                 {notes.map((note) => (
                   <TableRow key={note.notesId}>
-                    <TableCell className="font-medium">
-                      {note.subject}
-                    </TableCell>
-                    <TableCell>{note.topic}</TableCell>
+                    <TableCell>{note.subject}</TableCell>
                     <TableCell>
                       <Badge
                         variant={
