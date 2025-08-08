@@ -39,7 +39,9 @@ import { Plus, MoreHorizontal } from "lucide-react";
 import AdminCourseService, {
   CourseFormData,
   Course,
+  CourseFilesData,
 } from "@/services/admin.service";
+import { toast } from "sonner";
 
 export function CourseManagementTab() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -58,6 +60,7 @@ export function CourseManagementTab() {
   });
 
   const [fileData, setFileData] = useState<File | null>(null);
+  const [courseImageData, setCourseImageData] = useState<File | null>(null);
 
   useEffect(() => {
     fetchCourses();
@@ -80,16 +83,31 @@ export function CourseManagementTab() {
   };
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]:
-        name === "courseFee" || name === "durationInWeek"
-          ? Number(value)
-          : value,
-    }));
+
+    if (name === "courseType") {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+        courseFee: value === "FREE" ? 0 : prev.courseFee,
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]:
+          name === "courseFee"
+            ? value === ""
+              ? ""
+              : Number(value)
+            : name === "durationInWeek"
+            ? Number(value)
+            : value,
+      }));
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -98,21 +116,69 @@ export function CourseManagementTab() {
     }
   };
 
+  const handleCourseImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setCourseImageData(e.target.files[0]);
+    }
+  };
+
   const handleSubmit = async () => {
     setIsSubmitting(true);
     setError(null);
+    if (
+      !formData.courseName.trim() ||
+      !formData.description.trim() ||
+      !formData.courseType ||
+      !formData.durationInWeek ||
+      fileData === null
+    ) {
+      toast.error("Please fill in all required fields");
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Additional validation for paid courses
+    if (formData.courseType === "PAID" && !formData.courseFee) {
+      toast.error("Please enter course fee for paid courses");
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
       if (!fileData) {
-        throw new Error("Please upload a file");
+        throw new Error("Please upload a course material file");
       }
 
-      const response = await AdminCourseService.createCourse(formData, {
+      const submissionData = {
+        ...formData,
+        courseFee: formData.courseFee === "" ? 0 : Number(formData.courseFee),
+        durationInWeek:
+          formData.durationInWeek === "" ? 0 : Number(formData.durationInWeek),
+      };
+
+      const filesData: CourseFilesData = {
         file: fileData,
-      });
+        courseImage: courseImageData || undefined,
+      };
+
+      const response = await AdminCourseService.createCourse(
+        submissionData,
+        filesData
+      );
 
       if (response.success) {
         setIsAddDialogOpen(false);
+        // Reset form
+        setFormData({
+          courseName: "",
+          description: "",
+          courseFee: 0,
+          durationInWeek: 0,
+          courseType: "",
+          status: true,
+        });
+        setFileData(null);
+        setCourseImageData(null);
         await fetchCourses(); // Refresh the course list
       } else {
         setError(response.message || "Failed to create course");
@@ -191,6 +257,7 @@ export function CourseManagementTab() {
                     placeholder="Enter course name"
                     value={formData.courseName}
                     onChange={handleInputChange}
+                    required
                   />
                 </div>
                 <div className="space-y-2">
@@ -200,12 +267,8 @@ export function CourseManagementTab() {
                     name="courseType"
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     value={formData.courseType}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        courseType: e.target.value as "PAID" | "FREE",
-                      }))
-                    }
+                    onChange={handleInputChange}
+                    required
                   >
                     <option value="">Select course type</option>
                     <option value="PAID">Paid</option>
@@ -222,6 +285,7 @@ export function CourseManagementTab() {
                   placeholder="Enter course description"
                   value={formData.description}
                   onChange={handleInputChange}
+                  required
                 />
               </div>
 
@@ -233,8 +297,10 @@ export function CourseManagementTab() {
                     name="courseFee"
                     type="number"
                     placeholder="Enter course fee"
-                    value={formData.courseFee}
+                    value={formData.courseFee === 0 ? "" : formData.courseFee}
                     onChange={handleInputChange}
+                    disabled={formData.courseType === "FREE"}
+                    required={formData.courseType === "PAID"}
                   />
                 </div>
                 <div className="space-y-2">
@@ -247,8 +313,13 @@ export function CourseManagementTab() {
                     name="durationInWeek"
                     type="number"
                     placeholder="Enter duration in weeks"
-                    value={formData.durationInWeek}
+                    value={
+                      formData.durationInWeek === 0
+                        ? ""
+                        : formData.durationInWeek
+                    }
                     onChange={handleInputChange}
+                    required
                   />
                 </div>
                 <div className="space-y-2">
@@ -264,6 +335,7 @@ export function CourseManagementTab() {
                         status: e.target.value === "true",
                       }))
                     }
+                    required
                   >
                     <option value="true">Active</option>
                     <option value="false">Inactive</option>
@@ -271,17 +343,33 @@ export function CourseManagementTab() {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <RequiredLabel name="file" label="Course Material" />
-                <Input
-                  id="file"
-                  type="file"
-                  accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png"
-                  onChange={handleFileChange}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Accepted formats: PDF, Word, PowerPoint, Excel, Images
-                </p>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <RequiredLabel name="courseImage" label="Course Image" />
+                  <Input
+                    id="courseImage"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleCourseImageChange}
+                    required
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Recommended: Square image (e.g., 500x500px)
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <RequiredLabel name="file" label="Course Material" />
+                  <Input
+                    id="file"
+                    type="file"
+                    accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png"
+                    onChange={handleFileChange}
+                    required
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Accepted formats: PDF, Word, PowerPoint, Excel, Images
+                  </p>
+                </div>
               </div>
 
               <div className="flex justify-end space-x-2 pt-4">
@@ -372,11 +460,15 @@ export function CourseManagementTab() {
                     <TableCell>
                       <div>
                         <div className="font-medium">{course.courseName}</div>
-                        <div className="text-sm text-gray-500">
+                        <div
+                          className="text-sm text-gray-500 max-w-[300px] truncate"
+                          title={course.description}
+                        >
                           {course.description}
                         </div>
                       </div>
                     </TableCell>
+
                     <TableCell>
                       <Badge
                         variant={

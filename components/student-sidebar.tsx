@@ -89,9 +89,19 @@ export function StudentSidebar({
                     }`}
                     style={{ paddingTop: "30px", paddingBottom: "30px" }}
                   >
-                    <item.icon className="h-5 w-5 mr-3" />
+                    <item.icon
+                      className={`h-5 w-5 mr-3 ${
+                        activeTab === item.id ? "text-white" : "text-current"
+                      }`}
+                    />
                     <div className="text-left">
-                      <div className="font-medium">{item.title}</div>
+                      <div
+                        className={`font-medium ${
+                          activeTab === item.id ? "text-white" : "text-current"
+                        }`}
+                      >
+                        {item.title}
+                      </div>
                     </div>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

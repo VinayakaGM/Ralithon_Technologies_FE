@@ -86,7 +86,6 @@ export function Header({
             }
           } catch (error) {
             console.error("Failed to fetch user details:", error);
-            setIsUserDataReady(true);
           }
         } else if (cachedUserDetails) {
           setUserDetails(JSON.parse(cachedUserDetails));
@@ -163,8 +162,7 @@ export function Header({
     { id: "home", label: "Home" },
     { id: "about", label: "About" },
     { id: "services", label: "Services" },
-    { id: "internships", label: "Internships" },
-    { id: "courses", label: "Courses" },
+    { id: "internships", label: "Internship & Programs" },
     { id: "contact", label: "Contact" },
   ];
 

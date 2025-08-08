@@ -8,12 +8,6 @@ import {
   Smartphone,
   Brain,
   Cloud,
-  Palette,
-  Coffee,
-  SmartphoneIcon as Android,
-  BarChart,
-  Database,
-  Calculator,
   X,
   ChevronDown,
   BookOpen,
@@ -60,11 +54,7 @@ export default function RalithonWebsite() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
-  const [selectedInternship, setSelectedInternship] = useState<
-    (typeof internships)[0] | null
-  >(null);
   const [userDetails, setUserDetails] = useState<any>(null);
-  const [showInternshipModal, setShowInternshipModal] = useState(false);
   const [customMessage, setCustomMessage] = useState<string | undefined>();
   const [courses, setCourses] = useState<any[]>([]);
   const [loadingCourses, setLoadingCourses] = useState(false);
@@ -245,74 +235,6 @@ export default function RalithonWebsite() {
     },
   ];
 
-  const internships = [
-    {
-      title: "Web Development",
-      image: `${IMAGE_URL}webdev.png`,
-      icon: <Code className="h-8 w-8 text-blue-600" />,
-      description:
-        "Learn to build modern, responsive websites and web applications using HTML, CSS, JavaScript, React, and Node.js. Master front-end and back-end development skills.",
-      skills: "HTML, CSS, JavaScript, React, Node.js, MongoDB, Git",
-    },
-    {
-      title: "Graphic Design",
-      image: `${IMAGE_URL}graphic.png`,
-      icon: <Palette className="h-8 w-8 text-blue-600" />,
-      description:
-        "Master the art of visual communication through digital design. Learn Adobe Creative Suite, UI/UX principles, branding, and create stunning graphics for web and print.",
-      skills: "Photoshop, Illustrator, Figma, UI/UX Design, Branding",
-    },
-    {
-      title: "Java Programming",
-      image: `${IMAGE_URL}java.png`,
-      icon: <Coffee className="h-8 w-8 text-blue-600" />,
-      description:
-        "Dive deep into Java programming language and learn object-oriented programming concepts. Build enterprise applications using Spring Framework and work with databases.",
-      skills: "Core Java, OOP, Spring Boot, Hibernate, MySQL, REST APIs",
-    },
-    {
-      title: "Android Development",
-      image: `${IMAGE_URL}android.png`,
-      icon: <Android className="h-8 w-8 text-blue-600" />,
-      description:
-        "Create powerful Android applications using Kotlin and Java. Learn Android SDK, UI design, database integration, and publish apps to Google Play Store.",
-      skills: "Kotlin, Java, Android SDK, Firebase, SQLite, Material Design",
-    },
-    {
-      title: "Data Science",
-      image: `${IMAGE_URL}datascience.png`,
-      icon: <BarChart className="h-8 w-8 text-blue-600" />,
-      description:
-        "Explore the world of data science and analytics. Learn Python, machine learning algorithms, data visualization, and statistical analysis to extract insights from data.",
-      skills: "Python, Pandas, NumPy, Scikit-learn, Matplotlib, Jupyter",
-    },
-    {
-      title: "Python Programming",
-      image: `${IMAGE_URL}cloud.png`,
-      icon: <Database className="h-8 w-8 text-blue-600" />,
-      description:
-        "Master Python programming for web development, automation, and data analysis. Learn Django framework, API development, and database management.",
-      skills: "Python, Django, Flask, PostgreSQL, API Development, Automation",
-    },
-    {
-      title: "Cloud Computing",
-      image: `${IMAGE_URL}python.png`,
-      icon: <Cloud className="h-8 w-8 text-blue-600" />,
-      description:
-        "Learn cloud computing fundamentals and work with AWS, Azure, and Google Cloud. Master containerization, serverless computing, and cloud security practices.",
-      skills: "AWS, Azure, Docker, Kubernetes, Serverless, Cloud Security",
-    },
-    {
-      title: "Data Analytics",
-      image: `${IMAGE_URL}dataanalytics.png`,
-      icon: <Calculator className="h-8 w-8 text-blue-600" />,
-      description:
-        "Transform raw data into actionable insights using advanced analytics tools. Learn SQL, Tableau, Power BI, and statistical methods for business intelligence.",
-      skills:
-        "SQL, Tableau, Power BI, Excel, Statistics, Business Intelligence",
-    },
-  ];
-
   const faqData = [
     {
       question: "What services does Ralithon Technologies offer?",
@@ -335,6 +257,12 @@ export default function RalithonWebsite() {
         "Yes, we provide comprehensive support and maintenance services after project completion to ensure your applications continue to perform optimally and stay updated with the latest security patches.",
     },
   ];
+
+  useEffect(() => {
+    if (!showCourseModal) {
+      setStartDate("");
+    }
+  }, [showCourseModal]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -411,26 +339,49 @@ export default function RalithonWebsite() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleInternshipApply = (internshipTitle: string) => {
-    const internship = internships.find((i) => i.title === internshipTitle);
-    if (!internship) return;
-
-    setSelectedInternship(internship);
-
-    if (AuthService.getCurrentUser()) {
-      setShowInternshipModal(true);
-    } else {
-      setShowAuthModal(true);
-      setCustomMessage(
-        `Please register or sign in to apply for the ${internshipTitle} internship`
-      );
-    }
+  const resetFields = () => {
+    setStartDate("");
   };
 
   const handleContactSubmit = (data: ContactFormData) => {
     toast.success("Message Sent Successfully!", {
       description: `Thank you ${data.fullName}! We'll get back to you within 24 hours.`,
     });
+  };
+
+  const handleTakeAssessment = async (course: Course) => {
+    if (!startDate) {
+      toast.error("Please select a start date");
+      return;
+    }
+
+    if (!userId) {
+      toast.error("Please log in to take assessment");
+      setShowAuthModal(true);
+      return;
+    }
+
+    try {
+      const response = await usersService.attemptAssessment(
+        userId,
+        selectedCourse.assessmentId
+      );
+
+      if (response.success) {
+        toast.success("Assessment started successfully!");
+        setShowCourseModal(false);
+        console.log(response);
+      } else {
+        toast.error(response.message || "Failed to start assessment");
+      }
+    } catch (error: any) {
+      console.error("Assessment error:", error);
+      toast.error(
+        error.response?.data?.message ||
+          error.message ||
+          "An error occurred while starting the assessment"
+      );
+    }
   };
 
   const handleEnrollCourse = async (course: Course) => {
@@ -774,196 +725,19 @@ export default function RalithonWebsite() {
         </div>
       </section>
 
-      {/* Our Internships Section - Enhanced with detailed information and individual Apply buttons */}
-      <section id="internships" className="py-20 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div
-            data-animate
-            className={`text-center mb-16 transform transition-all duration-1000 ${
-              visibleElements.has("internships-header")
-                ? "translate-y-0 opacity-100"
-                : "translate-y-10 opacity-0"
-            }`}
-            id="internships-header"
-          >
-            <h2 className="text-4xl font-bold text-gray-800 mb-6">
-              Our Internships
-            </h2>
-            <div className="w-20 h-1 bg-gradient-to-br from-blue-600 to-blue-800 mx-auto mb-8"></div>
-          </div>
-
-          {/* Enhanced Internship Cards with detailed information */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {internships.map((internship, index) => (
-              <Card
-                key={index}
-                data-animate
-                className={`overflow-hidden hover:shadow-xl transition-all duration-500 transform hover:scale-105 ${
-                  visibleElements.has(`internship-${index}`)
-                    ? "translate-y-0 opacity-100"
-                    : "translate-y-10 opacity-0"
-                }`}
-                id={`internship-${index}`}
-                style={{ animationDelay: `${index * 150}ms` }}
-              >
-                <div className="relative">
-                  <img
-                    src={internship.image || `${IMAGE_URL}placeholder.svg`}
-                    alt={internship.title}
-                    className="w-full h-48 object-cover"
-                  />
-                  <div className="absolute top-4 left-4 bg-white rounded-full p-2 shadow-lg">
-                    {internship.icon}
-                  </div>
-                </div>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg text-gray-800 text-center mb-2">
-                    {internship.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-sm text-gray-600 leading-relaxed">
-                    {internship.description}
-                  </p>
-                  <div>
-                    <p className="text-xs font-semibold text-gray-700 mb-1">
-                      Skills you'll learn:
-                    </p>
-                    <p className="text-xs text-blue-600 font-medium truncate overflow-hidden whitespace-nowrap">
-                      {internship.skills}
-                    </p>
-                  </div>
-                  <Button
-                    size="sm"
-                    className="w-full bg-gradient-to-br from-blue-600 to-blue-800 hover:bg-blue-700 text-sm py-2"
-                    onClick={() => handleInternshipApply(internship.title)}
-                  >
-                    Apply Here
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {/* Text about internships and general Apply Now button */}
-          <div
-            data-animate
-            className={`text-center transform transition-all duration-1000 ${
-              visibleElements.has("internships-cta")
-                ? "translate-y-0 opacity-100"
-                : "translate-y-10 opacity-0"
-            }`}
-            id="internships-cta"
-          >
-            <p className="text-lg text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Join our comprehensive internship programs and gain hands-on
-              experience with the latest technologies. Our internships provide
-              real-world experience, mentorship from industry experts, and the
-              opportunity to work on exciting projects. Whether you're
-              interested in web development, graphic design, programming, or
-              data analytics, we have the perfect program to launch your career
-              in technology.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {selectedInternship && (
-        <div
-          className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity ${
-            showInternshipModal
-              ? "opacity-100"
-              : "opacity-0 pointer-events-none"
-          }`}
-        >
-          <div
-            className={`bg-white rounded-lg p-6 max-w-2xl w-full mx-4 transform transition-all ${
-              showInternshipModal ? "scale-100" : "scale-95"
-            }`}
-          >
-            <div className="flex justify-between items-start mb-4">
-              <div className="flex items-center space-x-4">
-                <div className="bg-blue-100 p-3 rounded-full">
-                  {selectedInternship.icon}
-                </div>
-                <h3 className="text-2xl font-bold text-gray-800">
-                  {selectedInternship.title}
-                </h3>
-              </div>
-              <button
-                onClick={() => setShowInternshipModal(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <X className="h-6 w-6" />
-              </button>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <img
-                  src={
-                    selectedInternship.image || `${IMAGE_URL}placeholder.svg`
-                  }
-                  alt={selectedInternship.title}
-                  className="w-full h-48 object-cover rounded-lg mb-4"
-                />
-                {/* <p className="text-gray-700 mb-4">
-                  {selectedInternship.description}
-                </p> */}
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-gray-800 mb-2">
-                    Skills you'll learn:
-                  </h4>
-                  <p className="text-blue-600 text-sm">
-                    {selectedInternship.skills}
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <h4 className="font-bold text-lg text-gray-800">
-                  Get Started With This Internship
-                </h4>
-                <div className="space-y-3">
-                  <Button
-                    className="w-full flex items-center justify-between bg-blue-600 hover:bg-blue-700"
-                    onClick={() => {
-                      () => handleEnrollCourse(selectedCourse);
-                    }}
-                  >
-                    <span>Take Assessment</span>
-                    <ClipboardList className="h-5 w-5" />
-                  </Button>
-                  <Button
-                    className="w-full flex items-center justify-between bg-green-600 hover:bg-green-700"
-                    onClick={() => {
-                      setShowInternshipModal(false);
-                    }}
-                  >
-                    <span>Enroll in Course</span>
-                    <BookOpen className="h-5 w-5" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Our Courses Section - Same structure as Internships */}
       <section id="courses" className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div
             data-animate
             className={`text-center mb-16 transform transition-all duration-1000 ${
-              visibleElements.has("courses-header")
+              visibleElements.has("internships")
                 ? "translate-y-0 opacity-100"
                 : "translate-y-10 opacity-0"
             }`}
-            id="courses-header"
+            id="internships"
           >
             <h2 className="text-4xl font-bold text-gray-800 mb-6">
-              Our Courses
+              Internship & Programs
             </h2>
             <div className="w-20 h-1 bg-gradient-to-br from-blue-600 to-blue-800 mx-auto mb-8"></div>
           </div>
@@ -1021,7 +795,7 @@ export default function RalithonWebsite() {
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <p className="text-sm text-gray-600 leading-relaxed">
+                      <p className="text-sm text-gray-600 leading-relaxed line-clamp-4">
                         {course.description || "No description available"}
                       </p>
                       <div className="flex justify-between items-center py-2 rounded-md text-sm flex-wrap gap-2 sm:flex-nowrap">
@@ -1059,7 +833,7 @@ export default function RalithonWebsite() {
                           }
                         }}
                       >
-                        Enroll Now
+                        Apply Here
                       </Button>
                     </CardContent>
                   </Card>
@@ -1070,11 +844,11 @@ export default function RalithonWebsite() {
               <div
                 data-animate
                 className={`text-center transform transition-all duration-1000 ${
-                  visibleElements.has("courses-cta")
+                  visibleElements.has("internships")
                     ? "translate-y-0 opacity-100"
                     : "translate-y-10 opacity-0"
                 }`}
-                id="courses-cta"
+                id="internships"
               >
                 <p className="text-lg text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
                   Explore our comprehensive course offerings designed to help
@@ -1088,6 +862,7 @@ export default function RalithonWebsite() {
           )}
         </div>
       </section>
+
       {selectedCourse && (
         <div
           className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity ${
@@ -1095,9 +870,17 @@ export default function RalithonWebsite() {
           }`}
         >
           <div
-            className={`bg-white rounded-lg p-6 max-w-2xl w-full mx-4 transform transition-all ${
+            className={`bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto transform transition-all ${
               showCourseModal ? "scale-100" : "scale-95"
             }`}
+            style={{
+              position: "fixed",
+              top: "50%",
+              left: "50%",
+              transform: showCourseModal
+                ? "translate(-50%, -50%)"
+                : "translate(-50%, -50%) scale(0.95)",
+            }}
           >
             <div className="flex justify-between items-start mb-4">
               <div className="flex items-center space-x-4">
@@ -1118,11 +901,19 @@ export default function RalithonWebsite() {
                     >
                       {selectedCourse.courseType?.toUpperCase() || "PAID"}
                     </span>
+                    {selectedCourse.courseType?.toLowerCase() !== "free" && (
+                      <span className="text-xs font-medium text-gray-600">
+                        ₹{selectedCourse.courseFee?.toFixed(2) || "0.00"}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
               <button
-                onClick={() => setShowCourseModal(false)}
+                onClick={() => {
+                  setShowCourseModal(false);
+                  resetFields();
+                }}
                 className="text-gray-500 hover:text-gray-700"
               >
                 <X className="h-6 w-6" />
@@ -1136,10 +927,6 @@ export default function RalithonWebsite() {
                   alt={selectedCourse.courseName}
                   className="w-full h-48 object-cover rounded-lg mb-4"
                 />
-                <p className="text-gray-700 mb-4">
-                  {selectedCourse.description || "No description available"}
-                </p>
-
                 <div className="bg-gray-50 p-4 rounded-lg mb-4">
                   <h4 className="font-semibold text-gray-800 mb-3">
                     Course Details
@@ -1196,36 +983,46 @@ export default function RalithonWebsite() {
                   Get Started With This Course
                 </h4>
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    When would you like to start?
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    When would you like to start?{" "}
+                    <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="date"
                     min={new Date().toISOString().split("T")[0]}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    value={startDate}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
                     onChange={(e) => setStartDate(e.target.value)}
+                    style={{ fontSize: "13px" }}
                   />
                 </div>
                 <div className="space-y-3">
                   <Button
-                    className="w-full flex items-center justify-between bg-blue-600 hover:bg-blue-700"
-                    onClick={() => handleEnrollCourse(selectedCourse)}
+                    className="w-full flex items-center justify-between bg-blue-600 hover:bg-blue-700 text-sm py-2"
+                    onClick={() => handleTakeAssessment(selectedCourse)}
+                    disabled={!startDate}
                   >
                     <span>Take Assessment</span>
-                    <ClipboardList className="h-5 w-5" />
+                    <ClipboardList className="h-4 w-4" />
                   </Button>
+
                   <Button
-                    className={`w-full flex items-center justify-between
-                        bg-green-600 hover:bg-green-700
+                    className={`w-full flex items-center justify-between text-sm py-2 ${
+                      selectedCourse.courseType?.toLowerCase() === "free"
+                        ? "bg-green-600 hover:bg-green-700"
+                        : "bg-purple-600 hover:bg-purple-700"
                     }`}
                     onClick={() => handleEnrollCourse(selectedCourse)}
+                    disabled={!startDate}
                   >
                     <span>
                       {selectedCourse.courseType?.toLowerCase() === "free"
-                        ? "Enroll Now (Free)"
-                        : `Pay $${selectedCourse.courseFee.toFixed(2)}`}
+                        ? "Enroll Now"
+                        : `Pay ₹${
+                            selectedCourse.courseFee?.toFixed(2) || "0.00"
+                          }`}
                     </span>
-                    <BookOpen className="h-5 w-5" />
+                    <BookOpen className="h-4 w-4" />
                   </Button>
                 </div>
 
@@ -1359,8 +1156,8 @@ export default function RalithonWebsite() {
           setCustomMessage(undefined);
         }}
         onAuthSuccess={() => {
-          if (selectedInternship) {
-            setShowInternshipModal(true);
+          if (selectedCourse) {
+            setShowCourseModal(true);
           }
         }}
         customMessage={customMessage}

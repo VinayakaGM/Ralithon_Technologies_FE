@@ -24,6 +24,12 @@ export interface EnrollCoursePayload {
   startDate: string;
 }
 
+export interface AssessmentAttemptResponse {
+  success: boolean;
+  message?: string;
+  data?: any;
+}
+
 export interface Course {
   courseId: number;
   courseName: string;
@@ -197,6 +203,24 @@ class UserService {
       .then((response) => ({
         success: true,
         data: response.data as CourseDetails,
+      }))
+      .catch((error) => this.handleError(error));
+  }
+  attemptAssessment(
+    userId: number,
+    assessmentId: number
+  ): Promise<AssessmentAttemptResponse> {
+    return axios
+      .post(
+        `${API_URL}admin/assessments/attempt/${userId}/${assessmentId}`,
+        {},
+        {
+          headers: this.getHeaders(),
+        }
+      )
+      .then((response) => ({
+        success: true,
+        data: response.data,
       }))
       .catch((error) => this.handleError(error));
   }

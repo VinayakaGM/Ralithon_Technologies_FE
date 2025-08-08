@@ -44,7 +44,7 @@ export function AdminHeader({ user }: AdminHeaderProps) {
             <Button
               variant="outline"
               size="sm"
-              className="flex items-center space-x-2 bg-gradient-to-br h-8 from-blue-600 to-blue-800 text-white"
+              className="flex items-center space-x-2 bg-gradient-to-br h-8 from-blue-600 to-blue-800 text-white hover:text-white hover:from-blue-700 hover:to-blue-900"
             >
               <ArrowLeft className="h-4 w-4" />
               <span>Home</span>
