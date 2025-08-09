@@ -72,7 +72,7 @@ class UserService {
 
   private getHeaders() {
     const headers: Record<string, string> = {
-      accept: "*/*",
+      accept: "/",
       "Content-Type": "application/json",
     };
 
@@ -115,14 +115,12 @@ class UserService {
   ): Promise<ApiResponse> {
     const formData = new FormData();
 
-    // Append userData fields individually
     Object.entries(userData).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
         formData.append(`userDTO.${key}`, value as any);
       }
     });
 
-    // Append image if provided
     if (profileImage) {
       formData.append("profileImage", profileImage);
     }
@@ -195,6 +193,7 @@ class UserService {
       message: errorMessage,
     };
   }
+
   getUserCourseDetails(userId: number, courseId: number): Promise<ApiResponse> {
     return axios
       .get(`${API_URL}user-courses/user/${userId}/${courseId}`, {
@@ -206,6 +205,7 @@ class UserService {
       }))
       .catch((error) => this.handleError(error));
   }
+
   attemptAssessment(
     userId: number,
     assessmentId: number
@@ -213,7 +213,7 @@ class UserService {
     return axios
       .post(
         `${API_URL}admin/assessments/attempt/${userId}/${assessmentId}`,
-        {},
+        null,
         {
           headers: this.getHeaders(),
         }
@@ -221,6 +221,7 @@ class UserService {
       .then((response) => ({
         success: true,
         data: response.data,
+        message: "Assessment attempted successfully",
       }))
       .catch((error) => this.handleError(error));
   }

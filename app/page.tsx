@@ -30,7 +30,10 @@ import {
   ModernContactForm,
   type ContactFormData,
 } from "@/components/ui/Contact-form";
-import usersService, { Course } from "@/services/users.service";
+import usersService, {
+  AssessmentAttemptResponse,
+  Course,
+} from "@/services/users.service";
 import AdminCourseService from "@/services/admin.service";
 import authService from "@/services/auth.service";
 
@@ -68,6 +71,9 @@ export default function RalithonWebsite() {
   const [faqExpanded, setFaqExpanded] = useState(false);
   const router = useRouter();
   const pathName = usePathname();
+  const [showAssessmentModal, setShowAssessmentModal] = useState(false);
+  const [assessmentData, setAssessmentData] =
+    useState<AssessmentAttemptResponse | null>(null);
 
   useEffect(() => {
     const lastClosed = localStorage.getItem("hiringModalClosed");
@@ -335,6 +341,13 @@ export default function RalithonWebsite() {
     setMobileMenuOpen(false);
   };
 
+  const handleSubmitAssessment = (answers: Record<number, string>) => {
+    // Here you would typically send the answers to your backend
+    console.log("Submitted answers:", answers);
+    // Example API call:
+    // await usersService.submitAssessmentAnswers(course.assessmentId, answers);
+  };
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -345,16 +358,10 @@ export default function RalithonWebsite() {
 
   const handleContactSubmit = (data: ContactFormData) => {
     toast.success("Message Sent Successfully!", {
-      description: `Thank you ${data.fullName}! We'll get back to you within 24 hours.`,
+      description: ` Thank you ${data.fullName}! We'll get back to you within 24 hours.`,
     });
   };
-
   const handleTakeAssessment = async (course: Course) => {
-    if (!startDate) {
-      toast.error("Please select a start date");
-      return;
-    }
-
     if (!userId) {
       toast.error("Please log in to take assessment");
       setShowAuthModal(true);
@@ -367,10 +374,40 @@ export default function RalithonWebsite() {
         selectedCourse.assessmentId
       );
 
-      if (response.success) {
+      // Check if the response indicates success
+      if (response.success && response.data) {
         toast.success("Assessment started successfully!");
         setShowCourseModal(false);
-        console.log(response);
+
+        // Transform the API response
+        const transformedResponse = {
+          success: true,
+          message: response.message || "Assessment loaded successfully",
+          data: {
+            assessment:
+              response.data.assessment || response.data.questions || [], // Handle both cases
+            attemptId: response.data.attemptId || null,
+            // Only include payment fields if they exist
+            ...(response.data.orderId && { orderId: response.data.orderId }),
+            ...(response.data.amount && { amount: response.data.amount }),
+            ...(response.data.currency && { currency: response.data.currency }),
+            ...(response.data.razorpayKey && {
+              razorpayKey: response.data.razorpayKey,
+            }),
+          },
+        };
+
+        const assessmentState = {
+          data: transformedResponse,
+          courseName: course.courseName,
+        };
+
+        localStorage.setItem(
+          "assessmentState",
+          JSON.stringify(assessmentState)
+        );
+        setAssessmentData(transformedResponse);
+        router.push("/assessment");
       } else {
         toast.error(response.message || "Failed to start assessment");
       }
@@ -380,6 +417,43 @@ export default function RalithonWebsite() {
         error.response?.data?.message ||
           error.message ||
           "An error occurred while starting the assessment"
+      );
+    }
+  };
+
+  const handleAssessmentSubmit = async (answers: Record<number, string>) => {
+    if (!assessmentData || !userId || !selectedCourse) return;
+
+    try {
+      // Here you would typically send the answers to your backend
+      // This is a placeholder - replace with your actual API call
+      const submitResponse = await axios.post(
+        ` ${process.env.NEXT_PUBLIC_BASE_API_URL}admin/assessments/submit/${userId}/${selectedCourse.assessmentId}`,
+        {
+          answers,
+          attemptId: assessmentData.data.attemptId, // Assuming your response includes an attemptId
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authService.getAuthToken()}`,
+          },
+        }
+      );
+
+      if (submitResponse.data.success) {
+        toast.success("Assessment submitted successfully!");
+        setShowAssessmentModal(false);
+        // Optionally refresh user data or course status
+      } else {
+        toast.error(submitResponse.data.message || "Submission failed");
+      }
+    } catch (error: any) {
+      console.error("Submission error:", error);
+      toast.error(
+        error.response?.data?.message ||
+          error.message ||
+          "An error occurred while submitting the assessment"
       );
     }
   };
@@ -706,7 +780,7 @@ export default function RalithonWebsite() {
                     : "translate-y-10 opacity-0"
                 }`}
                 id={`service-${index}`}
-                style={{ animationDelay: `${index * 200}ms` }}
+                style={{ animationDelay: `${index * 200}ms ` }}
               >
                 <CardHeader className="pb-4">
                   <div className="flex justify-center mb-6">{service.icon}</div>
@@ -781,7 +855,9 @@ export default function RalithonWebsite() {
                   >
                     <div className="relative">
                       <img
-                        src={course.awsUrl || `${IMAGE_URL}placeholder.svg`}
+                        src={
+                          course.courseImageUrl || `${IMAGE_URL}placeholder.svg`
+                        }
                         alt={course.courseName}
                         className="w-full h-48 object-cover"
                       />
@@ -795,9 +871,15 @@ export default function RalithonWebsite() {
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <p className="text-sm text-gray-600 leading-relaxed line-clamp-4">
-                        {course.description || "No description available"}
-                      </p>
+                      <div className="relative group">
+                        <div className="relative">
+                          <div className="h-[6rem] overflow-y-scroll scrollbar-thin scroll-smooth pr-2 line-clamp-4 mask-fade">
+                            <p className="text-sm text-gray-600 leading-relaxed">
+                              {course.description || "No description available"}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
                       <div className="flex justify-between items-center py-2 rounded-md text-sm flex-wrap gap-2 sm:flex-nowrap">
                         <div className="text-gray-800 font-medium">
                           Duration:{" "}
@@ -827,9 +909,8 @@ export default function RalithonWebsite() {
                             setShowCourseModal(true);
                           } else {
                             setShowAuthModal(true);
-                            setCustomMessage(
-                              `Please register or sign in to enroll in ${course.courseName}`
-                            );
+                            setCustomMessage(`
+                              Please register or sign in to enroll in ${course.courseName}`);
                           }
                         }}
                       >
@@ -923,7 +1004,10 @@ export default function RalithonWebsite() {
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <img
-                  src={selectedCourse.awsUrl || `${IMAGE_URL}placeholder.svg`}
+                  src={
+                    selectedCourse.courseImageUrl ||
+                    ` ${IMAGE_URL}placeholder.svg`
+                  }
                   alt={selectedCourse.courseName}
                   className="w-full h-48 object-cover rounded-lg mb-4"
                 />
@@ -938,7 +1022,7 @@ export default function RalithonWebsite() {
                       </span>
                       <span className="text-sm text-gray-800">
                         {selectedCourse.durationInWeek
-                          ? `${selectedCourse.durationInWeek} weeks`
+                          ? ` ${selectedCourse.durationInWeek} weeks`
                           : "Flexible"}
                       </span>
                     </div>
@@ -956,7 +1040,7 @@ export default function RalithonWebsite() {
                       </span>
                       <span className="text-sm text-gray-800">
                         {selectedCourse.courseFee
-                          ? `₹ ${selectedCourse.courseFee.toFixed(2)}`
+                          ? ` ₹ ${selectedCourse.courseFee.toFixed(2)}`
                           : "Free"}
                       </span>
                     </div>
@@ -1000,7 +1084,6 @@ export default function RalithonWebsite() {
                   <Button
                     className="w-full flex items-center justify-between bg-blue-600 hover:bg-blue-700 text-sm py-2"
                     onClick={() => handleTakeAssessment(selectedCourse)}
-                    disabled={!startDate}
                   >
                     <span>Take Assessment</span>
                     <ClipboardList className="h-4 w-4" />
@@ -1128,7 +1211,7 @@ export default function RalithonWebsite() {
                   id={`faq-${index}`}
                   style={{
                     animationDelay: faqExpanded ? `${index * 150}ms` : "0ms",
-                    transitionDelay: faqExpanded ? `${index * 100}ms` : "0ms",
+                    transitionDelay: faqExpanded ? ` ${index * 100}ms` : "0ms",
                   }}
                 >
                   <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-start">
@@ -1176,7 +1259,7 @@ export default function RalithonWebsite() {
 
             {/* Modal Content */}
             <div className="p-8 text-center">
-              <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
                 <img
                   src={`${IMAGE_URL}logo.png`}
                   alt="Modern office space"
@@ -1219,7 +1302,6 @@ export default function RalithonWebsite() {
           </div>
         </div>
       )}
-
       {/* Scroll to Top Button - Bottom Right Corner */}
       {showScrollTop && (
         <Button

@@ -149,7 +149,7 @@ class AdminCourseService {
   async getAllCourses(): Promise<CourseResponse & { courses?: Course[] }> {
     try {
       const response = await axios.get(`${API_URL}courses`, {
-        headers: this.getHeaders(),
+        headers: {},
       });
 
       return {
