@@ -15,6 +15,9 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import UserService from "@/services/users.service";
+import authService from "@/services/auth.service";
+import axios from "axios";
 
 interface AssessmentQuestion {
   question: string;
@@ -35,12 +38,16 @@ interface AssessmentResponse {
   data?: {
     assessment: AssessmentQuestion[];
     attemptId?: string;
+    assessmentId?: number;
   };
 }
 
 interface AssessmentState {
   data: AssessmentResponse;
   courseName: string;
+  courseId?: number;
+  userId?: number;
+  assessmentId?: number;
 }
 
 interface AssessmentProgress {
@@ -49,13 +56,32 @@ interface AssessmentProgress {
   questionTimeRemaining: number;
   flaggedQuestions: number[];
   lastSavedTimestamp: number;
+  assessmentId: number;
 }
+
+interface AssessmentSubmissionPayload {
+  userId: number | undefined;
+  assessmentId: number;
+  totalQuestions: number;
+  attempted: number;
+  correct: number;
+  score: number;
+  totalMarks: number;
+}
+
+interface ApiResponse {
+  success: boolean;
+  data?: any;
+  message?: string;
+}
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api/";
 
 export default function Assessment() {
   const router = useRouter();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
-  const [questionTimeRemaining, setQuestionTimeRemaining] = useState(30);
+  const [questionTimeRemaining, setQuestionTimeRemaining] = useState(45);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [score, setScore] = useState(0);
@@ -65,10 +91,130 @@ export default function Assessment() {
   const [assessmentData, setAssessmentData] =
     useState<AssessmentResponse | null>(null);
   const [courseName, setCourseName] = useState("Course");
+  const [courseId, setCourseId] = useState<number | null>(null);
+  const [userId, setUserId] = useState<number | null>(null);
   const [isAutoMoving, setIsAutoMoving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [networkError, setNetworkError] = useState(false);
   const [lastSavedTime, setLastSavedTime] = useState<number | null>(null);
+  const [allTimersCompleted, setAllTimersCompleted] = useState(false);
+  const [currentAssessmentId, setCurrentAssessmentId] = useState<number | null>(
+    null
+  );
+  const [tabChanged, setTabChanged] = useState(false);
+  const [violationCount, setViolationCount] = useState(0);
+  const [showWarning, setShowWarning] = useState(false);
+  const [forceSubmitEnabled, setForceSubmitEnabled] = useState(false);
+  const currentUser = authService.getCurrentUser();
+
+  // Track user activity and violations
+  useEffect(() => {
+    if (isSubmitted) return;
+
+    let timeoutId: NodeJS.Timeout;
+
+    const handleUserActivity = () => {
+      setShowWarning(false);
+      clearTimeout(timeoutId);
+    };
+
+    // Listen for user activity
+    window.addEventListener("mousemove", handleUserActivity);
+    window.addEventListener("keydown", handleUserActivity);
+    window.addEventListener("scroll", handleUserActivity);
+    window.addEventListener("click", handleUserActivity);
+
+    // Check for inactivity or violations
+    const checkActivity = () => {
+      setViolationCount((prev) => {
+        if (prev >= 2) {
+          handleSubmitAssessment();
+          toast.error("Assessment auto-submitted due to multiple violations");
+          return prev;
+        }
+        return prev + 1;
+      });
+      setShowWarning(true);
+    };
+
+    timeoutId = setTimeout(checkActivity, 15000); // 15 seconds of inactivity
+
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener("mousemove", handleUserActivity);
+      window.removeEventListener("keydown", handleUserActivity);
+      window.removeEventListener("scroll", handleUserActivity);
+      window.removeEventListener("click", handleUserActivity);
+    };
+  }, [isSubmitted]);
+
+  // Enhanced tab/window visibility change handler
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden && !isSubmitted) {
+        setTabChanged(true);
+        setViolationCount((prev) => {
+          const newCount = prev + 1;
+          if (newCount >= 2) {
+            handleSubmitAssessment();
+            toast.error("Assessment auto-submitted due to tab switching");
+          }
+          return newCount;
+        });
+        toast.warning(
+          `You switched tabs/windows. ${
+            2 - violationCount
+          } more violation(s) will auto-submit.`,
+          {
+            duration: 10000,
+          }
+        );
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [isSubmitted, violationCount]);
+
+  // Enhanced beforeunload handler
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (!isSubmitted) {
+        setViolationCount((prev) => {
+          const newCount = prev + 1;
+          if (newCount >= 2) {
+            handleSubmitAssessment();
+            return newCount;
+          }
+          return newCount;
+        });
+
+        if (violationCount >= 1) {
+          handleSubmitAssessment();
+        }
+
+        e.preventDefault();
+        e.returnValue = `You have unsaved changes. Continuing will auto-submit your assessment. 
+          ${2 - violationCount} more violation(s) allowed.`;
+        return e.returnValue;
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [isSubmitted, violationCount]);
+
+  // Auto-submit after violations
+  useEffect(() => {
+    if (violationCount >= 2 && !isSubmitted) {
+      handleSubmitAssessment();
+      toast.error("Assessment auto-submitted due to multiple violations");
+    }
+  }, [violationCount, isSubmitted]);
 
   // Load assessment state with error handling
   useEffect(() => {
@@ -77,14 +223,38 @@ export default function Assessment() {
         const savedState = localStorage.getItem("assessmentState");
         if (savedState) {
           const parsedState: AssessmentState = JSON.parse(savedState);
-          setAssessmentData(parsedState.data);
-          setCourseName(parsedState.courseName);
 
           const progressState = localStorage.getItem("assessmentProgress");
           if (progressState) {
             const progress: AssessmentProgress = JSON.parse(progressState);
 
-            // Check if the session is expired (more than 24 hours old)
+            if (progress.assessmentId !== parsedState.data.data?.assessmentId) {
+              localStorage.removeItem("assessmentProgress");
+              resetState();
+            } else {
+              setAnswers(progress.answers || {});
+              setCurrentQuestion(progress.currentQuestion || 0);
+              setQuestionTimeRemaining(progress.questionTimeRemaining || 45);
+              setFlaggedQuestions(
+                progress.flaggedQuestions
+                  ? new Set(progress.flaggedQuestions)
+                  : new Set()
+              );
+              setLastSavedTime(progress.lastSavedTimestamp);
+              setCurrentAssessmentId(progress.assessmentId);
+            }
+          }
+
+          setAssessmentData(parsedState.data);
+          setCourseName(parsedState.courseName);
+          if (parsedState.courseId) setCourseId(parsedState.courseId);
+          if (parsedState.userId) setUserId(parsedState.userId);
+          if (parsedState.data.data?.assessmentId) {
+            setCurrentAssessmentId(parsedState.data.data.assessmentId);
+          }
+
+          if (progressState) {
+            const progress: AssessmentProgress = JSON.parse(progressState);
             const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
             if (Date.now() - progress.lastSavedTimestamp > TWENTY_FOUR_HOURS) {
               localStorage.removeItem("assessmentProgress");
@@ -92,16 +262,6 @@ export default function Assessment() {
                 "Your previous session has expired. Starting a new assessment."
               );
               resetState();
-            } else {
-              setAnswers(progress.answers || {});
-              setCurrentQuestion(progress.currentQuestion || 0);
-              setQuestionTimeRemaining(progress.questionTimeRemaining || 30);
-              setFlaggedQuestions(
-                progress.flaggedQuestions
-                  ? new Set(progress.flaggedQuestions)
-                  : new Set()
-              );
-              setLastSavedTime(progress.lastSavedTimestamp);
             }
           }
         } else {
@@ -119,17 +279,15 @@ export default function Assessment() {
 
     loadAssessmentState();
 
-    // Network status detection
-    const handleOnline = () => setNetworkError(false);
+    const handleOnline = () => {
+      setNetworkError(false);
+      processPendingSubmissions();
+    };
     const handleOffline = () => setNetworkError(true);
 
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
-
-    // Check initial network status
-    if (!navigator.onLine) {
-      setNetworkError(true);
-    }
+    setNetworkError(!navigator.onLine);
 
     return () => {
       window.removeEventListener("online", handleOnline);
@@ -145,7 +303,6 @@ export default function Assessment() {
       .padStart(2, "0")}`;
   }, []);
 
-  // Timer logic with auto-submit
   useEffect(() => {
     if (isSubmitted || !assessmentData || isLoading) return;
 
@@ -160,7 +317,7 @@ export default function Assessment() {
               setIsAutoMoving(false);
             }, 1000);
           } else {
-            handleSubmitAssessment();
+            setAllTimersCompleted(true);
           }
           return 0;
         }
@@ -174,14 +331,18 @@ export default function Assessment() {
   const resetState = () => {
     setCurrentQuestion(0);
     setAnswers({});
-    setQuestionTimeRemaining(30);
+    setQuestionTimeRemaining(45);
     setFlaggedQuestions(new Set());
     setLastSavedTime(null);
+    setAllTimersCompleted(false);
+    setTabChanged(false);
+    setViolationCount(0);
+    setShowWarning(false);
+    setForceSubmitEnabled(false);
   };
 
-  // Auto-save progress with error handling
   useEffect(() => {
-    if (!isSubmitted && assessmentData && !isLoading) {
+    if (!isSubmitted && assessmentData && !isLoading && currentAssessmentId) {
       const saveProgress = () => {
         try {
           const progress: AssessmentProgress = {
@@ -190,29 +351,23 @@ export default function Assessment() {
             questionTimeRemaining,
             flaggedQuestions: Array.from(flaggedQuestions),
             lastSavedTimestamp: Date.now(),
+            assessmentId: currentAssessmentId,
           };
 
           localStorage.setItem("assessmentProgress", JSON.stringify(progress));
           setLastSavedTime(Date.now());
         } catch (error) {
           console.error("Failed to save progress", error);
-          // Retry after a delay if storage is full
           setTimeout(saveProgress, 1000);
         }
       };
 
-      // Save immediately on changes
       saveProgress();
-
-      // Also set up periodic saving
       const saveInterval = setInterval(saveProgress, 5000);
 
-      // Save before unload
       const handleBeforeUnload = (e: BeforeUnloadEvent) => {
         saveProgress();
-        // For modern browsers
         e.preventDefault();
-        // For older browsers
         e.returnValue = "";
       };
 
@@ -231,6 +386,7 @@ export default function Assessment() {
     flaggedQuestions,
     assessmentData,
     isLoading,
+    currentAssessmentId,
   ]);
 
   const handleAnswerSelect = useCallback(
@@ -261,9 +417,7 @@ export default function Assessment() {
       currentQuestion < assessmentData.data.assessment.length - 1
     ) {
       setCurrentQuestion((prev) => prev + 1);
-      setQuestionTimeRemaining(30);
-    } else {
-      handleSubmitAssessment();
+      setQuestionTimeRemaining(45);
     }
   }, [assessmentData, currentQuestion]);
 
@@ -294,120 +448,209 @@ export default function Assessment() {
     );
   }, [assessmentData, getAnsweredQuestionsCount]);
 
-  const handleSubmitAssessment = useCallback(async () => {
-    if (!assessmentData?.data?.assessment) return;
+  const submitAssessmentResults = async (
+    calculatedScore: number
+  ): Promise<boolean> => {
+    if (
+      !assessmentData?.data?.assessment ||
+      !assessmentData.data.assessment ||
+      !assessmentData.data.assessmentId ||
+      !userId
+    ) {
+      throw new Error("Missing required assessment data");
+    }
 
-    const calculatedScore = calculateScore();
-    setScore(calculatedScore);
-    setIsSubmitted(true);
-    setShowResults(true);
+    const totalQuestions = assessmentData.data.assessment.length;
+    const correctAnswers = Math.round((calculatedScore / 100) * totalQuestions);
+    const attempted = getAnsweredQuestionsCount();
+
+    const payload: AssessmentSubmissionPayload = {
+      userId: currentUser?.userId,
+      assessmentId: assessmentData.data.assessmentId,
+      totalQuestions,
+      attempted,
+      correct: correctAnswers,
+      score: calculatedScore,
+      totalMarks: totalQuestions,
+    };
 
     try {
-      // Try to submit to server
-      const submitToServer = async () => {
-        try {
-          const response = await fetch("/api/submit-assessment", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              //   attemptId: assessmentData.data.attemptId,
-              answers,
-              score: calculatedScore,
-            }),
-          });
-
-          if (!response.ok) {
-            throw new Error("Failed to submit assessment");
-          }
-
-          // Clear local storage only after successful submission
-          localStorage.removeItem("assessmentProgress");
-          return true;
-        } catch (error) {
-          console.error("Failed to submit assessment", error);
-          return false;
+      const response = await axios.post(
+        `${API_URL}admin/assessments/submit`,
+        payload,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authService.getAuthToken()}`,
+          },
         }
-      };
+      );
 
-      // Try to submit immediately
-      let submitted = await submitToServer();
+      if (response.data && response.data.success) {
+        return true;
+      }
+      throw new Error(response.data?.message || "Failed to submit assessment");
+    } catch (error: any) {
+      console.error("Assessment submission error:", error);
+      if (error.response) {
+        console.error("Error response data:", error.response.data);
+        console.error("Error status:", error.response.status);
+      }
+      throw error;
+    }
+  };
 
-      // If offline or failed, save to localStorage and try later
-      if (!submitted) {
-        const pendingSubmissions = JSON.parse(
-          localStorage.getItem("pendingSubmissions") || "[]"
-        );
-        pendingSubmissions.push({
-          attemptId: assessmentData.data.attemptId,
-          answers,
-          score: calculatedScore,
-          timestamp: Date.now(),
-        });
-        localStorage.setItem(
-          "pendingSubmissions",
-          JSON.stringify(pendingSubmissions)
-        );
+  const processPendingSubmissions = async () => {
+    const pendingSubmissions = JSON.parse(
+      localStorage.getItem("pendingSubmissions") || "[]"
+    );
+    if (pendingSubmissions.length > 0) {
+      try {
+        const successfulSubmissions: number[] = [];
 
+        for (const submission of pendingSubmissions) {
+          try {
+            const result = await submitAssessmentResults(submission.score);
+            if (result) {
+              successfulSubmissions.push(submission.timestamp);
+            }
+          } catch (error) {
+            console.error("Failed to submit pending assessment", error);
+          }
+        }
+
+        if (successfulSubmissions.length > 0) {
+          const updatedSubmissions = pendingSubmissions.filter(
+            (s: any) => !successfulSubmissions.includes(s.timestamp)
+          );
+          localStorage.setItem(
+            "pendingSubmissions",
+            JSON.stringify(updatedSubmissions)
+          );
+
+          if (updatedSubmissions.length < pendingSubmissions.length) {
+            toast.success(
+              `${
+                pendingSubmissions.length - updatedSubmissions.length
+              } pending assessment(s) submitted successfully`
+            );
+          }
+        }
+      } catch (error) {
+        console.error("Failed to process pending submissions", error);
+      }
+    }
+  };
+
+  const handleSubmitAssessment = useCallback(
+    async (forceSubmit: boolean = false) => {
+      if (!assessmentData?.data?.assessment || isSubmitted) return;
+
+      // If not forcing submit and not all timers completed, show confirmation
+      if (
+        !forceSubmit &&
+        !allTimersCompleted &&
+        !forceSubmitEnabled &&
+        getAnsweredQuestionsCount() > 0
+      ) {
+        setForceSubmitEnabled(true);
         toast.warning(
-          "Your answers have been saved locally and will be submitted when you're back online",
+          "You haven't completed all questions. Click submit again to confirm.",
           {
-            duration: 10000,
+            duration: 5000,
+            action: {
+              label: "Cancel",
+              onClick: () => setForceSubmitEnabled(false),
+            },
           }
         );
-      } else {
-        toast.success("Assessment Submitted!", {
-          description: `You scored ${calculatedScore}% on the ${courseName} assessment.`,
-        });
+        return;
       }
-    } catch (error) {
-      console.error("Failed to submit assessment", error);
-      toast.error(
-        "Failed to submit assessment results. Your answers have been saved locally."
-      );
-    }
-  }, [assessmentData, answers, calculateScore, courseName]);
+
+      const calculatedScore = calculateScore();
+      setScore(calculatedScore);
+      setIsSubmitted(true);
+      setShowResults(true);
+
+      try {
+        let submitted = false;
+        if (navigator.onLine) {
+          try {
+            submitted = await submitAssessmentResults(calculatedScore);
+          } catch (error) {
+            console.error("Server submission failed, saving locally", error);
+          }
+        }
+
+        if (!submitted) {
+          const pendingSubmissions = JSON.parse(
+            localStorage.getItem("pendingSubmissions") || "[]"
+          );
+          pendingSubmissions.push({
+            userId,
+            assessmentId: assessmentData.data.assessmentId,
+            totalQuestions: assessmentData.data.assessment.length,
+            attempted: getAnsweredQuestionsCount(),
+            correct: Math.round(
+              (calculatedScore / 100) * assessmentData.data.assessment.length
+            ),
+            score: calculatedScore,
+            totalMarks: assessmentData.data.assessment.length,
+            timestamp: Date.now(),
+          });
+          localStorage.setItem(
+            "pendingSubmissions",
+            JSON.stringify(pendingSubmissions)
+          );
+
+          if (!navigator.onLine) {
+            toast.warning(
+              "Your answers have been saved locally and will be submitted when you're back online",
+              { duration: 10000 }
+            );
+          } else {
+            toast.warning(
+              "There was an issue submitting your answers. They've been saved and we'll try again later.",
+              { duration: 10000 }
+            );
+          }
+        } else {
+          localStorage.removeItem("assessmentProgress");
+          localStorage.removeItem("assessmentState");
+          toast.success("Assessment Submitted!", {
+            description: `You scored ${calculatedScore}% on the ${courseName} assessment.`,
+          });
+        }
+      } catch (error) {
+        console.error("Failed to submit assessment", error);
+        toast.error(
+          "Failed to submit assessment results. Your answers have been saved locally."
+        );
+      } finally {
+        setForceSubmitEnabled(false);
+      }
+    },
+    [
+      assessmentData,
+      answers,
+      calculateScore,
+      courseName,
+      userId,
+      isSubmitted,
+      allTimersCompleted,
+      currentQuestion,
+      questionTimeRemaining,
+      getAnsweredQuestionsCount,
+      forceSubmitEnabled,
+    ]
+  );
 
   const handleClose = useCallback(() => {
     router.push("/");
   }, [router]);
 
-  // Process pending submissions when back online
   useEffect(() => {
     if (!networkError) {
-      const processPendingSubmissions = async () => {
-        const pendingSubmissions = JSON.parse(
-          localStorage.getItem("pendingSubmissions") || "[]"
-        );
-        if (pendingSubmissions.length > 0) {
-          try {
-            for (const submission of pendingSubmissions) {
-              const response = await fetch("/api/submit-assessment", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify(submission),
-              });
-
-              if (response.ok) {
-                // Remove successfully submitted item
-                const updatedSubmissions = pendingSubmissions.filter(
-                  (s: any) => s.timestamp !== submission.timestamp
-                );
-                localStorage.setItem(
-                  "pendingSubmissions",
-                  JSON.stringify(updatedSubmissions)
-                );
-              }
-            }
-          } catch (error) {
-            console.error("Failed to process pending submissions", error);
-          }
-        }
-      };
-
       processPendingSubmissions();
     }
   }, [networkError]);
@@ -440,7 +683,6 @@ export default function Assessment() {
 
   return (
     <div className="container mx-auto px-4 py-4 max-w-7xl h-[calc(100vh-32px)]">
-      {/* Network Error Banner */}
       {networkError && (
         <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
           <div className="flex items-center">
@@ -454,7 +696,31 @@ export default function Assessment() {
         </div>
       )}
 
-      {/* Last Saved Indicator */}
+      {showWarning && !isSubmitted && (
+        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
+          <div className="flex items-center">
+            <AlertCircle className="h-5 w-5 mr-2" />
+            <p>
+              <strong>Warning:</strong> You have {2 - violationCount}{" "}
+              violation(s) remaining before auto-submit. Continue working on
+              your assessment to reset.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {tabChanged && !isSubmitted && (
+        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4">
+          <div className="flex items-center">
+            <AlertCircle className="h-5 w-5 mr-2" />
+            <p>
+              <strong>Warning:</strong> You switched tabs/windows.{" "}
+              {2 - violationCount} more violation(s) will auto-submit.
+            </p>
+          </div>
+        </div>
+      )}
+
       {lastSavedTime && (
         <div className="text-xs text-gray-500 mb-2 flex items-center">
           <RotateCw className="h-3 w-3 mr-1" />
@@ -462,9 +728,29 @@ export default function Assessment() {
         </div>
       )}
 
+      {!isSubmitted && (
+        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3 text-sm text-yellow-700 mb-4">
+          <div className="flex items-start">
+            <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0" />
+            <div>
+              <p className="font-bold mb-1">IMPORTANT ASSESSMENT RULES:</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li>
+                  Do not refresh or close this tab - will count as violation
+                </li>
+                <li>
+                  Do not switch to other tabs/windows - will count as violation
+                </li>
+                <li>2 violations will auto-submit your assessment</li>
+                <li>All actions are monitored and recorded</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+
       {!showResults ? (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 h-full">
-          {/* Left Column - Question Navigator */}
           <div className="lg:col-span-1 h-full flex flex-col">
             <Card className="h-full flex flex-col">
               <CardHeader>
@@ -479,7 +765,6 @@ export default function Assessment() {
               </CardHeader>
               <CardContent className="flex-grow overflow-auto">
                 <div className="space-y-4">
-                  {/* Assessment Info */}
                   <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
                     <div className="flex items-center justify-between mb-2">
                       <p className="text-blue-800 text-sm">
@@ -498,7 +783,6 @@ export default function Assessment() {
                     />
                   </div>
 
-                  {/* Question Navigator */}
                   <div>
                     <h3 className="text-sm font-medium mb-2">
                       Question Status
@@ -541,14 +825,15 @@ export default function Assessment() {
                     </div>
                   </div>
 
-                  {/* Submit Button (Mobile) */}
                   <div className="lg:hidden">
                     <Button
-                      onClick={handleSubmitAssessment}
+                      onClick={() => handleSubmitAssessment(forceSubmitEnabled)}
                       className="w-full bg-green-600 hover:bg-green-700"
                       disabled={getAnsweredQuestionsCount() === 0}
                     >
-                      Submit Assessment
+                      {forceSubmitEnabled
+                        ? "Confirm Submit"
+                        : "Submit Assessment"}
                     </Button>
                   </div>
                 </div>
@@ -556,7 +841,6 @@ export default function Assessment() {
             </Card>
           </div>
 
-          {/* Right Column - Question and Options */}
           <div className="lg:col-span-2 h-full flex flex-col">
             <Card className="h-full flex flex-col">
               <CardHeader className="flex flex-row items-center justify-between py-3">
@@ -587,14 +871,12 @@ export default function Assessment() {
               </CardHeader>
               <CardContent className="flex-grow overflow-auto">
                 <div className="space-y-4 h-full flex flex-col">
-                  {/* Question */}
                   <div className="bg-gray-50 p-4 rounded-lg">
                     <p className="text-gray-800 font-medium whitespace-pre-line">
                       {currentQuestionData.question}
                     </p>
                   </div>
 
-                  {/* Options */}
                   <div className="space-y-3 flex-grow">
                     {Object.entries(currentQuestionData.options).map(
                       ([key, value]) => (
@@ -617,17 +899,20 @@ export default function Assessment() {
                     )}
                   </div>
 
-                  {/* Navigation */}
                   <div className="flex justify-end items-center pt-2 pb-2">
                     {currentQuestion === totalQuestions - 1 ? (
                       <Button
-                        onClick={handleSubmitAssessment}
+                        onClick={() =>
+                          handleSubmitAssessment(forceSubmitEnabled)
+                        }
                         className="bg-green-600 hover:bg-green-700"
                         disabled={
                           getAnsweredQuestionsCount() === 0 || isAutoMoving
                         }
                       >
-                        Submit Assessment
+                        {forceSubmitEnabled
+                          ? "Confirm Submit"
+                          : "Submit Assessment"}
                       </Button>
                     ) : (
                       <Button
@@ -644,7 +929,6 @@ export default function Assessment() {
           </div>
         </div>
       ) : (
-        /* Results View */
         <div className="h-full overflow-auto">
           <div className="max-w-3xl mx-auto py-6 space-y-6">
             <div className="text-center">

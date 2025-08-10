@@ -23,6 +23,7 @@ interface HeaderProps {
   activeSection: string;
   setActiveSection: (section: string) => void;
   setShowAuthModal: (show: boolean) => void;
+  setAuthMode: (mode: "signin" | "signup") => void; // New prop
   scrollToSection: (sectionId: string) => void;
 }
 
@@ -30,6 +31,7 @@ export function Header({
   activeSection,
   setActiveSection,
   setShowAuthModal,
+  setAuthMode, // New prop
   scrollToSection,
 }: HeaderProps) {
   const { logout } = useSession();
@@ -104,6 +106,7 @@ export function Header({
   const handleLogout = () => {
     try {
       AuthService.logout();
+
       logout();
       setIsDropdownOpen(false);
       toast.success("Logged Out Successfully! 👋", {
@@ -165,6 +168,16 @@ export function Header({
     { id: "internships", label: "Internship & Programs" },
     { id: "contact", label: "Contact" },
   ];
+
+  const handleSignInClick = () => {
+    setAuthMode("signin");
+    setShowAuthModal(true);
+  };
+
+  const handleSignUpClick = () => {
+    setAuthMode("signup");
+    setShowAuthModal(true);
+  };
 
   return (
     <header className="bg-white shadow-lg sticky top-0 z-40 border-b border-gray-200">
@@ -269,12 +282,21 @@ export function Header({
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button
-                className="bg-gradient-to-br from-blue-600 to-blue-800 hover:bg-blue-700 text-white px-6 py-2 rounded-full"
-                onClick={() => setShowAuthModal(true)}
-              >
-                Sign Up / Sign In
-              </Button>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  className="text-blue-600 border-blue-600 hover:bg-blue-50 px-4 py-2 rounded-full"
+                  onClick={handleSignInClick}
+                >
+                  Sign In
+                </Button>
+                <Button
+                  className="bg-gradient-to-br from-blue-600 to-blue-800 hover:bg-blue-700 text-white px-4 py-2 rounded-full"
+                  onClick={handleSignUpClick}
+                >
+                  Sign Up
+                </Button>
+              </div>
             )}
           </nav>
 
@@ -343,15 +365,26 @@ export function Header({
               </>
             )}
             {!currentUser && (
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  setShowAuthModal(true);
-                }}
-                className="block w-full text-left px-4 py-3 rounded-lg font-medium text-gray-700 hover:bg-gray-100 hover:text-blue-600"
-              >
-                Sign Up / Sign In
-              </button>
+              <div className="flex flex-col space-y-2 pt-2">
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    handleSignInClick();
+                  }}
+                  className="block w-full text-left px-4 py-3 rounded-lg font-medium text-blue-600 hover:bg-blue-50 border border-blue-600"
+                >
+                  Sign In
+                </button>
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    handleSignUpClick();
+                  }}
+                  className="block w-full text-left px-4 py-3 rounded-lg font-medium text-white bg-gradient-to-br from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900"
+                >
+                  Sign Up
+                </button>
+              </div>
             )}
           </nav>
         </div>

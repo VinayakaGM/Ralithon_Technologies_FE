@@ -33,6 +33,7 @@ import {
 import usersService, {
   AssessmentAttemptResponse,
   Course,
+  EnrolledCourse,
 } from "@/services/users.service";
 import AdminCourseService from "@/services/admin.service";
 import authService from "@/services/auth.service";
@@ -71,9 +72,10 @@ export default function RalithonWebsite() {
   const [faqExpanded, setFaqExpanded] = useState(false);
   const router = useRouter();
   const pathName = usePathname();
-  const [showAssessmentModal, setShowAssessmentModal] = useState(false);
+  const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([]);
   const [assessmentData, setAssessmentData] =
     useState<AssessmentAttemptResponse | null>(null);
+  const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
 
   useEffect(() => {
     const lastClosed = localStorage.getItem("hiringModalClosed");
@@ -111,6 +113,24 @@ export default function RalithonWebsite() {
 
   const currentUser = mounted ? AuthService.getCurrentUser() : null;
 
+  const fetchUserData = async () => {
+    const currentUser = localStorage.getItem("user");
+    if (!currentUser) return;
+
+    try {
+      const user = JSON.parse(currentUser);
+      if (user?.userId) {
+        setUserId(user.userId);
+        const response = await usersService.getEnrolledCourses(user.userId);
+        if (response.success) {
+          setEnrolledCourses(response.data);
+        }
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
   useEffect(() => {
     fetchCourses();
   }, []);
@@ -139,6 +159,7 @@ export default function RalithonWebsite() {
       } else {
         throw new Error(response.message || "Invalid course data format");
       }
+      await fetchUserData();
     } catch (error) {
       setCourseError(
         error instanceof Error ? error.message : "An unknown error occurred"
@@ -361,6 +382,11 @@ export default function RalithonWebsite() {
       description: ` Thank you ${data.fullName}! We'll get back to you within 24 hours.`,
     });
   };
+
+  const handleToggleAuthMode = (newMode: "signin" | "signup") => {
+    setAuthMode(newMode);
+  };
+
   const handleTakeAssessment = async (course: Course) => {
     if (!userId) {
       toast.error("Please log in to take assessment");
@@ -374,18 +400,16 @@ export default function RalithonWebsite() {
         selectedCourse.assessmentId
       );
 
-      // Check if the response indicates success
       if (response.success && response.data) {
         toast.success("Assessment started successfully!");
         setShowCourseModal(false);
 
-        // Transform the API response
         const transformedResponse = {
           success: true,
           message: response.message || "Assessment loaded successfully",
           data: {
             assessment:
-              response.data.assessment || response.data.questions || [], // Handle both cases
+              response.data.assessment || response.data.questions || [],
             attemptId: response.data.attemptId || null,
             // Only include payment fields if they exist
             ...(response.data.orderId && { orderId: response.data.orderId }),
@@ -417,43 +441,6 @@ export default function RalithonWebsite() {
         error.response?.data?.message ||
           error.message ||
           "An error occurred while starting the assessment"
-      );
-    }
-  };
-
-  const handleAssessmentSubmit = async (answers: Record<number, string>) => {
-    if (!assessmentData || !userId || !selectedCourse) return;
-
-    try {
-      // Here you would typically send the answers to your backend
-      // This is a placeholder - replace with your actual API call
-      const submitResponse = await axios.post(
-        ` ${process.env.NEXT_PUBLIC_BASE_API_URL}admin/assessments/submit/${userId}/${selectedCourse.assessmentId}`,
-        {
-          answers,
-          attemptId: assessmentData.data.attemptId, // Assuming your response includes an attemptId
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${authService.getAuthToken()}`,
-          },
-        }
-      );
-
-      if (submitResponse.data.success) {
-        toast.success("Assessment submitted successfully!");
-        setShowAssessmentModal(false);
-        // Optionally refresh user data or course status
-      } else {
-        toast.error(submitResponse.data.message || "Submission failed");
-      }
-    } catch (error: any) {
-      console.error("Submission error:", error);
-      toast.error(
-        error.response?.data?.message ||
-          error.message ||
-          "An error occurred while submitting the assessment"
       );
     }
   };
@@ -562,12 +549,17 @@ export default function RalithonWebsite() {
     }
   };
 
+  const isCourseEnrolled = (courseId: number) => {
+    return enrolledCourses.some((course) => course.id === courseId);
+  };
+
   return (
     <div className="min-h-screen bg-white">
       <Header
         activeSection={activeSection}
         setActiveSection={setActiveSection}
         setShowAuthModal={setShowAuthModal}
+        setAuthMode={setAuthMode}
         scrollToSection={scrollToSection}
       />
       <section id="home" className="relative h-screen overflow-hidden">
@@ -910,7 +902,7 @@ export default function RalithonWebsite() {
                           } else {
                             setShowAuthModal(true);
                             setCustomMessage(`
-                              Please register or sign in to enroll in ${course.courseName}`);
+          Please register or sign in to enroll in ${course.courseName}`);
                           }
                         }}
                       >
@@ -1088,25 +1080,30 @@ export default function RalithonWebsite() {
                     <span>Take Assessment</span>
                     <ClipboardList className="h-4 w-4" />
                   </Button>
-
-                  <Button
-                    className={`w-full flex items-center justify-between text-sm py-2 ${
-                      selectedCourse.courseType?.toLowerCase() === "free"
-                        ? "bg-green-600 hover:bg-green-700"
-                        : "bg-purple-600 hover:bg-purple-700"
-                    }`}
-                    onClick={() => handleEnrollCourse(selectedCourse)}
-                    disabled={!startDate}
-                  >
-                    <span>
-                      {selectedCourse.courseType?.toLowerCase() === "free"
-                        ? "Enroll Now"
-                        : `Pay ₹${
-                            selectedCourse.courseFee?.toFixed(2) || "0.00"
-                          }`}
-                    </span>
-                    <BookOpen className="h-4 w-4" />
-                  </Button>
+                  {isCourseEnrolled(selectedCourse.courseId) ? (
+                    <div className="w-full text-center py-2 px-4 bg-green-100 text-green-800 rounded-md text-sm font-medium">
+                      Enrolled
+                    </div>
+                  ) : (
+                    <Button
+                      className={`w-full flex items-center justify-between text-sm py-2 ${
+                        selectedCourse.courseType?.toLowerCase() === "free"
+                          ? "bg-green-600 hover:bg-green-700"
+                          : "bg-purple-600 hover:bg-purple-700"
+                      }`}
+                      onClick={() => handleEnrollCourse(selectedCourse)}
+                      disabled={!startDate}
+                    >
+                      <span>
+                        {selectedCourse.courseType?.toLowerCase() === "free"
+                          ? "Enroll Now"
+                          : `Pay ₹${
+                              selectedCourse.courseFee?.toFixed(2) || "0.00"
+                            }`}
+                      </span>
+                      <BookOpen className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
 
                 <div className="pt-4 border-t border-gray-200">
@@ -1238,11 +1235,13 @@ export default function RalithonWebsite() {
           setShowAuthModal(false);
           setCustomMessage(undefined);
         }}
+        mode={authMode}
         onAuthSuccess={() => {
           if (selectedCourse) {
             setShowCourseModal(true);
           }
         }}
+        onModeChange={handleToggleAuthMode}
         customMessage={customMessage}
       />
       {/* Hiring Modal */}

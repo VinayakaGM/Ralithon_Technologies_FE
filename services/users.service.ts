@@ -1,4 +1,5 @@
 import axios from "axios";
+import { AssessmentSubmissionPayload } from "@/types/assessment.types";
 
 export interface User {
   userId: number;
@@ -72,8 +73,7 @@ class UserService {
 
   private getHeaders() {
     const headers: Record<string, string> = {
-      accept: "/",
-      "Content-Type": "application/json",
+      accept: "*/*",
     };
 
     const token = this.getAuthToken();
@@ -83,11 +83,24 @@ class UserService {
 
     return headers;
   }
+  private dataURLtoBlob(dataURL: string): Blob {
+    const [meta, content] = dataURL.split(",");
+    const mime = meta.match(/:(.*?);/)![1];
+    const bstr = atob(content);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+
+    return new Blob([u8arr], { type: mime });
+  }
 
   getAllUsers(): Promise<ApiResponse> {
     return axios
       .get(`${API_URL}users`, {
-        headers: this.getHeaders(),
+        headers: { ...this.getHeaders(), Accept: "application/json" },
       })
       .then((response) => ({
         success: true,
@@ -99,7 +112,7 @@ class UserService {
   getUserById(userId: number): Promise<ApiResponse> {
     return axios
       .get(`${API_URL}users/${userId}`, {
-        headers: this.getHeaders(),
+        headers: { ...this.getHeaders(), Accept: "application/json" },
       })
       .then((response) => ({
         success: true,
@@ -108,42 +121,63 @@ class UserService {
       .catch((error) => this.handleError(error));
   }
 
-  updateUser(
+  async updateUser(
     userId: number,
-    userData: Partial<User>,
-    profileImage?: File | null
+    userData: Partial<{
+      firstName: string;
+      lastName: string;
+      phoneNumber: string;
+    }>,
+    profileImage?: string | null
   ): Promise<ApiResponse> {
-    const formData = new FormData();
+    try {
+      const formData = new FormData();
 
-    Object.entries(userData).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        formData.append(`userDTO.${key}`, value as any);
+      // Create userDTO as a JSON string and append directly
+      const userDTO = JSON.stringify({
+        firstName: userData.firstName || "",
+        lastName: userData.lastName || "",
+        phoneNumber: userData.phoneNumber || "",
+      });
+
+      formData.append("userDTO", userDTO);
+
+      // Handle profile image
+      if (profileImage) {
+        if (profileImage.startsWith("data:image")) {
+          // Convert data URL to blob for new images
+          const blob = this.dataURLtoBlob(profileImage);
+          formData.append("profileImage", blob, "profile.png");
+        } else if (profileImage) {
+          // For existing image URLs or empty values
+          formData.append("profileImage", profileImage);
+        }
+      } else {
+        // Send empty string if no image (matches your curl example)
+        formData.append("profileImage", "");
       }
-    });
 
-    if (profileImage) {
-      formData.append("profileImage", profileImage);
-    }
-
-    return axios
-      .put(`${API_URL}users/${userId}`, formData, {
+      const response = await axios.put(`${API_URL}users/${userId}`, formData, {
         headers: {
           ...this.getHeaders(),
           "Content-Type": "multipart/form-data",
         },
-      })
-      .then((response) => ({
+      });
+
+      return {
         success: true,
         data: response.data,
         message: "User updated successfully",
-      }))
-      .catch((error) => this.handleError(error));
+      };
+    } catch (error: any) {
+      return this.handleError(error);
+    }
   }
 
   deleteUser(userId: number): Promise<ApiResponse> {
     return axios
       .delete(`${API_URL}users/${userId}`, {
-        headers: this.getHeaders(),
+        headers: { ...this.getHeaders(), Accept: "application/json" },
       })
       .then((response) => ({
         success: true,
@@ -158,7 +192,7 @@ class UserService {
   ): Promise<ApiResponse> {
     return axios
       .post(`${API_URL}user-courses/enroll/${userId}`, payload, {
-        headers: this.getHeaders(),
+        headers: { ...this.getHeaders(), Accept: "application/json" },
       })
       .then((response) => ({
         success: true,
@@ -171,7 +205,7 @@ class UserService {
   getEnrolledCourses(userId: number): Promise<ApiResponse> {
     return axios
       .get(`${API_URL}user-courses/user/${userId}`, {
-        headers: this.getHeaders(),
+        headers: { ...this.getHeaders(), Accept: "application/json" },
       })
       .then((response) => ({
         success: true,
@@ -197,7 +231,7 @@ class UserService {
   getUserCourseDetails(userId: number, courseId: number): Promise<ApiResponse> {
     return axios
       .get(`${API_URL}user-courses/user/${userId}/${courseId}`, {
-        headers: this.getHeaders(),
+        headers: { ...this.getHeaders(), Accept: "application/json" },
       })
       .then((response) => ({
         success: true,
@@ -215,13 +249,28 @@ class UserService {
         `${API_URL}admin/assessments/attempt/${userId}/${assessmentId}`,
         null,
         {
-          headers: this.getHeaders(),
+          headers: { ...this.getHeaders(), Accept: "application/json" },
         }
       )
       .then((response) => ({
         success: true,
         data: response.data,
         message: "Assessment attempted successfully",
+      }))
+      .catch((error) => this.handleError(error));
+  }
+
+  submitAssessmentResults(
+    payload: AssessmentSubmissionPayload
+  ): Promise<ApiResponse> {
+    return axios
+      .post(`${API_URL}admin/assessments/submit`, payload, {
+        headers: { ...this.getHeaders(), Accept: "application/json" },
+      })
+      .then((response) => ({
+        success: true,
+        data: response.data,
+        message: "Assessment results submitted successfully",
       }))
       .catch((error) => this.handleError(error));
   }
