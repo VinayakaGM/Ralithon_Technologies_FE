@@ -96,17 +96,13 @@ export function ProfileTab() {
     if (file) {
       // Check file size (max 2MB)
       if (file.size > 2 * 1024 * 1024) {
-        toast("Error", {
-          description: "Image size should be less than 2MB",
-        });
+        toast.error("Image size should be less than 2MB");
         return;
       }
 
       // Check file type
       if (!file.type.match("image.*")) {
-        toast("Error", {
-          description: "Only image files are allowed",
-        });
+        toast.error("Only image files are allowed");
         return;
       }
 
@@ -133,14 +129,21 @@ export function ProfileTab() {
   const handleSaveChanges = async () => {
     if (!user) return;
 
+    // Basic validation
+    if (!formData.firstName.trim() || !formData.lastName.trim()) {
+      toast.error("First name and last name are required");
+      return;
+    }
+
     try {
       setIsUploading(true);
+
       const response = await UserService.updateUser(
         user.userId,
         {
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          phoneNumber: formData.phoneNumber,
+          firstName: formData.firstName.trim(),
+          lastName: formData.lastName.trim(),
+          phoneNumber: formData.phoneNumber.trim(),
         },
         profileImage || null
       );
@@ -156,26 +159,43 @@ export function ProfileTab() {
             profileImage: response.data.profileImage || prev.profileImage,
           };
         });
+
+        // Reset edit mode and clear temporary image state
         setEditMode(false);
         setProfileImage(null);
-        toast("Success", {
-          description: "Profile updated successfully",
-        });
+
+        // Update the image preview with the new URL if it was changed
+        if (response.data.profileImage) {
+          setImagePreview(response.data.profileImage);
+        }
+
+        toast.success("Profile updated successfully");
       } else {
-        setError(response.message || "Failed to update user data");
-        toast("Error", {
-          description: response.message || "Failed to update profile",
-        });
+        toast.error(response.message || "Failed to update profile");
       }
     } catch (err) {
-      setError("An error occurred while updating user data");
-      console.error(err);
-      toast("Error", {
-        description: "An error occurred while updating profile",
-      });
+      console.error("Update error:", err);
+      toast.error("An error occurred while updating profile");
     } finally {
       setIsUploading(false);
     }
+  };
+
+  const handleCancelEdit = () => {
+    if (!user) return;
+
+    // Reset form to original user data
+    setFormData({
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      phoneNumber: user.phoneNumber,
+    });
+
+    // Reset image preview to original
+    setImagePreview(user.profileImage || null);
+    setProfileImage(null);
+    setEditMode(false);
   };
 
   if (loading) {
@@ -247,7 +267,7 @@ export function ProfileTab() {
               <Label htmlFor="firstName">First Name</Label>
               <Input
                 id="firstName"
-                value={editMode ? formData.firstName : user.firstName}
+                value={formData.firstName}
                 onChange={handleInputChange}
                 disabled={!editMode}
               />
@@ -257,7 +277,7 @@ export function ProfileTab() {
               <Label htmlFor="lastName">Last Name</Label>
               <Input
                 id="lastName"
-                value={editMode ? formData.lastName : user.lastName}
+                value={formData.lastName}
                 onChange={handleInputChange}
                 disabled={!editMode}
               />
@@ -272,7 +292,7 @@ export function ProfileTab() {
               <Label htmlFor="phoneNumber">Phone Number</Label>
               <Input
                 id="phoneNumber"
-                value={editMode ? formData.phoneNumber : user.phoneNumber}
+                value={formData.phoneNumber}
                 onChange={handleInputChange}
                 disabled={!editMode}
                 placeholder="Enter your phone number"
@@ -291,11 +311,7 @@ export function ProfileTab() {
                   </Button>
                   <Button
                     variant="outline"
-                    onClick={() => {
-                      setEditMode(false);
-                      setImagePreview(user.profileImage || null);
-                      setProfileImage(null);
-                    }}
+                    onClick={handleCancelEdit}
                     disabled={isUploading}
                   >
                     Cancel

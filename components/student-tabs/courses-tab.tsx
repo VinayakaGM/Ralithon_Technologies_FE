@@ -13,7 +13,6 @@ import userService, {
   EnrolledCourse,
   CourseDetails,
 } from "@/services/users.service";
-import authService from "@/services/auth.service";
 import YouTube from "react-youtube";
 
 export function CoursesTab() {
