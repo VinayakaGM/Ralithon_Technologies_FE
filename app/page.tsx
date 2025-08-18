@@ -37,8 +37,6 @@ import usersService, {
 } from "@/services/users.service";
 import AdminCourseService from "@/services/admin.service";
 import authService from "@/services/auth.service";
-
-import { loadRazorpay } from "@/utils/razorpay";
 import type {
   RazorpayCheckoutResponse,
   VerifyResponse,
@@ -47,6 +45,7 @@ import axios from "axios";
 import { usePathname, useRouter } from "next/navigation";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 export default function RalithonWebsite() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -73,6 +72,7 @@ export default function RalithonWebsite() {
   const router = useRouter();
   const pathName = usePathname();
   const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([]);
+const [isTakingAssessment, setIsTakingAssessment] = useState(false);
   const [assessmentData, setAssessmentData] =
     useState<AssessmentAttemptResponse | null>(null);
   const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
@@ -362,13 +362,6 @@ export default function RalithonWebsite() {
     setMobileMenuOpen(false);
   };
 
-  const handleSubmitAssessment = (answers: Record<number, string>) => {
-    // Here you would typically send the answers to your backend
-    console.log("Submitted answers:", answers);
-    // Example API call:
-    // await usersService.submitAssessmentAnswers(course.assessmentId, answers);
-  };
-
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -387,63 +380,162 @@ export default function RalithonWebsite() {
     setAuthMode(newMode);
   };
 
-  const handleTakeAssessment = async (course: Course) => {
-    if (!userId) {
-      toast.error("Please log in to take assessment");
-      setShowAuthModal(true);
+const handleTakeAssessment = async (course: Course) => {
+  if (!userId) {
+    toast.error("Please log in to take assessment");
+    setShowAuthModal(true);
+    return;
+  }
+
+  setIsTakingAssessment(true);
+  try {
+    const response = await usersService.attemptAssessment(
+      userId,
+      selectedCourse.assessmentId
+    );
+
+    if (!response.success || !response.data) {
+      toast.error(response.message || "Failed to start assessment");
       return;
     }
 
-    try {
-      const response = await usersService.attemptAssessment(
-        userId,
-        selectedCourse.assessmentId
-      );
+    const data = response.data;
 
-      if (response.success && response.data) {
-        toast.success("Assessment started successfully!");
-        setShowCourseModal(false);
+    if (data.orderId && data.razorpayKey && data.amount && data.currency) {
+     
+  toast.error("You have used all free attempts. Please pay to continue the assessment.");
 
-        const transformedResponse = {
-          success: true,
-          message: response.message || "Assessment loaded successfully",
-          data: {
-            assessment:
-              response.data.assessment || response.data.questions || [],
-            attemptId: response.data.attemptId || null,
-            // Only include payment fields if they exist
-            ...(response.data.orderId && { orderId: response.data.orderId }),
-            ...(response.data.amount && { amount: response.data.amount }),
-            ...(response.data.currency && { currency: response.data.currency }),
-            ...(response.data.razorpayKey && {
-              razorpayKey: response.data.razorpayKey,
-            }),
-          },
-        };
+  await new Promise(resolve => setTimeout(resolve,2000));
 
-        const assessmentState = {
-          data: transformedResponse,
-          courseName: course.courseName,
-        };
+      await loadRazorpay();
 
-        localStorage.setItem(
-          "assessmentState",
-          JSON.stringify(assessmentState)
+      const options = {
+        key: data.razorpayKey,
+        amount: data.amount,
+        currency: data.currency,
+        name: "Ralithon Technologies",
+        description: `Assessment payment for ${course.courseName}`,
+        order_id: data.orderId,
+        handler: async function (response: any) {
+          try {
+            const token = authService.getAuthToken();
+            const verifyResp = await axios.post(
+              `${process.env.NEXT_PUBLIC_BASE_API_URL}payment/verify/${userId}`,
+              {
+                razorpayOrderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
+              },
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+
+            if (verifyResp.data?.status) {
+              toast.success("Payment successful! Starting assessment...");
+              const assessmentResponse = await usersService.attemptAssessment(
+                userId,
+                selectedCourse.assessmentId
+              );
+              
+              if (assessmentResponse.success && assessmentResponse.data?.assessment) {
+                const assessmentState = {
+                  data: {
+                    success: true,
+                    message: assessmentResponse.data.message || "Assessment loaded successfully",
+                    data: {
+                      assessmentId: selectedCourse.assessmentId,
+                      assessment: assessmentResponse.data.assessment,
+                      attemptId: assessmentResponse.data.attemptId || null,
+                    }
+                  },
+                  courseName: course.courseName,
+                  courseId: course.courseId
+                };
+                localStorage.setItem("assessmentState", JSON.stringify(assessmentState));
+                router.push("/assessment");
+              } else {
+                toast.error(assessmentResponse.message || "Failed to start assessment after payment");
+              }
+            } else {
+              toast.error("Payment verification failed");
+            }
+          } catch (verErr: any) {
+            toast.error(
+              "Payment verification error: " +
+                (verErr.message || "Unknown error")
+            );
+          }
+        },
+        prefill: {
+          email: currentUser?.email || "",
+          contact: userDetails?.phoneNumber || "",
+        },
+        theme: {
+          color: "#3399cc",
+        },
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+
+      rzp.on("payment.failed", function (response: any) {
+        toast.error(
+          "Payment failed: " + (response.error.description || "Unknown error")
         );
-        setAssessmentData(transformedResponse);
-        router.push("/assessment");
-      } else {
-        toast.error(response.message || "Failed to start assessment");
-      }
-    } catch (error: any) {
-      console.error("Assessment error:", error);
-      toast.error(
-        error.response?.data?.message ||
-          error.message ||
-          "An error occurred while starting the assessment"
-      );
+      });
+
+      rzp.open();
+      setShowCourseModal(false);
+    } else if (data.assessment) {
+      toast.success(data.message || "Assessment started successfully!");
+      setShowCourseModal(false);
+      
+      const assessmentState = {
+        data: {
+          success: true,
+          message: data.message || "Assessment loaded successfully",
+          data: {
+            assessmentId: selectedCourse.assessmentId,
+            assessment: data.assessment,
+            attemptId: data.attemptId || null,
+            ...(data.orderId && { orderId: data.orderId }),
+            ...(data.amount && { amount: data.amount }),
+            ...(data.currency && { currency: data.currency }),
+            ...(data.razorpayKey && { razorpayKey: data.razorpayKey }),
+          }
+        },
+        courseName: course.courseName,
+        courseId: course.courseId
+      };
+      localStorage.setItem("assessmentState", JSON.stringify(assessmentState));
+      router.push("/assessment");
+    } else {
+      toast.error("Invalid assessment data received");
     }
-  };
+  } catch (error: any) {
+    console.error("Assessment error:", error);
+    toast.error(
+      error.response?.data?.message ||
+        error.message ||
+        "An error occurred while starting the assessment"
+    );
+  } finally {
+    setIsTakingAssessment(false);
+  }
+};
+
+const loadRazorpay = () => {
+  return new Promise((resolve) => {
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
 
   const handleEnrollCourse = async (course: Course) => {
     if (!startDate) {
@@ -510,7 +602,7 @@ export default function RalithonWebsite() {
 
             if (verifyResp.data.status) {
               toast.success("Payment successful!");
-              router.push("/student-dashboard");
+              router.push("/student-dashboard/courses");
             } else {
               toast.error("Payment verification failed");
             }
@@ -555,6 +647,9 @@ export default function RalithonWebsite() {
 
   return (
     <div className="min-h-screen bg-white">
+      {isTakingAssessment && (
+        <LoadingSpinner message="Preparing your assessment..."/>
+    )}
       <Header
         activeSection={activeSection}
         setActiveSection={setActiveSection}
@@ -851,7 +946,7 @@ export default function RalithonWebsite() {
                           course.courseImageUrl || `${IMAGE_URL}placeholder.svg`
                         }
                         alt={course.courseName}
-                        className="w-full h-48 object-cover"
+                        className="w-full h-48"
                       />
                       <div className="absolute top-4 left-4 bg-white rounded-full p-2 shadow-lg">
                         <BookOpen className="h-8 w-8 text-blue-600" />
@@ -1001,7 +1096,7 @@ export default function RalithonWebsite() {
                     ` ${IMAGE_URL}placeholder.svg`
                   }
                   alt={selectedCourse.courseName}
-                  className="w-full h-48 object-cover rounded-lg mb-4"
+                  className="w-full h-48 rounded-lg mb-4"
                 />
                 <div className="bg-gray-50 p-4 rounded-lg mb-4">
                   <h4 className="font-semibold text-gray-800 mb-3">
@@ -1076,8 +1171,10 @@ export default function RalithonWebsite() {
                   <Button
                     className="w-full flex items-center justify-between bg-blue-600 hover:bg-blue-700 text-sm py-2"
                     onClick={() => handleTakeAssessment(selectedCourse)}
+                    disabled={isTakingAssessment}
                   >
-                    <span>Take Assessment</span>
+                    <span>
+                       {isTakingAssessment ? "Preparing Your Assessment..." : "Take Assessment"}</span>
                     <ClipboardList className="h-4 w-4" />
                   </Button>
                   {isCourseEnrolled(selectedCourse.courseId) ? (

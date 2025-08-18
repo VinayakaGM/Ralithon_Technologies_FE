@@ -1,5 +1,4 @@
 import axios from "axios";
-import { AssessmentSubmissionPayload } from "@/types/assessment.types";
 
 export interface User {
   userId: number;
@@ -18,6 +17,34 @@ export interface ApiResponse {
   data?: any;
 }
 
+export interface Assessment {
+  assessmentId: number;
+  subjectName: string;
+  topicName: string;
+  assessmentType: "Paid" | "Free"; 
+  price: number;
+  awsUrl: string;
+}
+
+export interface AssessmentSubmit {
+  submissionId: number;
+  assessmentName: string;
+  assessmentType: "Paid" | "Free";
+  totalScored: number;
+  assessmentScored: number;
+  correctAnswer: number;
+  totalQuestion: number;
+  attemptQuestion: number;
+  incorrectAnswer: number;
+  completedOn: string;
+}
+
+export interface UserAssessment {
+  assessmentId: number;
+  assessmentSubmit: AssessmentSubmit;
+}
+
+
 export interface EnrollCoursePayload {
   id: number;
   orderType: string;
@@ -25,10 +52,39 @@ export interface EnrollCoursePayload {
   startDate: string;
 }
 
+export interface AssessmentQuestion {
+  id: string;
+  question: string;
+  options: Record<string, string>;
+  difficulty: string | null;
+  explanation: string;
+  answer: string;
+  userAnswer: string | null;
+}
+
+export interface AssessmentStartResponse {
+  orderId: string | null;
+  amount: number | null;
+  currency: string | null;
+  razorpayKey: string | null;
+  message: string;
+  assessment: AssessmentQuestion[];
+  attemptId?: string | null;
+
+}
+
 export interface AssessmentAttemptResponse {
   success: boolean;
   message?: string;
-  data?: any;
+  data?: AssessmentStartResponse;
+}
+
+export interface AssessmentSubmissionResult {
+  totalQuestions: number;
+  attempted: number;
+  correct: number;
+  unanswered: number;
+  marks: number;
 }
 
 export interface Course {
@@ -242,38 +298,83 @@ class UserService {
 
   attemptAssessment(
     userId: number,
-    assessmentId: number
+    assessmentId: number,
+    count: number = 20
   ): Promise<AssessmentAttemptResponse> {
     return axios
       .post(
-        `${API_URL}admin/assessments/attempt/${userId}/${assessmentId}`,
+        `${API_URL}admin/assessments/start/${assessmentId}/${userId}`,
         null,
         {
-          headers: { ...this.getHeaders(), Accept: "application/json" },
+          headers: { ...this.getHeaders(), Accept: "*/*" },
+          params: { count }
         }
       )
       .then((response) => ({
         success: true,
         data: response.data,
-        message: "Assessment attempted successfully",
+        message: response.data.message || "Assessment attempted successfully",
       }))
       .catch((error) => this.handleError(error));
   }
 
-  submitAssessmentResults(
-    payload: AssessmentSubmissionPayload
+  submitAnswer(
+    userId: number | undefined,
+    assessmentId: number,
+    questionId: string,
+    answer: string
   ): Promise<ApiResponse> {
     return axios
-      .post(`${API_URL}admin/assessments/submit`, payload, {
-        headers: { ...this.getHeaders(), Accept: "application/json" },
-      })
+      .post(
+        `${API_URL}admin/assessments/answer/${userId}`,
+        null,
+        {
+          headers: this.getHeaders(),
+          params: {
+            questionId,
+            answer,
+            assessmentId
+          }
+        }
+      )
       .then((response) => ({
         success: true,
         data: response.data,
-        message: "Assessment results submitted successfully",
+        message: "Answer submitted successfully",
       }))
       .catch((error) => this.handleError(error));
   }
+
+  submitAssessment(
+    assessmentId: number,
+    userId: number
+  ): Promise<ApiResponse & { data?: AssessmentSubmissionResult }> {
+    return axios
+      .post(
+        `${API_URL}admin/assessments/submit/${assessmentId}/${userId}`,
+        null,
+        {
+          headers: this.getHeaders()
+        }
+      )
+      .then((response) => ({
+        success: true,
+        data: response.data,
+        message: "Assessment submitted successfully",
+      }))
+      .catch((error) => this.handleError(error));
+  }
+getUserAssessments(userId: number): Promise<ApiResponse & { data?: UserAssessment[] }> {
+  return axios
+    .get(`${API_URL}dashboard/assessments?userId=${userId}`, {
+      headers: this.getHeaders()
+    })
+    .then((response) => ({
+      success: true,
+      data: response.data as UserAssessment[],
+    }))
+    .catch((error) => this.handleError(error));
+}
 }
 
 export default new UserService();

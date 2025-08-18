@@ -6,7 +6,6 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -19,26 +18,31 @@ const menuItems = [
     id: "profile",
     title: "Profile",
     icon: User,
+    path:"/student-dashboard/profile"
   },
   {
     id: "assessments",
     title: "Assessments",
     icon: FileText,
+    path:"/student-dashboard/assessments"
   },
   {
     id: "courses",
     title: "Enrolled Courses",
-    icon: BookOpen,
+    icon: BookOpen,   
+    path:"/student-dashboard/courses"
   },
   {
     id: "certificates",
     title: "Certificates",
     icon: Award,
+    path:"/student-dashboard/certificates"
   },
   {
     id: "achievements",
     title: "Achievements",
     icon: Trophy,
+    path:"/student-dashboard/achievements"
   },
 ];
 
@@ -80,25 +84,25 @@ export function StudentSidebar({
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.id} style={{ height: "40px" }}>
                   <SidebarMenuButton
-                    onClick={() => setActiveTab(item.id)}
+                    onClick={() => {
+                      setActiveTab(item.id);
+                      router.push(item.path);
+                    }}
                     isActive={activeTab === item.id}
-                    className={`w-full justify-start p-3 rounded-lg transition-all duration-300 ${
-                      activeTab === item.id
+                    className={`w-full justify-start p-3 rounded-lg transition-all duration-300 ${activeTab === item.id
                         ? "bg-gradient-to-br from-blue-600 to-blue-800 text-white shadow-lg"
                         : "text-gray-700 hover:bg-gray-100 hover:text-blue-600"
-                    }`}
+                      }`}
                     style={{ paddingTop: "30px", paddingBottom: "30px" }}
                   >
                     <item.icon
-                      className={`h-5 w-5 mr-3 ${
-                        activeTab === item.id ? "text-white" : "text-current"
-                      }`}
+                      className={`h-5 w-5 mr-3 ${activeTab === item.id ? "text-white" : "text-current"
+                        }`}
                     />
                     <div className="text-left">
                       <div
-                        className={`font-medium ${
-                          activeTab === item.id ? "text-white" : "text-current"
-                        }`}
+                        className={`font-medium ${activeTab === item.id ? "text-white" : "text-current"
+                          }`}
                       >
                         {item.title}
                       </div>

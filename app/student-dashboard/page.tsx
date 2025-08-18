@@ -5,12 +5,13 @@ import { useRouter } from "next/navigation";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { StudentSidebar } from "@/components/student-sidebar";
 import { StudentHeader } from "@/components/student-header";
-import { ProfileTab } from "@/components/student-tabs/profile-tab";
-import { AssessmentsTab } from "@/components/student-tabs/assessments-tab";
-import { CoursesTab } from "@/components/student-tabs/courses-tab";
-import { CertificatesTab } from "@/components/student-tabs/certificates-tab";
-import { AchievementsTab } from "@/components/student-tabs/achievements-tab";
+import  ProfileTab  from "@/app/student-dashboard/profile/page";
+import  AssessmentsTab  from "@/app/student-dashboard/assessments/page";
+import  CoursesTab  from "@/app/student-dashboard/courses/page";
+import  CertificatesTab  from "@/app/student-dashboard/certificates/page";
+import  AchievementsTab  from "@/app/student-dashboard/achievements/page";
 import authService from "@/services/auth.service";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 export default function StudentDashboard() {
   const [user, setUser] = useState<any>(null);
@@ -29,14 +30,7 @@ export default function StudentDashboard() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium">
-            Loading Student Dashboard...
-          </p>
-        </div>
-      </div>
+      <LoadingSpinner message="Loading Student Dashboard..."/>
     );
   }
 

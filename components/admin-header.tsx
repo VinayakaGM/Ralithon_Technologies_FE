@@ -1,35 +1,12 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { LogOut, Settings, User, ChevronDown, ArrowLeft } from "lucide-react";
+import {  ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
-interface AdminHeaderProps {
-  user: {
-    name: string;
-    email: string;
-    profilePicture: string;
-  };
-}
 
-export function AdminHeader({ user }: AdminHeaderProps) {
-  const router = useRouter();
-
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    router.push("/");
-  };
+export function AdminHeader() {
 
   return (
     <header className="bg-white shadow-lg border-b border-gray-200 px-4 py-4">

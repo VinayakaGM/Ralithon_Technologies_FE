@@ -240,7 +240,7 @@ export function AuthModal({
         setShowOTPModal(true);
         toast.success(
           error.response?.data?.message ||
-            "Verification code sent to your email",
+          "Verification code sent to your email",
           {
             description: "Please enter the 4-digit code to verify your account",
           }
@@ -286,7 +286,7 @@ export function AuthModal({
               description: `You've been automatically logged in. Welcome to Ralithon Technologies!`,
             });
             localStorage.setItem("authToken", loginResponse.token);
-            login();
+            login(response.token);
             setShowOTPModal(false);
             onClose();
             if (onAuthSuccess) onAuthSuccess();
@@ -305,8 +305,8 @@ export function AuthModal({
     } catch (error: any) {
       setOtpError(
         error.response?.data?.message ||
-          error.response?.message ||
-          "Failed to verify OTP. Please try again."
+        error.response?.message ||
+        "Failed to verify OTP. Please try again."
       );
     } finally {
       setIsVerifyingOTP(false);
@@ -338,12 +338,11 @@ export function AuthModal({
         response.message === "login successfully"
       ) {
         toast.success("Welcome Back! 👋", {
-          description: `${
-            response.message || "You've successfully logged in."
-          } Welcome to Ralithon Technologies!`,
+          description: `${response.message || "You've successfully logged in."
+            } Welcome to Ralithon Technologies!`,
         });
         localStorage.setItem("authToken", response.token);
-        login();
+        login(response.token);
         onClose();
         if (onAuthSuccess) onAuthSuccess();
       } else {

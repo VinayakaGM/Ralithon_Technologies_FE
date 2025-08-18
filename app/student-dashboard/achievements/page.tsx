@@ -1,3 +1,5 @@
+"use client"
+
 import {
   Card,
   CardContent,
@@ -8,6 +10,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Trophy, Star, Target, Zap, BookOpen, Award } from "lucide-react";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { useState } from "react";
+import { StudentHeader } from "@/components/student-header";
+import { StudentSidebar } from "@/components/student-sidebar";
 
 const achievements = [
   {
@@ -81,11 +87,20 @@ const stats = {
   certificatesEarned: 2,
 };
 
-export function AchievementsTab() {
+export default function AchievementsTab() {
   const earnedAchievements = achievements.filter((a) => a.earned);
   const inProgressAchievements = achievements.filter((a) => !a.earned);
+  const [activeTab, setActiveTab] = useState("achievements");
 
   return (
+    
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full bg-gray-50">
+        <StudentSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+        <div className="flex-1">
+          <StudentHeader/>
+          <main className="p-6 bg-gray-50 min-h-[calc(100vh-80px)]">
+            <div className="max-w-7xl mx-auto">
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-gray-900">Achievements</h2>
@@ -228,6 +243,10 @@ export function AchievementsTab() {
           ))}
         </div>
       </div>
-    </div>
+    </div></div>
+          </main>
+        </div>
+      </div>
+    </SidebarProvider>
   );
 }

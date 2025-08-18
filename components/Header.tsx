@@ -142,8 +142,8 @@ export function Header({
     try {
       const path =
         currentUser.userType === "ROLE_STUDENT"
-          ? "/student-dashboard"
-          : "/admin-dashboard";
+          ? "/student-dashboard/profile"
+          : "/admin-dashboard/users";
 
       setTimeout(() => {
         if (isRedirecting) {

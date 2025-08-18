@@ -5,14 +5,15 @@ import { useRouter } from "next/navigation";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/admin-sidebar";
 import { AdminHeader } from "@/components/admin-header";
-import { UserManagementTab } from "@/components/admin-tabs/user-management-tab";
-import { AssessmentMonitoringTab } from "@/components/admin-tabs/assessment-monitoring-tab";
-import { CourseManagementTab } from "@/components/admin-tabs/course-management-tab";
-import { CertificateManagementTab } from "@/components/admin-tabs/certificate-management-tab";
-import { AnalyticsTab } from "@/components/admin-tabs/analytics-tab";
-import { NotificationsTab } from "@/components/admin-tabs/notifications-tab";
+import UserManagementTab from "./users/page";
+import AssessmentMonitoringTab from "@/app/admin-dashboard/assessments/page";
+import CourseManagementTab from "@/app/admin-dashboard/courses/page";
+import CertificateManagementTab from "@/app/admin-dashboard/certificates/page";
+import AnalyticsTab from "@/app/admin-dashboard/analytics/page";
+import NotificationsTab from "@/app/admin-dashboard/notifications/page";
 import authService from "@/services/auth.service";
-import { NotesManagement } from "@/components/admin-tabs/notes-tab";
+import NotesManagement from "@/app/admin-dashboard/notes/page";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 export default function AdminDashboard() {
   const [user, setUser] = useState<any>(null);
@@ -31,14 +32,7 @@ export default function AdminDashboard() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium">
-            Loading Admin Dashboard...
-          </p>
-        </div>
-      </div>
+      <LoadingSpinner message="Loading Admin Dashboard..." />
     );
   }
 
@@ -68,7 +62,7 @@ export default function AdminDashboard() {
       <div className="flex min-h-screen w-full bg-gray-50">
         <AdminSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
         <div className="flex-1">
-          <AdminHeader user={user} />
+          <AdminHeader />
           <main className="p-6 bg-gray-50 min-h-[calc(100vh-80px)]">
             <div className="max-w-7xl mx-auto">{renderActiveTab()}</div>
           </main>
