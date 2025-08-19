@@ -225,8 +225,7 @@ const [isTakingAssessment, setIsTakingAssessment] = useState(false);
     },
     {
       image: `${IMAGE_URL}slide02.png`,
-      title: "Innovation Meets Excellence",
-      subtitle: "Delivering Cutting-Edge Technology Solutions",
+      
     },
     {
       image: `${IMAGE_URL}slide03.png`,
@@ -672,7 +671,7 @@ const loadRazorpay = () => {
               src={slide.image}
               alt={`Slide ${index + 1}`}
               fill
-              className="object-cover"
+              // className="object-cover"
               priority={index === 0}
             />
             <div className="absolute inset-0 flex items-center justify-center">
@@ -1174,7 +1173,7 @@ const loadRazorpay = () => {
                     disabled={isTakingAssessment}
                   >
                     <span>
-                       {isTakingAssessment ? "Preparing Your Assessment..." : "Take Assessment"}</span>
+                       {isTakingAssessment ? "Preparing Your Assessment..." : "Take Free Assessment"}</span>
                     <ClipboardList className="h-4 w-4" />
                   </Button>
                   {isCourseEnrolled(selectedCourse.courseId) ? (
@@ -1364,7 +1363,7 @@ const loadRazorpay = () => {
               </div>
 
               <h2 className="text-2xl font-bold text-gray-800 mb-4">
-                We're Hiring!
+                We're Hiring for Internship!
               </h2>
 
               <p className="text-lg text-gray-600 mb-6 leading-relaxed">
