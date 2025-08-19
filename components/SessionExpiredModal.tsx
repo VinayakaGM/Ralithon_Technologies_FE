@@ -1,11 +1,13 @@
-// components/session-modal.tsx
-"use client";
+'use client'
 
 import { useSession } from "@/context/SessionContext";
+import authService from "@/services/auth.service";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function SessionExpiredModal() {
-  const { sessionExpired, dismissExpired, logout } = useSession();
+  const { sessionExpired, dismissExpired } = useSession();
+  const router = useRouter();
 
   useEffect(() => {
     if (sessionExpired) {
@@ -14,6 +16,12 @@ export default function SessionExpiredModal() {
       document.body.style.overflow = "auto";
     }
   }, [sessionExpired]);
+
+  const handleConfirm = () => {
+    authService.logout();
+    dismissExpired();
+    router.push("/login");
+  };
 
   if (!sessionExpired) return null;
 
@@ -24,10 +32,7 @@ export default function SessionExpiredModal() {
         <p className="mb-6">Your session has expired. Please log in again.</p>
         <div className="flex justify-end">
           <button
-            onClick={() => {
-              dismissExpired();
-              logout();
-            }}
+            onClick={handleConfirm}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
             OK

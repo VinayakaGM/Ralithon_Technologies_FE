@@ -14,7 +14,6 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -28,42 +27,51 @@ const menuItems = [
     title: "User Management",
     icon: Users,
     description: "Manage all users and permissions",
+    path: "/admin-dashboard/users"
   },
   {
     id: "assessments",
     title: "Assessment Monitoring",
     icon: FileText,
     description: "Monitor student assessments",
+    path: "/admin-dashboard/assessments"
   },
   {
     id: "courses",
     title: "Course Management",
     icon: BookOpen,
     description: "Manage courses and content",
+    path: "/admin-dashboard/courses"
   },
   {
     id: "notes",
     title: "Notes",
     icon: NotebookText,
     description: "Manage and view notes",
+    path: "/admin-dashboard/notes"
+
   },
   {
     id: "certificates",
     title: "Certificate Management",
     icon: Award,
     description: "Issue and manage certificates",
+    path: "/admin-dashboard/certificates"
+
   },
   {
     id: "analytics",
     title: "Analytics",
     icon: BarChart3,
     description: "View platform analytics",
+    path: "/admin-dashboard/analytics"
   },
   {
     id: "notifications",
     title: "Notifications",
     icon: Bell,
     description: "Send announcements",
+    path: "/admin-dashboard/notifications"
   },
 ];
 
@@ -102,33 +110,34 @@ export function AdminSidebar({ activeTab, setActiveTab }: AdminSidebarProps) {
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.id} style={{ height: "40px" }}>
                   <SidebarMenuButton
-                    onClick={() => setActiveTab(item.id)}
+                    onClick={() => {
+                      setActiveTab(item.id);
+                      router.push(item.path);
+                    }}
                     isActive={activeTab === item.id}
-                    className={`w-full justify-start p-3 rounded-lg transition-all duration-300 ${
-                      activeTab === item.id
-                        ? "bg-gradient-to-br from-blue-600 to-blue-800 text-white shadow-lg"
-                        : "text-gray-700 hover:bg-gray-100 hover:text-blue-600"
-                    }`}
+                    className={`w-full justify-start p-3 rounded-lg transition-all duration-300 ${activeTab === item.id
+                      ? "bg-gradient-to-br from-blue-600 to-blue-800 text-white shadow-lg"
+                      : "text-gray-700 hover:bg-gray-100 hover:text-blue-600"
+                      }`}
                     style={{
                       paddingTop: "30px",
                       paddingBottom: "30px",
                     }}
                   >
                     <item.icon
-                      className={`h-5 w-5 mr-3 ${
-                        activeTab === item.id ? "text-white" : "text-current"
-                      }`}
+                      className={`h-5 w-5 mr-3 ${activeTab === item.id ? "text-white" : "text-current"
+                        }`}
                     />
                     <div className="text-left">
                       <div
-                        className={`font-medium ${
-                          activeTab === item.id ? "text-white" : "text-current"
-                        }`}
+                        className={`font-medium ${activeTab === item.id ? "text-white" : "text-current"
+                          }`}
                       >
                         {item.title}
                       </div>
                     </div>
                   </SidebarMenuButton>
+
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>

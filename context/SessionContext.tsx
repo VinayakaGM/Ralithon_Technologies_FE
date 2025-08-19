@@ -1,13 +1,16 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect } from "react";
+import AuthService from "@/services/auth.service";
+import { User } from "@/types/auth.types";
 
 type SessionContextType = {
   isLoggedIn: boolean;
   sessionExpired: boolean;
-  login: () => void;
+  login: (token: string) => void;
   logout: () => void;
   dismissExpired: () => void;
+  user: User | null;
 };
 
 const SessionContext = createContext<SessionContextType | undefined>(undefined);
@@ -19,33 +22,53 @@ export const SessionProvider = ({
 }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [sessionExpired, setSessionExpired] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    // Check initial auth state
-    const token = localStorage.getItem("authToken");
-    setIsLoggedIn(!!token);
+    // Check initial auth state using AuthService
+    const initialCheck = () => {
+      const authenticated = AuthService.isAuthenticated();
+      setIsLoggedIn(authenticated);
+      setUser(AuthService.getCurrentUser());
+    };
 
-    // Listen for 401 errors
-    const handleSessionExpired = () => {
+    initialCheck();
+
+    const handleUnauthorized = () => {
       if (isLoggedIn) {
         setSessionExpired(true);
         logout();
       }
     };
 
-    window.addEventListener("session-expired", handleSessionExpired);
-    return () =>
-      window.removeEventListener("session-expired", handleSessionExpired);
+    // Intercept fetch requests
+    const originalFetch = window.fetch;
+    window.fetch = async (...args) => {
+      const response = await originalFetch(...args);
+      if (response.status === 401) {
+        handleUnauthorized();
+      }
+      return response;
+    };
+
+    window.addEventListener("session-expired", handleUnauthorized);
+    
+    return () => {
+      window.removeEventListener("session-expired", handleUnauthorized);
+      window.fetch = originalFetch;
+    };
   }, [isLoggedIn]);
 
-  const login = () => {
+  const login = (token: string) => {
     setIsLoggedIn(true);
     setSessionExpired(false);
+    setUser(AuthService.getCurrentUser());
   };
 
   const logout = () => {
-    localStorage.removeItem("authToken");
+    AuthService.logout();
     setIsLoggedIn(false);
+    setUser(null);
   };
 
   const dismissExpired = () => {
@@ -54,7 +77,7 @@ export const SessionProvider = ({
 
   return (
     <SessionContext.Provider
-      value={{ isLoggedIn, sessionExpired, login, logout, dismissExpired }}
+      value={{ isLoggedIn, sessionExpired, login, logout, dismissExpired, user }}
     >
       {children}
     </SessionContext.Provider>

@@ -30,11 +30,13 @@ import {
   ModernContactForm,
   type ContactFormData,
 } from "@/components/ui/Contact-form";
-import usersService, { Course } from "@/services/users.service";
+import usersService, {
+  AssessmentAttemptResponse,
+  Course,
+  EnrolledCourse,
+} from "@/services/users.service";
 import AdminCourseService from "@/services/admin.service";
 import authService from "@/services/auth.service";
-
-import { loadRazorpay } from "@/utils/razorpay";
 import type {
   RazorpayCheckoutResponse,
   VerifyResponse,
@@ -43,6 +45,7 @@ import axios from "axios";
 import { usePathname, useRouter } from "next/navigation";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 export default function RalithonWebsite() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -68,6 +71,11 @@ export default function RalithonWebsite() {
   const [faqExpanded, setFaqExpanded] = useState(false);
   const router = useRouter();
   const pathName = usePathname();
+  const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([]);
+const [isTakingAssessment, setIsTakingAssessment] = useState(false);
+  const [assessmentData, setAssessmentData] =
+    useState<AssessmentAttemptResponse | null>(null);
+  const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
 
   useEffect(() => {
     const lastClosed = localStorage.getItem("hiringModalClosed");
@@ -105,6 +113,24 @@ export default function RalithonWebsite() {
 
   const currentUser = mounted ? AuthService.getCurrentUser() : null;
 
+  const fetchUserData = async () => {
+    const currentUser = localStorage.getItem("user");
+    if (!currentUser) return;
+
+    try {
+      const user = JSON.parse(currentUser);
+      if (user?.userId) {
+        setUserId(user.userId);
+        const response = await usersService.getEnrolledCourses(user.userId);
+        if (response.success) {
+          setEnrolledCourses(response.data);
+        }
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
   useEffect(() => {
     fetchCourses();
   }, []);
@@ -133,6 +159,7 @@ export default function RalithonWebsite() {
       } else {
         throw new Error(response.message || "Invalid course data format");
       }
+      await fetchUserData();
     } catch (error) {
       setCourseError(
         error instanceof Error ? error.message : "An unknown error occurred"
@@ -345,44 +372,170 @@ export default function RalithonWebsite() {
 
   const handleContactSubmit = (data: ContactFormData) => {
     toast.success("Message Sent Successfully!", {
-      description: `Thank you ${data.fullName}! We'll get back to you within 24 hours.`,
+      description: ` Thank you ${data.fullName}! We'll get back to you within 24 hours.`,
     });
   };
 
-  const handleTakeAssessment = async (course: Course) => {
-    if (!startDate) {
-      toast.error("Please select a start date");
-      return;
-    }
-
-    if (!userId) {
-      toast.error("Please log in to take assessment");
-      setShowAuthModal(true);
-      return;
-    }
-
-    try {
-      const response = await usersService.attemptAssessment(
-        userId,
-        selectedCourse.assessmentId
-      );
-
-      if (response.success) {
-        toast.success("Assessment started successfully!");
-        setShowCourseModal(false);
-        console.log(response);
-      } else {
-        toast.error(response.message || "Failed to start assessment");
-      }
-    } catch (error: any) {
-      console.error("Assessment error:", error);
-      toast.error(
-        error.response?.data?.message ||
-          error.message ||
-          "An error occurred while starting the assessment"
-      );
-    }
+  const handleToggleAuthMode = (newMode: "signin" | "signup") => {
+    setAuthMode(newMode);
   };
+
+const handleTakeAssessment = async (course: Course) => {
+  if (!userId) {
+    toast.error("Please log in to take assessment");
+    setShowAuthModal(true);
+    return;
+  }
+
+  setIsTakingAssessment(true);
+  try {
+    const response = await usersService.attemptAssessment(
+      userId,
+      selectedCourse.assessmentId
+    );
+
+    if (!response.success || !response.data) {
+      toast.error(response.message || "Failed to start assessment");
+      return;
+    }
+
+    const data = response.data;
+
+    if (data.orderId && data.razorpayKey && data.amount && data.currency) {
+     
+  toast.error("You have used all free attempts. Please pay to continue the assessment.");
+
+  await new Promise(resolve => setTimeout(resolve,2000));
+
+      await loadRazorpay();
+
+      const options = {
+        key: data.razorpayKey,
+        amount: data.amount,
+        currency: data.currency,
+        name: "Ralithon Technologies",
+        description: `Assessment payment for ${course.courseName}`,
+        order_id: data.orderId,
+        handler: async function (response: any) {
+          try {
+            const token = authService.getAuthToken();
+            const verifyResp = await axios.post(
+              `${process.env.NEXT_PUBLIC_BASE_API_URL}payment/verify/${userId}`,
+              {
+                razorpayOrderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
+              },
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+
+            if (verifyResp.data?.status) {
+              toast.success("Payment successful! Starting assessment...");
+              const assessmentResponse = await usersService.attemptAssessment(
+                userId,
+                selectedCourse.assessmentId
+              );
+              
+              if (assessmentResponse.success && assessmentResponse.data?.assessment) {
+                const assessmentState = {
+                  data: {
+                    success: true,
+                    message: assessmentResponse.data.message || "Assessment loaded successfully",
+                    data: {
+                      assessmentId: selectedCourse.assessmentId,
+                      assessment: assessmentResponse.data.assessment,
+                      attemptId: assessmentResponse.data.attemptId || null,
+                    }
+                  },
+                  courseName: course.courseName,
+                  courseId: course.courseId
+                };
+                localStorage.setItem("assessmentState", JSON.stringify(assessmentState));
+                router.push("/assessment");
+              } else {
+                toast.error(assessmentResponse.message || "Failed to start assessment after payment");
+              }
+            } else {
+              toast.error("Payment verification failed");
+            }
+          } catch (verErr: any) {
+            toast.error(
+              "Payment verification error: " +
+                (verErr.message || "Unknown error")
+            );
+          }
+        },
+        prefill: {
+          email: currentUser?.email || "",
+          contact: userDetails?.phoneNumber || "",
+        },
+        theme: {
+          color: "#3399cc",
+        },
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+
+      rzp.on("payment.failed", function (response: any) {
+        toast.error(
+          "Payment failed: " + (response.error.description || "Unknown error")
+        );
+      });
+
+      rzp.open();
+      setShowCourseModal(false);
+    } else if (data.assessment) {
+      toast.success(data.message || "Assessment started successfully!");
+      setShowCourseModal(false);
+      
+      const assessmentState = {
+        data: {
+          success: true,
+          message: data.message || "Assessment loaded successfully",
+          data: {
+            assessmentId: selectedCourse.assessmentId,
+            assessment: data.assessment,
+            attemptId: data.attemptId || null,
+            ...(data.orderId && { orderId: data.orderId }),
+            ...(data.amount && { amount: data.amount }),
+            ...(data.currency && { currency: data.currency }),
+            ...(data.razorpayKey && { razorpayKey: data.razorpayKey }),
+          }
+        },
+        courseName: course.courseName,
+        courseId: course.courseId
+      };
+      localStorage.setItem("assessmentState", JSON.stringify(assessmentState));
+      router.push("/assessment");
+    } else {
+      toast.error("Invalid assessment data received");
+    }
+  } catch (error: any) {
+    console.error("Assessment error:", error);
+    toast.error(
+      error.response?.data?.message ||
+        error.message ||
+        "An error occurred while starting the assessment"
+    );
+  } finally {
+    setIsTakingAssessment(false);
+  }
+};
+
+const loadRazorpay = () => {
+  return new Promise((resolve) => {
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
 
   const handleEnrollCourse = async (course: Course) => {
     if (!startDate) {
@@ -449,7 +602,7 @@ export default function RalithonWebsite() {
 
             if (verifyResp.data.status) {
               toast.success("Payment successful!");
-              router.push("/student-dashboard");
+              router.push("/student-dashboard/courses");
             } else {
               toast.error("Payment verification failed");
             }
@@ -488,12 +641,20 @@ export default function RalithonWebsite() {
     }
   };
 
+  const isCourseEnrolled = (courseId: number) => {
+    return enrolledCourses.some((course) => course.id === courseId);
+  };
+
   return (
     <div className="min-h-screen bg-white">
+      {isTakingAssessment && (
+        <LoadingSpinner message="Preparing your assessment..."/>
+    )}
       <Header
         activeSection={activeSection}
         setActiveSection={setActiveSection}
         setShowAuthModal={setShowAuthModal}
+        setAuthMode={setAuthMode}
         scrollToSection={scrollToSection}
       />
       <section id="home" className="relative h-screen overflow-hidden">
@@ -706,7 +867,7 @@ export default function RalithonWebsite() {
                     : "translate-y-10 opacity-0"
                 }`}
                 id={`service-${index}`}
-                style={{ animationDelay: `${index * 200}ms` }}
+                style={{ animationDelay: `${index * 200}ms ` }}
               >
                 <CardHeader className="pb-4">
                   <div className="flex justify-center mb-6">{service.icon}</div>
@@ -781,9 +942,11 @@ export default function RalithonWebsite() {
                   >
                     <div className="relative">
                       <img
-                        src={course.awsUrl || `${IMAGE_URL}placeholder.svg`}
+                        src={
+                          course.courseImageUrl || `${IMAGE_URL}placeholder.svg`
+                        }
                         alt={course.courseName}
-                        className="w-full h-48 object-cover"
+                        className="w-full h-48"
                       />
                       <div className="absolute top-4 left-4 bg-white rounded-full p-2 shadow-lg">
                         <BookOpen className="h-8 w-8 text-blue-600" />
@@ -795,9 +958,15 @@ export default function RalithonWebsite() {
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <p className="text-sm text-gray-600 leading-relaxed line-clamp-4">
-                        {course.description || "No description available"}
-                      </p>
+                      <div className="relative group">
+                        <div className="relative">
+                          <div className="h-[6rem] overflow-y-scroll scrollbar-thin scroll-smooth pr-2 line-clamp-4 mask-fade">
+                            <p className="text-sm text-gray-600 leading-relaxed">
+                              {course.description || "No description available"}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
                       <div className="flex justify-between items-center py-2 rounded-md text-sm flex-wrap gap-2 sm:flex-nowrap">
                         <div className="text-gray-800 font-medium">
                           Duration:{" "}
@@ -827,9 +996,8 @@ export default function RalithonWebsite() {
                             setShowCourseModal(true);
                           } else {
                             setShowAuthModal(true);
-                            setCustomMessage(
-                              `Please register or sign in to enroll in ${course.courseName}`
-                            );
+                            setCustomMessage(`
+          Please register or sign in to enroll in ${course.courseName}`);
                           }
                         }}
                       >
@@ -923,9 +1091,12 @@ export default function RalithonWebsite() {
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <img
-                  src={selectedCourse.awsUrl || `${IMAGE_URL}placeholder.svg`}
+                  src={
+                    selectedCourse.courseImageUrl ||
+                    ` ${IMAGE_URL}placeholder.svg`
+                  }
                   alt={selectedCourse.courseName}
-                  className="w-full h-48 object-cover rounded-lg mb-4"
+                  className="w-full h-48 rounded-lg mb-4"
                 />
                 <div className="bg-gray-50 p-4 rounded-lg mb-4">
                   <h4 className="font-semibold text-gray-800 mb-3">
@@ -938,7 +1109,7 @@ export default function RalithonWebsite() {
                       </span>
                       <span className="text-sm text-gray-800">
                         {selectedCourse.durationInWeek
-                          ? `${selectedCourse.durationInWeek} weeks`
+                          ? ` ${selectedCourse.durationInWeek} weeks`
                           : "Flexible"}
                       </span>
                     </div>
@@ -956,7 +1127,7 @@ export default function RalithonWebsite() {
                       </span>
                       <span className="text-sm text-gray-800">
                         {selectedCourse.courseFee
-                          ? `₹ ${selectedCourse.courseFee.toFixed(2)}`
+                          ? ` ₹ ${selectedCourse.courseFee.toFixed(2)}`
                           : "Free"}
                       </span>
                     </div>
@@ -1000,30 +1171,36 @@ export default function RalithonWebsite() {
                   <Button
                     className="w-full flex items-center justify-between bg-blue-600 hover:bg-blue-700 text-sm py-2"
                     onClick={() => handleTakeAssessment(selectedCourse)}
-                    disabled={!startDate}
-                  >
-                    <span>Take Assessment</span>
-                    <ClipboardList className="h-4 w-4" />
-                  </Button>
-
-                  <Button
-                    className={`w-full flex items-center justify-between text-sm py-2 ${
-                      selectedCourse.courseType?.toLowerCase() === "free"
-                        ? "bg-green-600 hover:bg-green-700"
-                        : "bg-purple-600 hover:bg-purple-700"
-                    }`}
-                    onClick={() => handleEnrollCourse(selectedCourse)}
-                    disabled={!startDate}
+                    disabled={isTakingAssessment}
                   >
                     <span>
-                      {selectedCourse.courseType?.toLowerCase() === "free"
-                        ? "Enroll Now"
-                        : `Pay ₹${
-                            selectedCourse.courseFee?.toFixed(2) || "0.00"
-                          }`}
-                    </span>
-                    <BookOpen className="h-4 w-4" />
+                       {isTakingAssessment ? "Preparing Your Assessment..." : "Take Assessment"}</span>
+                    <ClipboardList className="h-4 w-4" />
                   </Button>
+                  {isCourseEnrolled(selectedCourse.courseId) ? (
+                    <div className="w-full text-center py-2 px-4 bg-green-100 text-green-800 rounded-md text-sm font-medium">
+                      Enrolled
+                    </div>
+                  ) : (
+                    <Button
+                      className={`w-full flex items-center justify-between text-sm py-2 ${
+                        selectedCourse.courseType?.toLowerCase() === "free"
+                          ? "bg-green-600 hover:bg-green-700"
+                          : "bg-purple-600 hover:bg-purple-700"
+                      }`}
+                      onClick={() => handleEnrollCourse(selectedCourse)}
+                      disabled={!startDate}
+                    >
+                      <span>
+                        {selectedCourse.courseType?.toLowerCase() === "free"
+                          ? "Enroll Now"
+                          : `Pay ₹${
+                              selectedCourse.courseFee?.toFixed(2) || "0.00"
+                            }`}
+                      </span>
+                      <BookOpen className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
 
                 <div className="pt-4 border-t border-gray-200">
@@ -1128,7 +1305,7 @@ export default function RalithonWebsite() {
                   id={`faq-${index}`}
                   style={{
                     animationDelay: faqExpanded ? `${index * 150}ms` : "0ms",
-                    transitionDelay: faqExpanded ? `${index * 100}ms` : "0ms",
+                    transitionDelay: faqExpanded ? ` ${index * 100}ms` : "0ms",
                   }}
                 >
                   <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-start">
@@ -1155,11 +1332,13 @@ export default function RalithonWebsite() {
           setShowAuthModal(false);
           setCustomMessage(undefined);
         }}
+        mode={authMode}
         onAuthSuccess={() => {
           if (selectedCourse) {
             setShowCourseModal(true);
           }
         }}
+        onModeChange={handleToggleAuthMode}
         customMessage={customMessage}
       />
       {/* Hiring Modal */}
@@ -1176,7 +1355,7 @@ export default function RalithonWebsite() {
 
             {/* Modal Content */}
             <div className="p-8 text-center">
-              <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
                 <img
                   src={`${IMAGE_URL}logo.png`}
                   alt="Modern office space"
@@ -1219,7 +1398,6 @@ export default function RalithonWebsite() {
           </div>
         </div>
       )}
-
       {/* Scroll to Top Button - Bottom Right Corner */}
       {showScrollTop && (
         <Button

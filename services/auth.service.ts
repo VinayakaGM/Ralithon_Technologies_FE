@@ -102,6 +102,7 @@ class AuthService {
       try {
         localStorage.removeItem("user");
         localStorage.removeItem("token");
+        localStorage.clear();
       } catch (error) {
         console.error("Error clearing auth data:", error);
       }

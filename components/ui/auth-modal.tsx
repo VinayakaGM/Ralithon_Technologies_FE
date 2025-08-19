@@ -22,7 +22,8 @@ import { useSession } from "@/context/SessionContext";
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  initialMode?: "signup" | "signin";
+  mode?: "signup" | "signin";
+  onModeChange?: (mode: "signup" | "signin") => void;
   onAuthSuccess?: () => void;
   customMessage?: string;
 }
@@ -30,11 +31,11 @@ interface AuthModalProps {
 export function AuthModal({
   isOpen,
   onClose,
-  initialMode = "signup",
+  mode = "signup",
+  onModeChange,
   onAuthSuccess,
   customMessage,
 }: AuthModalProps) {
-  const [isSignUp, setIsSignUp] = useState(initialMode === "signup");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoadingForSignIn, setIsLoadingForSignIn] = useState(false);
@@ -46,6 +47,7 @@ export function AuthModal({
   const [isCaptchaValid, setIsCaptchaValid] = useState(false);
   const [captchaReset, setCaptchaReset] = useState(0);
   const [acceptedTerms, setAcceptedTerms] = useState(true);
+
   const [signUpData, setSignUpData] = useState({
     firstName: "",
     lastName: "",
@@ -69,84 +71,15 @@ export function AuthModal({
     checkPassword: "",
   });
 
+  const { login } = useSession();
+
   useEffect(() => {
     if (!isOpen) {
-      setSignUpData({
-        firstName: "",
-        lastName: "",
-        emailId: "",
-        contact: "+91",
-        password: "",
-        checkPassword: "",
-      });
-      setSignInData({
-        emailId: "",
-        password: "",
-      });
-      setErrors({
-        firstName: "",
-        lastName: "",
-        emailId: "",
-        contact: "",
-        password: "",
-        checkPassword: "",
-      });
-      setAcceptedTerms(true);
-      setShowOTPModal(false);
-      setIsCaptchaValid(false);
-      setCaptchaReset((prev) => prev + 1);
-    } else {
-      setIsSignUp(initialMode === "signup");
+      resetFormState();
     }
-  }, [isOpen, initialMode]);
+  }, [isOpen]);
 
-  const validateField = (name: string, value: string) => {
-    switch (name) {
-      case "firstName":
-      case "lastName":
-        if (!/^[a-zA-Z]+$/.test(value)) {
-          return "Only alphabetic characters allowed";
-        }
-        return "";
-      case "contact":
-        if (!/^\+91\d{10}$/.test(value)) {
-          return "Must be +91 followed by 10 digits";
-        }
-        return "";
-      case "password":
-        if (value.length < 8 || value.length > 15) {
-          return "Password must be 8-15 characters";
-        }
-        if (!/[A-Z]/.test(value)) {
-          return "At least 1 uppercase letter";
-        }
-        if (!/[a-z]/.test(value)) {
-          return "At least 1 lowercase letter";
-        }
-        if (!/[0-9]/.test(value)) {
-          return "At least 1 number";
-        }
-        if (!/[^A-Za-z0-9]/.test(value)) {
-          return "At least 1 special character";
-        }
-        return "";
-      case "checkPassword":
-        if (value !== signUpData.password) {
-          return "Passwords don't match";
-        }
-        return "";
-      case "emailId":
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-          return "Invalid email format";
-        }
-        return "";
-      default:
-        return "";
-    }
-  };
-
-  const handleToggleMode = () => {
-    setIsSignUp((prev) => !prev);
+  const resetFormState = () => {
     setSignUpData({
       firstName: "",
       lastName: "",
@@ -168,29 +101,62 @@ export function AuthModal({
       checkPassword: "",
     });
     setAcceptedTerms(true);
+    setShowOTPModal(false);
     setIsCaptchaValid(false);
     setCaptchaReset((prev) => prev + 1);
   };
 
+  const validateField = (name: string, value: string) => {
+    switch (name) {
+      case "firstName":
+      case "lastName":
+        return /^[a-zA-Z]+$/.test(value)
+          ? ""
+          : "Only alphabetic characters allowed";
+      case "contact":
+        return /^\+91\d{10}$/.test(value)
+          ? ""
+          : "Must be +91 followed by 10 digits";
+      case "password":
+        if (value.length < 8 || value.length > 15)
+          return "Password must be 8-15 characters";
+        if (!/[A-Z]/.test(value)) return "At least 1 uppercase letter";
+        if (!/[a-z]/.test(value)) return "At least 1 lowercase letter";
+        if (!/[0-9]/.test(value)) return "At least 1 number";
+        if (!/[^A-Za-z0-9]/.test(value)) return "At least 1 special character";
+        return "";
+      case "checkPassword":
+        return value === signUpData.password ? "" : "Passwords don't match";
+      case "emailId":
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+          ? ""
+          : "Invalid email format";
+      default:
+        return "";
+    }
+  };
+
+  const handleToggleMode = () => {
+    if (onModeChange) {
+      onModeChange(mode === "signup" ? "signin" : "signup");
+    }
+    resetFormState();
+  };
+
   const handleSignUpChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
+    let processedValue = value;
+
     if (id === "contact") {
-      const cleanedValue = value.startsWith("+91")
+      processedValue = value.startsWith("+91")
         ? "+91" + value.substring(3).replace(/\D/g, "").slice(0, 10)
         : "+91" + value.replace(/\D/g, "").slice(0, 10);
-
-      setSignUpData((prev) => ({ ...prev, [id]: cleanedValue }));
     } else if (id === "firstName" || id === "lastName") {
-      const cleanedValue = value.replace(/[^a-zA-Z]/g, "");
-      setSignUpData((prev) => ({ ...prev, [id]: cleanedValue }));
-    } else {
-      setSignUpData((prev) => ({ ...prev, [id]: value }));
+      processedValue = value.replace(/[^a-zA-Z]/g, "");
     }
 
-    setErrors((prev) => ({
-      ...prev,
-      [id]: validateField(id, id === "contact" ? value : value),
-    }));
+    setSignUpData((prev) => ({ ...prev, [id]: processedValue }));
+    setErrors((prev) => ({ ...prev, [id]: validateField(id, processedValue) }));
   };
 
   const handleSignInChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -209,7 +175,6 @@ export function AuthModal({
     };
 
     setErrors(newErrors);
-
     return !Object.values(newErrors).some((error) => error !== "");
   };
 
@@ -236,11 +201,6 @@ export function AuthModal({
     }
 
     setIsLoadingForSignUp(true);
-    if (signUpData.password !== signUpData.checkPassword) {
-      toast.error("Passwords do not match");
-      setIsLoadingForSignUp(false);
-      return;
-    }
 
     try {
       const response = await AuthService.register({
@@ -253,9 +213,8 @@ export function AuthModal({
         userConstraint: acceptedTerms,
       });
 
-      if (response.userId) {
-        setUserId(response.userId);
-      }
+      if (response.userId) setUserId(response.userId);
+
       if (response.otpVerify === false) {
         setShowOTPModal(true);
         toast.success(
@@ -271,7 +230,6 @@ export function AuthModal({
         if (onAuthSuccess) onAuthSuccess();
       }
     } catch (error: any) {
-      console.error("Registration error:", error);
       setCaptchaReset((prev) => prev + 1);
       setIsCaptchaValid(false);
 
@@ -282,7 +240,7 @@ export function AuthModal({
         setShowOTPModal(true);
         toast.success(
           error.response?.data?.message ||
-            "Verification code sent to your email",
+          "Verification code sent to your email",
           {
             description: "Please enter the 4-digit code to verify your account",
           }
@@ -328,18 +286,10 @@ export function AuthModal({
               description: `You've been automatically logged in. Welcome to Ralithon Technologies!`,
             });
             localStorage.setItem("authToken", loginResponse.token);
-
-            const { login } = useSession();
-            login();
+            login(response.token);
             setShowOTPModal(false);
             onClose();
             if (onAuthSuccess) onAuthSuccess();
-          } else {
-            toast.error("Auto Login Failed", {
-              description: loginResponse.message || "Please sign in manually.",
-            });
-            setShowOTPModal(false);
-            onClose();
           }
         } catch (loginError: any) {
           console.error("Auto login error:", loginError);
@@ -355,8 +305,8 @@ export function AuthModal({
     } catch (error: any) {
       setOtpError(
         error.response?.data?.message ||
-          error.response?.message ||
-          "Failed to verify OTP. Please try again."
+        error.response?.message ||
+        "Failed to verify OTP. Please try again."
       );
     } finally {
       setIsVerifyingOTP(false);
@@ -382,16 +332,17 @@ export function AuthModal({
         emailId: signInData.emailId,
         password: signInData.password,
       });
+
       if (
         response.status_code === 200 ||
         response.message === "login successfully"
       ) {
         toast.success("Welcome Back! 👋", {
-          description: `${
-            response.message || "You've successfully logged in."
-          } Welcome to Ralithon Technologies!`,
+          description: `${response.message || "You've successfully logged in."
+            } Welcome to Ralithon Technologies!`,
         });
-
+        localStorage.setItem("authToken", response.token);
+        login(response.token);
         onClose();
         if (onAuthSuccess) onAuthSuccess();
       } else {
@@ -419,7 +370,9 @@ export function AuthModal({
         <DialogContent className="sm:max-w-[425px] w-[90vw] max-h-[90vh] overflow-y-auto rounded-lg">
           <DialogHeader>
             <DialogTitle className="text-center">
-              {isSignUp ? "Create an account" : "Sign in to your account"}
+              {mode === "signup"
+                ? "Create an account"
+                : "Sign in to your account"}
             </DialogTitle>
           </DialogHeader>
 
@@ -429,7 +382,7 @@ export function AuthModal({
             </div>
           )}
 
-          {isSignUp ? (
+          {mode === "signup" ? (
             <form onSubmit={handleSignUp} className="grid gap-4 py-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -490,6 +443,7 @@ export function AuthModal({
                   )}
                 </div>
               </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="password">Password</Label>
@@ -564,6 +518,7 @@ export function AuthModal({
                   )}
                 </div>
               </div>
+
               <div className="flex items-start space-x-2">
                 <input
                   type="checkbox"
@@ -586,9 +541,11 @@ export function AuthModal({
                   </Link>
                 </label>
               </div>
+
               <div className="mt-4">
                 <Captcha onVerify={handleCaptchaVerify} reset={captchaReset} />
               </div>
+
               <Button
                 type="submit"
                 className="bg-gradient-to-br from-blue-600 to-blue-800 w-full mt-2"
@@ -598,6 +555,7 @@ export function AuthModal({
               >
                 {isLoadingForSignUp ? "Creating account..." : "Sign Up"}
               </Button>
+
               <div className="mt-4 text-center text-sm">
                 Already a user?{" "}
                 <Button
@@ -622,6 +580,7 @@ export function AuthModal({
                   onChange={handleSignInChange}
                 />
               </div>
+
               <div className="space-y-2 relative">
                 <Label htmlFor="password">Password</Label>
                 <Input
@@ -647,9 +606,11 @@ export function AuthModal({
                   )}
                 </Button>
               </div>
+
               <div className="mt-4">
                 <Captcha onVerify={handleCaptchaVerify} reset={captchaReset} />
               </div>
+
               <Button
                 type="submit"
                 className="bg-gradient-to-br from-blue-600 to-blue-800 w-full"
@@ -657,6 +618,7 @@ export function AuthModal({
               >
                 {isLoadingForSignIn ? "Signing in..." : "Sign In"}
               </Button>
+
               <div className="mt-4 text-center text-sm">
                 Don't have an account?{" "}
                 <Button
@@ -672,6 +634,7 @@ export function AuthModal({
           )}
         </DialogContent>
       </Dialog>
+
       <OTPVerificationModal
         isOpen={showOTPModal}
         onClose={handleOTPModalClose}

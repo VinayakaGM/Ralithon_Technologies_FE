@@ -1,3 +1,5 @@
+"use client"
+
 import {
   Card,
   CardContent,
@@ -8,6 +10,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Award, Download, Eye, Calendar } from "lucide-react";
+import { useState } from "react";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { StudentSidebar } from "@/components/student-sidebar";
+import { StudentHeader } from "@/components/student-header";
 
 const certificates = [
   {
@@ -40,8 +46,18 @@ const certificates = [
   },
 ];
 
-export function CertificatesTab() {
+export default function CertificatesTab() {
+  const [activeTab, setActiveTab] = useState("certificates");
+  
   return (
+    
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full bg-gray-50">
+        <StudentSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+        <div className="flex-1">
+          <StudentHeader/>
+          <main className="p-6 bg-gray-50 min-h-[calc(100vh-80px)]">
+            <div className="max-w-7xl mx-auto">
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-gray-900">Certificates</h2>
@@ -169,6 +185,10 @@ export function CertificatesTab() {
           </CardContent>
         </Card>
       )}
-    </div>
+    </div></div>
+              </main>
+            </div>
+          </div>
+        </SidebarProvider>
   );
 }
