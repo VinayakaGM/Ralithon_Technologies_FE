@@ -72,7 +72,7 @@ export default function RalithonWebsite() {
   const router = useRouter();
   const pathName = usePathname();
   const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([]);
-const [isTakingAssessment, setIsTakingAssessment] = useState(false);
+  const [isTakingAssessment, setIsTakingAssessment] = useState(false);
   const [assessmentData, setAssessmentData] =
     useState<AssessmentAttemptResponse | null>(null);
   const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
@@ -225,7 +225,6 @@ const [isTakingAssessment, setIsTakingAssessment] = useState(false);
     },
     {
       image: `${IMAGE_URL}slide02.png`,
-      
     },
     {
       image: `${IMAGE_URL}slide03.png`,
@@ -379,162 +378,177 @@ const [isTakingAssessment, setIsTakingAssessment] = useState(false);
     setAuthMode(newMode);
   };
 
-const handleTakeAssessment = async (course: Course) => {
-  if (!userId) {
-    toast.error("Please log in to take assessment");
-    setShowAuthModal(true);
-    return;
-  }
-
-  setIsTakingAssessment(true);
-  try {
-    const response = await usersService.attemptAssessment(
-      userId,
-      selectedCourse.assessmentId
-    );
-
-    if (!response.success || !response.data) {
-      toast.error(response.message || "Failed to start assessment");
+  const handleTakeAssessment = async (course: Course) => {
+    if (!userId) {
+      toast.error("Please log in to take assessment");
+      setShowAuthModal(true);
       return;
     }
 
-    const data = response.data;
+    setIsTakingAssessment(true);
+    try {
+      const response = await usersService.attemptAssessment(
+        userId,
+        selectedCourse.assessmentId
+      );
 
-    if (data.orderId && data.razorpayKey && data.amount && data.currency) {
-     
-  toast.error("You have used all free attempts. Please pay to continue the assessment.");
+      if (!response.success || !response.data) {
+        toast.error(response.message || "Failed to start assessment");
+        return;
+      }
 
-  await new Promise(resolve => setTimeout(resolve,2000));
+      const data = response.data;
 
-      await loadRazorpay();
-
-      const options = {
-        key: data.razorpayKey,
-        amount: data.amount,
-        currency: data.currency,
-        name: "Ralithon Technologies",
-        description: `Assessment payment for ${course.courseName}`,
-        order_id: data.orderId,
-        handler: async function (response: any) {
-          try {
-            const token = authService.getAuthToken();
-            const verifyResp = await axios.post(
-              `${process.env.NEXT_PUBLIC_BASE_API_URL}payment/verify/${userId}`,
-              {
-                razorpayOrderId: response.razorpay_order_id,
-                razorpayPaymentId: response.razorpay_payment_id,
-                razorpaySignature: response.razorpay_signature,
-              },
-              {
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${token}`,
-                },
-              }
-            );
-
-            if (verifyResp.data?.status) {
-              toast.success("Payment successful! Starting assessment...");
-              const assessmentResponse = await usersService.attemptAssessment(
-                userId,
-                selectedCourse.assessmentId
-              );
-              
-              if (assessmentResponse.success && assessmentResponse.data?.assessment) {
-                const assessmentState = {
-                  data: {
-                    success: true,
-                    message: assessmentResponse.data.message || "Assessment loaded successfully",
-                    data: {
-                      assessmentId: selectedCourse.assessmentId,
-                      assessment: assessmentResponse.data.assessment,
-                      attemptId: assessmentResponse.data.attemptId || null,
-                    }
-                  },
-                  courseName: course.courseName,
-                  courseId: course.courseId
-                };
-                localStorage.setItem("assessmentState", JSON.stringify(assessmentState));
-                router.push("/assessment");
-              } else {
-                toast.error(assessmentResponse.message || "Failed to start assessment after payment");
-              }
-            } else {
-              toast.error("Payment verification failed");
-            }
-          } catch (verErr: any) {
-            toast.error(
-              "Payment verification error: " +
-                (verErr.message || "Unknown error")
-            );
-          }
-        },
-        prefill: {
-          email: currentUser?.email || "",
-          contact: userDetails?.phoneNumber || "",
-        },
-        theme: {
-          color: "#3399cc",
-        },
-      };
-
-      const rzp = new (window as any).Razorpay(options);
-
-      rzp.on("payment.failed", function (response: any) {
+      if (data.orderId && data.razorpayKey && data.amount && data.currency) {
         toast.error(
-          "Payment failed: " + (response.error.description || "Unknown error")
+          "You have used all free attempts. Please pay to continue the assessment."
         );
-      });
 
-      rzp.open();
-      setShowCourseModal(false);
-    } else if (data.assessment) {
-      toast.success(data.message || "Assessment started successfully!");
-      setShowCourseModal(false);
-      
-      const assessmentState = {
-        data: {
-          success: true,
-          message: data.message || "Assessment loaded successfully",
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+
+        await loadRazorpay();
+
+        const options = {
+          key: data.razorpayKey,
+          amount: data.amount,
+          currency: data.currency,
+          name: "Ralithon Technologies",
+          description: `Assessment payment for ${course.courseName}`,
+          order_id: data.orderId,
+          handler: async function (response: any) {
+            try {
+              const token = authService.getAuthToken();
+              const verifyResp = await axios.post(
+                `${process.env.NEXT_PUBLIC_BASE_API_URL}payment/verify/${userId}`,
+                {
+                  razorpayOrderId: response.razorpay_order_id,
+                  razorpayPaymentId: response.razorpay_payment_id,
+                  razorpaySignature: response.razorpay_signature,
+                },
+                {
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                  },
+                }
+              );
+
+              if (verifyResp.data?.status) {
+                toast.success("Payment successful! Starting assessment...");
+                const assessmentResponse = await usersService.attemptAssessment(
+                  userId,
+                  selectedCourse.assessmentId
+                );
+
+                if (
+                  assessmentResponse.success &&
+                  assessmentResponse.data?.assessment
+                ) {
+                  const assessmentState = {
+                    data: {
+                      success: true,
+                      message:
+                        assessmentResponse.data.message ||
+                        "Assessment loaded successfully",
+                      data: {
+                        assessmentId: selectedCourse.assessmentId,
+                        assessment: assessmentResponse.data.assessment,
+                        attemptId: assessmentResponse.data.attemptId || null,
+                      },
+                    },
+                    courseName: course.courseName,
+                    courseId: course.courseId,
+                  };
+                  localStorage.setItem(
+                    "assessmentState",
+                    JSON.stringify(assessmentState)
+                  );
+                  router.push("/assessment");
+                } else {
+                  toast.error(
+                    assessmentResponse.message ||
+                      "Failed to start assessment after payment"
+                  );
+                }
+              } else {
+                toast.error("Payment verification failed");
+              }
+            } catch (verErr: any) {
+              toast.error(
+                "Payment verification error: " +
+                  (verErr.message || "Unknown error")
+              );
+            }
+          },
+          prefill: {
+            email: currentUser?.email || "",
+            contact: userDetails?.phoneNumber || "",
+          },
+          theme: {
+            color: "#3399cc",
+          },
+        };
+
+        const rzp = new (window as any).Razorpay(options);
+
+        rzp.on("payment.failed", function (response: any) {
+          toast.error(
+            "Payment failed: " + (response.error.description || "Unknown error")
+          );
+        });
+
+        rzp.open();
+        setShowCourseModal(false);
+      } else if (data.assessment) {
+        toast.success(data.message || "Assessment started successfully!");
+        setShowCourseModal(false);
+
+        const assessmentState = {
           data: {
-            assessmentId: selectedCourse.assessmentId,
-            assessment: data.assessment,
-            attemptId: data.attemptId || null,
-            ...(data.orderId && { orderId: data.orderId }),
-            ...(data.amount && { amount: data.amount }),
-            ...(data.currency && { currency: data.currency }),
-            ...(data.razorpayKey && { razorpayKey: data.razorpayKey }),
-          }
-        },
-        courseName: course.courseName,
-        courseId: course.courseId
-      };
-      localStorage.setItem("assessmentState", JSON.stringify(assessmentState));
-      router.push("/assessment");
-    } else {
-      toast.error("Invalid assessment data received");
+            success: true,
+            message: data.message || "Assessment loaded successfully",
+            data: {
+              assessmentId: selectedCourse.assessmentId,
+              assessment: data.assessment,
+              attemptId: data.attemptId || null,
+              ...(data.orderId && { orderId: data.orderId }),
+              ...(data.amount && { amount: data.amount }),
+              ...(data.currency && { currency: data.currency }),
+              ...(data.razorpayKey && { razorpayKey: data.razorpayKey }),
+            },
+          },
+          courseName: course.courseName,
+          courseId: course.courseId,
+        };
+        localStorage.setItem(
+          "assessmentState",
+          JSON.stringify(assessmentState)
+        );
+        router.push("/assessment");
+      } else {
+        toast.error("Invalid assessment data received");
+      }
+    } catch (error: any) {
+      console.error("Assessment error:", error);
+      toast.error(
+        error.response?.data?.message ||
+          error.message ||
+          "An error occurred while starting the assessment"
+      );
+    } finally {
+      setIsTakingAssessment(false);
     }
-  } catch (error: any) {
-    console.error("Assessment error:", error);
-    toast.error(
-      error.response?.data?.message ||
-        error.message ||
-        "An error occurred while starting the assessment"
-    );
-  } finally {
-    setIsTakingAssessment(false);
-  }
-};
+  };
 
-const loadRazorpay = () => {
-  return new Promise((resolve) => {
-    const script = document.createElement('script');
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-    script.onload = () => resolve(true);
-    script.onerror = () => resolve(false);
-    document.body.appendChild(script);
-  });
-};
+  const loadRazorpay = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
 
   const handleEnrollCourse = async (course: Course) => {
     if (!startDate) {
@@ -647,8 +661,8 @@ const loadRazorpay = () => {
   return (
     <div className="min-h-screen bg-white">
       {isTakingAssessment && (
-        <LoadingSpinner message="Preparing your assessment..."/>
-    )}
+        <LoadingSpinner message="Preparing your assessment..." />
+      )}
       <Header
         activeSection={activeSection}
         setActiveSection={setActiveSection}
@@ -671,7 +685,7 @@ const loadRazorpay = () => {
               src={slide.image}
               alt={`Slide ${index + 1}`}
               fill
-              // className="object-cover"
+              className="object-cover"
               priority={index === 0}
             />
             <div className="absolute inset-0 flex items-center justify-center">
@@ -1173,7 +1187,10 @@ const loadRazorpay = () => {
                     disabled={isTakingAssessment}
                   >
                     <span>
-                       {isTakingAssessment ? "Preparing Your Assessment..." : "Take Free Assessment"}</span>
+                      {isTakingAssessment
+                        ? "Preparing Your Assessment..."
+                        : "Take Free Assessment"}
+                    </span>
                     <ClipboardList className="h-4 w-4" />
                   </Button>
                   {isCourseEnrolled(selectedCourse.courseId) ? (
@@ -1340,19 +1357,15 @@ const loadRazorpay = () => {
         onModeChange={handleToggleAuthMode}
         customMessage={customMessage}
       />
-      {/* Hiring Modal */}
       {showHiringModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 relative animate-in fade-in duration-300">
-            {/* Close Button */}
             <button
               onClick={handleCloseHiringModal}
               className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors duration-200"
             >
               <X className="h-6 w-6" />
             </button>
-
-            {/* Modal Content */}
             <div className="p-8 text-center">
               <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
                 <img
@@ -1363,7 +1376,7 @@ const loadRazorpay = () => {
               </div>
 
               <h2 className="text-2xl font-bold text-gray-800 mb-4">
-                We're Hiring for Internship!
+                We're Hiring
               </h2>
 
               <p className="text-lg text-gray-600 mb-6 leading-relaxed">
@@ -1374,6 +1387,35 @@ const loadRazorpay = () => {
                 </span>{" "}
                 programs.
               </p>
+
+              <div className="bg-green-50 border border-green-200 rounded-lg p-2 mb-4 text-left">
+                <div className="flex items-start">
+                  <div className="flex-shrink-0">
+                    <svg
+                      className="h-5 w-5 text-green-600"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-xs font-medium text-green-800">
+                      Internship Opportunity
+                    </h3>
+                    <div className="mt-1 text-xs text-green-700">
+                      <p>
+                        We offer completely free internship programs with
+                        hands-on experience and mentorship.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
               <div className="flex flex-col sm:flex-row gap-3">
                 <Button
@@ -1397,6 +1439,7 @@ const loadRazorpay = () => {
           </div>
         </div>
       )}
+
       {/* Scroll to Top Button - Bottom Right Corner */}
       {showScrollTop && (
         <Button
