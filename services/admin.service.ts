@@ -34,6 +34,8 @@ export interface Course {
   courseType: string;
   awsUrl?: string;
   status: boolean;
+  courseImageUrl: string;
+  courseContentUrl: string;
 }
 
 export interface AssessmentFormData {
@@ -138,6 +140,64 @@ class AdminCourseService {
         error.response?.message ||
         error?.message ||
         "Failed to create course. Please try again.";
+
+      return {
+        success: false,
+        message: errorMessage,
+      };
+    }
+  }
+  async updateCourse(
+    courseId: number,
+    courseData: CourseFormData,
+    files?: CourseFilesData
+  ): Promise<CourseResponse> {
+    try {
+      const formData = new FormData();
+
+      formData.append(
+        "data",
+        JSON.stringify({
+          courseId: courseData.courseId,
+          courseName: courseData.courseName,
+          description: courseData.description,
+          courseFee: courseData.courseFee,
+          durationInWeek: courseData.durationInWeek,
+          courseType: courseData.courseType,
+          status: courseData.status,
+        })
+      );
+
+      if (files?.courseImage) {
+        formData.append("courseLogo", files.courseImage);
+      }
+
+      if (files?.file) {
+        formData.append("file", files.file);
+      }
+
+      const response = await axios.put(
+        `${API_URL}courses/${courseId}`,
+        formData,
+        {
+          headers: {
+            ...this.getHeaders(),
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error: any) {
+      console.error("Course update error:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.message ||
+        error?.message ||
+        "Failed to update course. Please try again.";
 
       return {
         success: false,

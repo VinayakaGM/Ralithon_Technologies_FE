@@ -23,11 +23,11 @@ import {
   Award,
 } from "lucide-react";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { StudentSidebar } from "@/components/student-sidebar";
-import { StudentHeader } from "@/components/student-header";
 import { useState, useEffect } from "react";
 import UserService from "@/services/users.service";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { AdminSidebar } from "@/components/admin-sidebar";
+import { AdminHeader } from "@/components/admin-header";
 
 interface Submission {
   submissionId: number;
@@ -61,7 +61,7 @@ interface GroupedAssessment {
   improvement: number;
 }
 
-export default function AssessmentsTab() {
+export default function EnrolledAssessmentTab() {
   const [activeTab, setActiveTab] = useState("assessments");
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -185,9 +185,9 @@ export default function AssessmentsTab() {
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/30">
-        <StudentSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+        <AdminSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
         <div className="flex-1">
-          <StudentHeader />
+          <AdminHeader />
           <main className="p-6 min-h-[calc(100vh-80px)]">
             <div className="max-w-7xl mx-auto">
               <div className="space-y-8">
