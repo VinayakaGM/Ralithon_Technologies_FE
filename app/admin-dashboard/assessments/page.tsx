@@ -1,12 +1,18 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
+import { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
@@ -14,177 +20,230 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Plus, MoreHorizontal, Eye, FileText, DollarSign, BookOpen } from "lucide-react"
-import AdminCourseService, { type AssessmentFormData, type Assessment, type Course } from "@/services/admin.service"
-import { toast } from "sonner"
-import { SidebarProvider } from "@/components/ui/sidebar"
-import { AdminSidebar } from "@/components/admin-sidebar"
-import { AdminHeader } from "@/components/admin-header"
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Plus,
+  MoreHorizontal,
+  Eye,
+  FileText,
+  DollarSign,
+  BookOpen,
+} from "lucide-react";
+import AdminCourseService, {
+  type AssessmentFormData,
+  type Assessment,
+  type Course,
+} from "@/services/admin.service";
+import { toast } from "sonner";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { AdminSidebar } from "@/components/admin-sidebar";
+import { AdminHeader } from "@/components/admin-header";
 
 export default function AssessmentMonitoringTab() {
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [assessments, setAssessments] = useState<Assessment[]>([])
-  const [editingAssessment, setEditingAssessment] = useState<Assessment | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [courses, setCourses] = useState<Course[]>([])
-  const [isCoursesLoading, setIsCoursesLoading] = useState(false)
-  const [viewAssessment, setViewAssessment] = useState<Assessment | null>(null)
-  const [activeTab, setActiveTab] = useState("assessments")
-  const [formData, setFormData] = useState<AssessmentFormData & { courseId: number }>({
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [assessments, setAssessments] = useState<Assessment[]>([]);
+  const [editingAssessment, setEditingAssessment] = useState<Assessment | null>(
+    null
+  );
+  const [isLoading, setIsLoading] = useState(true);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [isCoursesLoading, setIsCoursesLoading] = useState(false);
+  const [viewAssessment, setViewAssessment] = useState<Assessment | null>(null);
+  const [activeTab, setActiveTab] = useState("assessments");
+  const [formData, setFormData] = useState<
+    AssessmentFormData & { courseId: number }
+  >({
     courseId: 0,
     subjectName: "",
     topic: "",
     assessmentType: "Free",
     price: 0,
-  })
+  });
 
-  const [fileData, setFileData] = useState<File | null>(null)
+  const [fileData, setFileData] = useState<File | null>(null);
 
   useEffect(() => {
-    fetchAssessments()
-    fetchCourses()
-  }, [])
+    fetchAssessments();
+    fetchCourses();
+  }, []);
 
   const fetchAssessments = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const response = await AdminCourseService.getAllAssessments()
+      const response = await AdminCourseService.getAllAssessments();
       if (response.success && response.assessments) {
-        setAssessments(response.assessments)
+        setAssessments(response.assessments);
       } else {
-        setError(response.message || "Failed to fetch assessments")
+        setError(response.message || "Failed to fetch assessments");
       }
     } catch (error: any) {
-      setError(error.message || "Failed to fetch assessments")
+      setError(error.message || "Failed to fetch assessments");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const fetchCourses = async () => {
-    setIsCoursesLoading(true)
+    setIsCoursesLoading(true);
     try {
-      const response = await AdminCourseService.getAllCourses()
+      const response = await AdminCourseService.getAllCourses();
       if (response.success && response.courses) {
-        setCourses(response.courses)
+        setCourses(response.courses);
       } else {
-        setError(response.message || "Failed to fetch courses")
+        setError(response.message || "Failed to fetch courses");
       }
     } catch (error: any) {
-      setError(error.message || "Failed to fetch courses")
+      setError(error.message || "Failed to fetch courses");
     } finally {
-      setIsCoursesLoading(false)
+      setIsCoursesLoading(false);
     }
-  }
+  };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { name, value } = e.target;
 
     if (name === "assessmentType") {
       setFormData((prev) => ({
         ...prev,
         [name]: value,
         price: value === "Free" ? 0 : prev.price,
-      }))
+      }));
     } else {
       setFormData((prev) => ({
         ...prev,
-        [name]: name === "price" ? (value === "" ? "" : Number(value)) : name === "courseId" ? Number(value) : value,
-      }))
+        [name]:
+          name === "price"
+            ? value === ""
+              ? ""
+              : Number(value)
+            : name === "courseId"
+            ? Number(value)
+            : value,
+      }));
     }
-  }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFileData(e.target.files[0])
+      setFileData(e.target.files[0]);
     }
-  }
+  };
 
   const handleSubmit = async () => {
-    setIsSubmitting(true)
-    setError(null)
+    setIsSubmitting(true);
+    setError(null);
 
     // Validate required fields
-    if (!formData.courseId || !formData.subjectName.trim() || !formData.topic.trim() || !formData.assessmentType) {
-      toast.error("Please fill in all required fields")
-      setIsSubmitting(false)
-      return
+    if (
+      !formData.courseId ||
+      !formData.subjectName.trim() ||
+      !formData.topic.trim() ||
+      !formData.assessmentType
+    ) {
+      toast.error("Please fill in all required fields");
+      setIsSubmitting(false);
+      return;
     }
 
     // Additional validation for paid assessments
     if (formData.assessmentType === "Paid" && formData.price === "") {
-      toast.error("Please enter price for paid assessments")
-      setIsSubmitting(false)
-      return
+      toast.error("Please enter price for paid assessments");
+      setIsSubmitting(false);
+      return;
     }
 
     try {
       if (!editingAssessment && !fileData) {
-        toast.error("Please upload a file")
-        return
+        toast.error("Please upload a file");
+        return;
       }
 
       const submissionData = {
         ...formData,
         price: formData.price === "" ? 0 : Number(formData.price),
-      }
+      };
 
-      let response
+      let response;
       if (editingAssessment) {
         response = await AdminCourseService.updateAssessment(
           editingAssessment.assessmentId,
           submissionData,
-          fileData ? { file: fileData } : undefined,
-        )
+          fileData ? { file: fileData } : undefined
+        );
       } else {
         response = await AdminCourseService.createAssessment(submissionData, {
           file: fileData!,
-        })
+        });
       }
 
       if (response.success) {
-        toast.success(editingAssessment ? "Assessment updated successfully" : "Assessment created successfully")
-        setIsAddDialogOpen(false)
+        toast.success(
+          editingAssessment
+            ? "Assessment updated successfully"
+            : "Assessment created successfully"
+        );
+        setIsAddDialogOpen(false);
         setFormData({
           courseId: 0,
           subjectName: "",
           topic: "",
           assessmentType: "Free",
           price: 0,
-        })
-        setFileData(null)
-        setEditingAssessment(null)
-        await fetchAssessments()
+        });
+        setFileData(null);
+        setEditingAssessment(null);
+        await fetchAssessments();
       } else {
-        setError(response.message || `Failed to ${editingAssessment ? "update" : "create"} assessment`)
+        setError(
+          response.message ||
+            `Failed to ${editingAssessment ? "update" : "create"} assessment`
+        );
       }
     } catch (error: any) {
-      setError(error.message || `Failed to ${editingAssessment ? "update" : "create"} assessment`)
+      setError(
+        error.message ||
+          `Failed to ${editingAssessment ? "update" : "create"} assessment`
+      );
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const handleEditClick = (assessment: Assessment) => {
-    setEditingAssessment(assessment)
+    setEditingAssessment(assessment);
     setFormData({
       courseId: assessment.courseId || 0,
       subjectName: assessment.subjectName,
       topic: assessment.topicName,
       assessmentType: assessment.assessmentType,
       price: assessment.price,
-    })
-    setIsAddDialogOpen(true)
-  }
+    });
+    setIsAddDialogOpen(true);
+  };
 
   const handleViewAssessment = (assessment: Assessment) => {
-    setViewAssessment(assessment)
-  }
+    setViewAssessment(assessment);
+  };
 
   const handleDeleteAssessment = async (assessmentId: number) => {
     if (confirm("Are you sure you want to delete this assessment?")) {
@@ -196,12 +255,12 @@ export default function AssessmentMonitoringTab() {
         // } else {
         //   setError(response.message || "Failed to delete assessment");
         // }
-        setError("Delete functionality not implemented yet")
+        setError("Delete functionality not implemented yet");
       } catch (error: any) {
-        setError(error.message || "Failed to delete assessment")
+        setError(error.message || "Failed to delete assessment");
       }
     }
-  }
+  };
 
   return (
     <SidebarProvider>
@@ -218,23 +277,24 @@ export default function AssessmentMonitoringTab() {
                       Assessment Management
                     </h2>
                     <p className="text-slate-600 text-lg">
-                      Create and manage all assessments with comprehensive monitoring
+                      Create and manage all assessments with comprehensive
+                      monitoring
                     </p>
                   </div>
                   <Dialog
                     open={isAddDialogOpen}
                     onOpenChange={(open) => {
-                      setIsAddDialogOpen(open)
+                      setIsAddDialogOpen(open);
                       if (!open) {
-                        setEditingAssessment(null)
+                        setEditingAssessment(null);
                         setFormData({
                           courseId: 0,
                           subjectName: "",
                           topic: "",
                           assessmentType: "Free",
                           price: 0,
-                        })
-                        setFileData(null)
+                        });
+                        setFileData(null);
                       }
                     }}
                   >
@@ -247,7 +307,9 @@ export default function AssessmentMonitoringTab() {
                     <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
                       <DialogHeader className="space-y-3">
                         <DialogTitle className="text-2xl font-bold text-slate-900">
-                          {editingAssessment ? "Edit Assessment" : "Create New Assessment"}
+                          {editingAssessment
+                            ? "Edit Assessment"
+                            : "Create New Assessment"}
                         </DialogTitle>
                         <DialogDescription className="text-slate-600 text-base">
                           {editingAssessment
@@ -261,20 +323,25 @@ export default function AssessmentMonitoringTab() {
                             {error}
                           </div>
                         )}
-
                         <div className="space-y-3">
-                          <RequiredLabel name="courseId" label="Course Selection" />
+                          <RequiredLabel
+                            name="courseId"
+                            label="Course Selection"
+                          />
                           <select
                             id="courseId"
                             name="courseId"
                             className="flex h-12 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:cursor-not-allowed disabled:opacity-50"
                             value={formData.courseId}
                             onChange={handleInputChange}
-                            disabled={isCoursesLoading}
+                            disabled={isCoursesLoading || !!editingAssessment}
                           >
                             <option value={0}>Select a course</option>
                             {courses.map((course) => (
-                              <option key={course.courseId} value={course.courseId}>
+                              <option
+                                key={course.courseId}
+                                value={course.courseId}
+                              >
                                 {course.courseName}
                               </option>
                             ))}
@@ -283,7 +350,10 @@ export default function AssessmentMonitoringTab() {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <div className="space-y-3">
-                            <RequiredLabel name="subjectName" label="Subject Name" />
+                            <RequiredLabel
+                              name="subjectName"
+                              label="Subject Name"
+                            />
                             <Input
                               id="subjectName"
                               name="subjectName"
@@ -308,7 +378,10 @@ export default function AssessmentMonitoringTab() {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <div className="space-y-3">
-                            <RequiredLabel name="assessmentType" label="Assessment Type" />
+                            <RequiredLabel
+                              name="assessmentType"
+                              label="Assessment Type"
+                            />
                             <select
                               id="assessmentType"
                               name="assessmentType"
@@ -337,10 +410,15 @@ export default function AssessmentMonitoringTab() {
                         </div>
 
                         <div className="space-y-3">
-                          <RequiredLabel name="file" label="Assessment Material" />
+                          <RequiredLabel
+                            name="file"
+                            label="Assessment Material"
+                          />
                           {editingAssessment?.awsUrl && (
                             <div className="mb-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                              <p className="text-sm font-medium text-blue-900 mb-1">Current file:</p>
+                              <p className="text-sm font-medium text-blue-900 mb-1">
+                                Current file:
+                              </p>
                               <a
                                 href={editingAssessment.awsUrl}
                                 target="_blank"
@@ -360,8 +438,10 @@ export default function AssessmentMonitoringTab() {
                             className="h-12 rounded-xl border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                           />
                           <p className="text-xs text-slate-500 bg-slate-50 p-2 rounded-lg">
-                            📎 Accepted formats: PDF, Word, PowerPoint, Excel, Images
-                            {editingAssessment && " (Leave empty to keep current file)"}
+                            📎 Accepted formats: PDF, Word, PowerPoint, Excel,
+                            Images
+                            {editingAssessment &&
+                              " (Leave empty to keep current file)"}
                           </p>
                         </div>
 
@@ -369,8 +449,8 @@ export default function AssessmentMonitoringTab() {
                           <Button
                             variant="outline"
                             onClick={() => {
-                              setIsAddDialogOpen(false)
-                              setEditingAssessment(null)
+                              setIsAddDialogOpen(false);
+                              setEditingAssessment(null);
                             }}
                             disabled={isSubmitting}
                             className="px-6 py-3 rounded-xl border-slate-200 hover:bg-slate-50"
@@ -387,8 +467,8 @@ export default function AssessmentMonitoringTab() {
                                 ? "Updating..."
                                 : "Creating..."
                               : editingAssessment
-                                ? "Update Assessment"
-                                : "Create Assessment"}
+                              ? "Update Assessment"
+                              : "Create Assessment"}
                           </Button>
                         </div>
                       </div>
@@ -396,7 +476,10 @@ export default function AssessmentMonitoringTab() {
                   </Dialog>
                 </div>
 
-                <Dialog open={!!viewAssessment} onOpenChange={(open) => !open && setViewAssessment(null)}>
+                <Dialog
+                  open={!!viewAssessment}
+                  onOpenChange={(open) => !open && setViewAssessment(null)}
+                >
                   <DialogContent className="max-w-2xl">
                     {viewAssessment && (
                       <>
@@ -411,24 +494,37 @@ export default function AssessmentMonitoringTab() {
                         <div className="space-y-6 py-4">
                           <div className="grid grid-cols-2 gap-6">
                             <div className="space-y-2">
-                              <p className="text-sm font-semibold text-slate-700">Assessment Type</p>
+                              <p className="text-sm font-semibold text-slate-700">
+                                Assessment Type
+                              </p>
                               <Badge
-                                variant={viewAssessment.assessmentType === "Paid" ? "default" : "secondary"}
-                                className={`${viewAssessment.assessmentType === "Paid"
+                                variant={
+                                  viewAssessment.assessmentType === "Paid"
+                                    ? "default"
+                                    : "secondary"
+                                }
+                                className={`${
+                                  viewAssessment.assessmentType === "Paid"
                                     ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white"
                                     : "bg-gradient-to-r from-blue-500 to-indigo-500 text-white"
-                                  } px-3 py-1 rounded-full`}
+                                } px-3 py-1 rounded-full`}
                               >
                                 {viewAssessment.assessmentType}
                               </Badge>
                             </div>
                             <div className="space-y-2">
-                              <p className="text-sm font-semibold text-slate-700">Price</p>
-                              <p className="text-lg font-bold text-slate-900">₹ {viewAssessment.price || 0}</p>
+                              <p className="text-sm font-semibold text-slate-700">
+                                Price
+                              </p>
+                              <p className="text-lg font-bold text-slate-900">
+                                ₹ {viewAssessment.price || 0}
+                              </p>
                             </div>
                           </div>
                           <div className="space-y-3">
-                            <p className="text-sm font-semibold text-slate-700">Assessment File</p>
+                            <p className="text-sm font-semibold text-slate-700">
+                              Assessment File
+                            </p>
                             {viewAssessment.awsUrl ? (
                               <a
                                 href={viewAssessment.awsUrl}
@@ -440,7 +536,9 @@ export default function AssessmentMonitoringTab() {
                                 {viewAssessment.awsUrl.split("/").pop()}
                               </a>
                             ) : (
-                              <p className="text-sm text-slate-500 bg-slate-50 p-3 rounded-lg">No file available</p>
+                              <p className="text-sm text-slate-500 bg-slate-50 p-3 rounded-lg">
+                                No file available
+                              </p>
                             )}
                           </div>
                         </div>
@@ -457,7 +555,9 @@ export default function AssessmentMonitoringTab() {
                           <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                             {assessments.length}
                           </div>
-                          <div className="text-sm font-medium text-slate-600 mt-1">Total Assessments</div>
+                          <div className="text-sm font-medium text-slate-600 mt-1">
+                            Total Assessments
+                          </div>
                         </div>
                         <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl group-hover:scale-110 transition-transform duration-300">
                           <FileText className="h-6 w-6 text-white" />
@@ -470,9 +570,15 @@ export default function AssessmentMonitoringTab() {
                       <div className="flex items-center justify-between">
                         <div>
                           <div className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">
-                            {assessments.filter((a) => a.assessmentType === "Free").length}
+                            {
+                              assessments.filter(
+                                (a) => a.assessmentType === "Free"
+                              ).length
+                            }
                           </div>
-                          <div className="text-sm font-medium text-slate-600 mt-1">Free Assessments</div>
+                          <div className="text-sm font-medium text-slate-600 mt-1">
+                            Free Assessments
+                          </div>
                         </div>
                         <div className="p-3 bg-gradient-to-br from-emerald-500 to-green-500 rounded-xl group-hover:scale-110 transition-transform duration-300">
                           <BookOpen className="h-6 w-6 text-white" />
@@ -485,9 +591,15 @@ export default function AssessmentMonitoringTab() {
                       <div className="flex items-center justify-between">
                         <div>
                           <div className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-violet-600 bg-clip-text text-transparent">
-                            {assessments.filter((a) => a.assessmentType === "Paid").length}
+                            {
+                              assessments.filter(
+                                (a) => a.assessmentType === "Paid"
+                              ).length
+                            }
                           </div>
-                          <div className="text-sm font-medium text-slate-600 mt-1">Premium Assessments</div>
+                          <div className="text-sm font-medium text-slate-600 mt-1">
+                            Premium Assessments
+                          </div>
                         </div>
                         <div className="p-3 bg-gradient-to-br from-purple-500 to-violet-500 rounded-xl group-hover:scale-110 transition-transform duration-300">
                           <DollarSign className="h-6 w-6 text-white" />
@@ -501,9 +613,12 @@ export default function AssessmentMonitoringTab() {
                   <CardHeader className="pb-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <CardTitle className="text-2xl font-bold text-slate-900">All Assessments</CardTitle>
+                        <CardTitle className="text-2xl font-bold text-slate-900">
+                          All Assessments
+                        </CardTitle>
                         <CardDescription className="text-slate-600 mt-1">
-                          Manage assessment content and materials with comprehensive monitoring
+                          Manage assessment content and materials with
+                          comprehensive monitoring
                         </CardDescription>
                       </div>
                     </div>
@@ -512,7 +627,9 @@ export default function AssessmentMonitoringTab() {
                     {isLoading ? (
                       <div className="flex flex-col justify-center items-center h-64 space-y-4">
                         <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600"></div>
-                        <p className="text-slate-600 font-medium">Loading assessments...</p>
+                        <p className="text-slate-600 font-medium">
+                          Loading assessments...
+                        </p>
                       </div>
                     ) : assessments.length === 0 ? (
                       <div className="flex flex-col justify-center items-center h-64 space-y-4">
@@ -520,8 +637,12 @@ export default function AssessmentMonitoringTab() {
                           <FileText className="h-8 w-8 text-slate-400" />
                         </div>
                         <div className="text-center">
-                          <p className="text-lg font-semibold text-slate-900">No assessments found</p>
-                          <p className="text-slate-600">Create your first assessment to get started</p>
+                          <p className="text-lg font-semibold text-slate-900">
+                            No assessments found
+                          </p>
+                          <p className="text-slate-600">
+                            Create your first assessment to get started
+                          </p>
                         </div>
                       </div>
                     ) : (
@@ -529,11 +650,21 @@ export default function AssessmentMonitoringTab() {
                         <Table>
                           <TableHeader>
                             <TableRow className="bg-slate-50/50 hover:bg-slate-50">
-                              <TableHead className="font-semibold text-slate-700 py-4">Subject</TableHead>
-                              <TableHead className="font-semibold text-slate-700">Topic</TableHead>
-                              <TableHead className="font-semibold text-slate-700">Type</TableHead>
-                              <TableHead className="font-semibold text-slate-700">Price</TableHead>
-                              <TableHead className="text-right font-semibold text-slate-700">Actions</TableHead>
+                              <TableHead className="font-semibold text-slate-700 py-4">
+                                Subject
+                              </TableHead>
+                              <TableHead className="font-semibold text-slate-700">
+                                Topic
+                              </TableHead>
+                              <TableHead className="font-semibold text-slate-700">
+                                Type
+                              </TableHead>
+                              <TableHead className="font-semibold text-slate-700">
+                                Price
+                              </TableHead>
+                              <TableHead className="text-right font-semibold text-slate-700">
+                                Actions
+                              </TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
@@ -545,13 +676,17 @@ export default function AssessmentMonitoringTab() {
                                 <TableCell className="font-medium text-slate-900 py-4">
                                   {assessment.subjectName}
                                 </TableCell>
-                                <TableCell className="text-slate-700">{assessment.topicName}</TableCell>
+                                <TableCell className="text-slate-700">
+                                  {assessment.topicName}
+                                </TableCell>
                                 <TableCell>
                                   <Badge
-                                    className={`text-xs font-bold rounded-full px-3 py-1 whitespace-nowrap ${assessment.assessmentType?.toLowerCase() === "free"
+                                    className={`text-xs font-bold rounded-full px-3 py-1 whitespace-nowrap ${
+                                      assessment.assessmentType?.toLowerCase() ===
+                                      "free"
                                         ? "bg-green-100 text-green-600"
                                         : "bg-red-100 text-red-600"
-                                      }`}
+                                    }`}
                                   >
                                     {assessment.assessmentType}
                                   </Badge>
@@ -562,19 +697,29 @@ export default function AssessmentMonitoringTab() {
                                 <TableCell className="text-right">
                                   <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
-                                      <Button variant="ghost" className="h-9 w-9 p-0 hover:bg-slate-100 rounded-lg">
+                                      <Button
+                                        variant="ghost"
+                                        className="h-9 w-9 p-0 hover:bg-slate-100 rounded-lg"
+                                      >
                                         <MoreHorizontal className="h-4 w-4" />
                                       </Button>
                                     </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end" className="w-48">
+                                    <DropdownMenuContent
+                                      align="end"
+                                      className="w-48"
+                                    >
                                       <DropdownMenuItem
-                                        onClick={() => handleEditClick(assessment)}
+                                        onClick={() =>
+                                          handleEditClick(assessment)
+                                        }
                                         className="cursor-pointer"
                                       >
                                         Edit Assessment
                                       </DropdownMenuItem>
                                       <DropdownMenuItem
-                                        onClick={() => handleViewAssessment(assessment)}
+                                        onClick={() =>
+                                          handleViewAssessment(assessment)
+                                        }
                                         className="cursor-pointer"
                                       >
                                         View Assessment
@@ -582,8 +727,10 @@ export default function AssessmentMonitoringTab() {
                                       <DropdownMenuItem
                                         className="text-red-600 cursor-pointer"
                                         onClick={(e) => {
-                                          e.stopPropagation()
-                                          handleDeleteAssessment(assessment.assessmentId)
+                                          e.stopPropagation();
+                                          handleDeleteAssessment(
+                                            assessment.assessmentId
+                                          );
                                         }}
                                       >
                                         Delete Assessment
@@ -605,11 +752,14 @@ export default function AssessmentMonitoringTab() {
         </div>
       </div>
     </SidebarProvider>
-  )
+  );
 }
 
 const RequiredLabel = ({ name, label }: { name: string; label: string }) => (
-  <label htmlFor={name} className="block text-sm font-semibold text-slate-700 mb-2">
+  <label
+    htmlFor={name}
+    className="block text-sm font-semibold text-slate-700 mb-2"
+  >
     {label} <span className="text-red-500 ml-1">*</span>
   </label>
-)
+);

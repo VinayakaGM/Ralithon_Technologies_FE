@@ -18,6 +18,7 @@ import authService from "@/services/auth.service";
 import { Captcha } from "../captcha";
 import Link from "next/link";
 import { useSession } from "@/context/SessionContext";
+import { ForgotPasswordModal } from "../forgot-password-modal";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -47,7 +48,7 @@ export function AuthModal({
   const [isCaptchaValid, setIsCaptchaValid] = useState(false);
   const [captchaReset, setCaptchaReset] = useState(0);
   const [acceptedTerms, setAcceptedTerms] = useState(true);
-
+  const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
   const [signUpData, setSignUpData] = useState({
     firstName: "",
     lastName: "",
@@ -240,7 +241,7 @@ export function AuthModal({
         setShowOTPModal(true);
         toast.success(
           error.response?.data?.message ||
-          "Verification code sent to your email",
+            "Verification code sent to your email",
           {
             description: "Please enter the 4-digit code to verify your account",
           }
@@ -305,8 +306,8 @@ export function AuthModal({
     } catch (error: any) {
       setOtpError(
         error.response?.data?.message ||
-        error.response?.message ||
-        "Failed to verify OTP. Please try again."
+          error.response?.message ||
+          "Failed to verify OTP. Please try again."
       );
     } finally {
       setIsVerifyingOTP(false);
@@ -338,8 +339,9 @@ export function AuthModal({
         response.message === "login successfully"
       ) {
         toast.success("Welcome Back! 👋", {
-          description: `${response.message || "You've successfully logged in."
-            } Welcome to Ralithon Technologies!`,
+          description: `${
+            response.message || "You've successfully logged in."
+          } Welcome to Ralithon Technologies!`,
         });
         localStorage.setItem("authToken", response.token);
         login(response.token);
@@ -619,6 +621,16 @@ export function AuthModal({
                 {isLoadingForSignIn ? "Signing in..." : "Sign In"}
               </Button>
 
+              <div className="text-center">
+                <Button
+                  variant="link"
+                  type="button"
+                  onClick={() => setShowForgotPasswordModal(true)}
+                  className="p-0 h-auto text-sm text-blue-600"
+                >
+                  Forgot your password?
+                </Button>
+              </div>
               <div className="mt-4 text-center text-sm">
                 Don't have an account?{" "}
                 <Button
@@ -642,6 +654,10 @@ export function AuthModal({
         email={signUpData.emailId}
         isLoading={isVerifyingOTP}
         error={otpError}
+      />
+      <ForgotPasswordModal
+        isOpen={showForgotPasswordModal}
+        onClose={() => setShowForgotPasswordModal(false)}
       />
     </>
   );

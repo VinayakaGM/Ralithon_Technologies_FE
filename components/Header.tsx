@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Menu, X, ChevronDown, User, LogOut, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -220,9 +220,16 @@ export function Header({
                     className="flex items-center space-x-2 hover:bg-gray-100"
                   >
                     <Avatar className="h-8 w-8">
-                      <AvatarFallback className="bg-gradient-to-br from-blue-600 to-blue-800 text-white">
-                        {currentUser.email?.charAt(0).toUpperCase()}
-                      </AvatarFallback>
+                      {userDetails?.profileImage ? (
+                        <AvatarImage
+                          src={userDetails.profileImage}
+                          alt={`${userDetails.firstName} ${userDetails.lastName}`}
+                        />
+                      ) : (
+                        <AvatarFallback className="bg-gradient-to-br from-blue-600 to-blue-800 text-white">
+                          {currentUser.email?.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      )}
                     </Avatar>
                     <span
                       className="text-sm font-medium text-gray-700"

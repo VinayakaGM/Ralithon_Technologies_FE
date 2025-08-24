@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  Users,
-  FileText,
-  BookOpen,
-  Award,
-  BarChart3,
-  Bell,
-  NotebookText,
-} from "lucide-react";
+import { Users, FileText, BookOpen, NotebookText } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -19,59 +11,44 @@ import {
   SidebarMenuItem,
   SidebarHeader,
 } from "@/components/ui/sidebar";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 const menuItems = [
   {
     id: "users",
     title: "User Management",
     icon: Users,
-    description: "Manage all users and permissions",
-    path: "/admin-dashboard/users"
+    path: "/admin-dashboard/users",
   },
   {
     id: "assessments",
     title: "Assessment Monitoring",
     icon: FileText,
-    description: "Monitor student assessments",
-    path: "/admin-dashboard/assessments"
+    path: "/admin-dashboard/assessments",
   },
   {
     id: "courses",
     title: "Course Management",
     icon: BookOpen,
-    description: "Manage courses and content",
-    path: "/admin-dashboard/courses"
+    path: "/admin-dashboard/courses",
+  },
+  {
+    id: "enrolled-assessments",
+    title: "My Assessments",
+    icon: FileText,
+    path: "/admin-dashboard/enrolled-assessments",
+  },
+  {
+    id: "enrolled-courses",
+    title: "My Courses",
+    icon: BookOpen,
+    path: "/admin-dashboard/enrolled-courses",
   },
   {
     id: "notes",
     title: "Notes",
     icon: NotebookText,
-    description: "Manage and view notes",
-    path: "/admin-dashboard/notes"
-
-  },
-  {
-    id: "certificates",
-    title: "Certificate Management",
-    icon: Award,
-    description: "Issue and manage certificates",
-    path: "/admin-dashboard/certificates"
-
-  },
-  {
-    id: "analytics",
-    title: "Analytics",
-    icon: BarChart3,
-    description: "View platform analytics",
-    path: "/admin-dashboard/analytics"
-  },
-  {
-    id: "notifications",
-    title: "Notifications",
-    icon: Bell,
-    description: "Send announcements",
-    path: "/admin-dashboard/notifications"
+    path: "/admin-dashboard/notes",
   },
 ];
 
@@ -83,6 +60,11 @@ interface AdminSidebarProps {
 export function AdminSidebar({ activeTab, setActiveTab }: AdminSidebarProps) {
   const IMAGE_URL = process.env.NEXT_PUBLIC_IMAGE_URL;
   const router = useRouter();
+  const pathname = usePathname();
+
+  // derive activeTab based on current route
+  const currentActive =
+    menuItems.find((item) => pathname.startsWith(item.path))?.id || activeTab;
 
   const handleLogoClick = () => {
     router.push("/");
@@ -114,30 +96,36 @@ export function AdminSidebar({ activeTab, setActiveTab }: AdminSidebarProps) {
                       setActiveTab(item.id);
                       router.push(item.path);
                     }}
-                    isActive={activeTab === item.id}
-                    className={`w-full justify-start p-3 rounded-lg transition-all duration-300 ${activeTab === item.id
-                      ? "bg-gradient-to-br from-blue-600 to-blue-800 text-white shadow-lg"
-                      : "text-gray-700 hover:bg-gray-100 hover:text-blue-600"
-                      }`}
+                    isActive={currentActive === item.id}
+                    className={`w-full justify-start p-3 rounded-lg transition-all duration-300 ${
+                      currentActive === item.id
+                        ? "bg-gradient-to-br from-blue-600 to-blue-800 text-white shadow-lg"
+                        : "text-gray-700 hover:bg-gray-100 hover:text-blue-600"
+                    }`}
                     style={{
                       paddingTop: "30px",
                       paddingBottom: "30px",
                     }}
                   >
                     <item.icon
-                      className={`h-5 w-5 mr-3 ${activeTab === item.id ? "text-white" : "text-current"
-                        }`}
+                      className={`h-5 w-5 mr-3 ${
+                        currentActive === item.id
+                          ? "text-white"
+                          : "text-current"
+                      }`}
                     />
                     <div className="text-left">
                       <div
-                        className={`font-medium ${activeTab === item.id ? "text-white" : "text-current"
-                          }`}
+                        className={`font-medium ${
+                          currentActive === item.id
+                            ? "text-white"
+                            : "text-current"
+                        }`}
                       >
                         {item.title}
                       </div>
                     </div>
                   </SidebarMenuButton>
-
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>

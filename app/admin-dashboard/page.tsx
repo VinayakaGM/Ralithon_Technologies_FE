@@ -14,26 +14,42 @@ import NotificationsTab from "@/app/admin-dashboard/notifications/page";
 import authService from "@/services/auth.service";
 import NotesManagement from "@/app/admin-dashboard/notes/page";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import EnrolledCoursesTab from "./enrolled-courses/page";
+import EnrolledAssessmentTab from "./enrolled-assessments/page";
 
 export default function AdminDashboard() {
   const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("users");
   const router = useRouter();
 
   useEffect(() => {
-    const currentUser = authService.getCurrentUser();
+    const checkAuth = () => {
+      const currentUser = authService.getCurrentUser();
 
-    if (!currentUser) {
-      router.push("/");
-      return;
-    }
-    setUser(currentUser);
+      if (!currentUser) {
+        router.push("/login");
+        return;
+      }
+
+      if (currentUser.userType !== "ROLE_ADMIN") {
+        if (currentUser.userType === "ROLE_STUDENT") {
+          router.push("/student-dashboard/profile");
+        } else {
+          router.push("/");
+        }
+        return;
+      }
+
+      setUser(currentUser);
+      setLoading(false);
+    };
+
+    checkAuth();
   }, [router]);
 
-  if (!user) {
-    return (
-      <LoadingSpinner message="Loading Admin Dashboard..." />
-    );
+  if (loading) {
+    return <LoadingSpinner message="Loading admin dashboard..." />;
   }
 
   const renderActiveTab = () => {
@@ -52,6 +68,10 @@ export default function AdminDashboard() {
         return <AnalyticsTab />;
       case "notifications":
         return <NotificationsTab />;
+      case "enrolled-courses":
+        return <EnrolledCoursesTab />;
+      case "enrolled-assessments":
+        return <EnrolledAssessmentTab />;
       default:
         return <UserManagementTab />;
     }

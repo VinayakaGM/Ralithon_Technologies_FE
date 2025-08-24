@@ -5,33 +5,47 @@ import { useRouter } from "next/navigation";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { StudentSidebar } from "@/components/student-sidebar";
 import { StudentHeader } from "@/components/student-header";
-import  ProfileTab  from "@/app/student-dashboard/profile/page";
-import  AssessmentsTab  from "@/app/student-dashboard/assessments/page";
-import  CoursesTab  from "@/app/student-dashboard/courses/page";
-import  CertificatesTab  from "@/app/student-dashboard/certificates/page";
-import  AchievementsTab  from "@/app/student-dashboard/achievements/page";
+import ProfileTab from "@/app/student-dashboard/profile/page";
+import AssessmentsTab from "@/app/student-dashboard/assessments/page";
+import CoursesTab from "@/app/student-dashboard/courses/page";
+import CertificatesTab from "@/app/student-dashboard/certificates/page";
+import AchievementsTab from "@/app/student-dashboard/achievements/page";
 import authService from "@/services/auth.service";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 export default function StudentDashboard() {
   const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("profile");
   const router = useRouter();
 
   useEffect(() => {
-    const currentUser = authService.getCurrentUser();
+    const checkAuth = () => {
+      const currentUser = authService.getCurrentUser();
 
-    if (!currentUser) {
-      router.push("/");
-      return;
-    }
-    setUser(currentUser);
+      if (!currentUser) {
+        router.push("/login");
+        return;
+      }
+
+      if (currentUser.userType !== "ROLE_STUDENT") {
+        if (currentUser.userType === "ROLE_ADMIN") {
+          router.push("/admin-dashboard/users");
+        } else {
+          router.push("/");
+        }
+        return;
+      }
+
+      setUser(currentUser);
+      setLoading(false);
+    };
+
+    checkAuth();
   }, [router]);
 
-  if (!user) {
-    return (
-      <LoadingSpinner message="Loading Student Dashboard..."/>
-    );
+  if (loading) {
+    return <LoadingSpinner message="Loading student dashboard..." />;
   }
 
   const renderActiveTab = () => {
