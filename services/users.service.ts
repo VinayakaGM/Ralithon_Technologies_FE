@@ -17,6 +17,20 @@ export interface ApiResponse {
   data?: any;
 }
 
+export interface Note {
+  notesId: number;
+  subject: string;
+  downloadUrl: string;
+  notesType: string | null;
+  price: number | null;
+}
+
+export interface UserCourseNotes {
+  courseId: number;
+  courseName: string;
+  notes: Note[];
+}
+
 export interface Assessment {
   assessmentId: number;
   subjectName: string;
@@ -189,7 +203,6 @@ class UserService {
     try {
       const formData = new FormData();
 
-      // Create userDTO as a JSON string and append directly
       const userDTO = JSON.stringify({
         firstName: userData.firstName || "",
         lastName: userData.lastName || "",
@@ -198,18 +211,14 @@ class UserService {
 
       formData.append("userDTO", userDTO);
 
-      // Handle profile image
       if (profileImage) {
         if (profileImage.startsWith("data:image")) {
-          // Convert data URL to blob for new images
           const blob = this.dataURLtoBlob(profileImage);
           formData.append("profileImage", blob, "profile.png");
         } else if (profileImage) {
-          // For existing image URLs or empty values
           formData.append("profileImage", profileImage);
         }
       } else {
-        // Send empty string if no image (matches your curl example)
         formData.append("profileImage", "");
       }
 
@@ -382,6 +391,19 @@ class UserService {
         success: true,
         data: response.data,
         message: "Project applied successfully",
+      }))
+      .catch((error) => this.handleError(error));
+  }
+  getUserNotes(
+    userId: number | null
+  ): Promise<ApiResponse & { data?: UserCourseNotes[] }> {
+    return axios
+      .get(`${API_URL}user-courses/user-notes/${userId}`, {
+        headers: this.getHeaders(),
+      })
+      .then((response) => ({
+        success: true,
+        data: response.data as UserCourseNotes[],
       }))
       .catch((error) => this.handleError(error));
   }

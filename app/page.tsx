@@ -681,15 +681,21 @@ export default function RalithonWebsite() {
             }`}
           >
             <div className="absolute inset-0 bg-black bg-opacity-50"></div>
-            <div className="relative w-full h-full">
-              <Image
-                src={slide.image}
-                alt={`Slide ${index + 1}`}
-                fill
-                className="object-fill"
-                priority={index === 0}
-              />
-            </div>
+            <Image
+              src={slide.image}
+              alt={`Slide ${index + 1}`}
+              fill
+              priority={index === 0}
+              className="object-cover 
+             w-full h-[200px] 
+             sm:h-[300px] 
+             md:h-[400px] 
+             lg:h-[500px] 
+             xl:h-[600px]"
+              sizes="(max-width: 640px) 100vw,
+         (max-width: 1024px) 100vw,
+         100vw"
+            />
 
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-center text-white max-w-4xl px-4">
