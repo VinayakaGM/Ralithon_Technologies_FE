@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useEffect, useState } from "react";
 import {
@@ -10,7 +10,16 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, BookOpen, Clock, Play, GraduationCap, Calendar, Users, Star } from "lucide-react";
+import {
+  ArrowLeft,
+  BookOpen,
+  Clock,
+  Play,
+  GraduationCap,
+  Calendar,
+  Users,
+  Star,
+} from "lucide-react";
 import userService, {
   EnrolledCourse,
   CourseDetails,
@@ -20,6 +29,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { StudentSidebar } from "@/components/student-sidebar";
 import { StudentHeader } from "@/components/student-header";
 import { useRouter } from "next/navigation";
+import { AlertCircle, CheckCircle } from "lucide-react";
 
 export default function CoursesTab() {
   const [courses, setCourses] = useState<EnrolledCourse[]>([]);
@@ -31,6 +41,11 @@ export default function CoursesTab() {
   );
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("courses");
+  const [applyingProject, setApplyingProject] = useState(false);
+  const [applyStatus, setApplyStatus] = useState<{
+    success?: boolean;
+    message?: string;
+  } | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -84,9 +99,9 @@ export default function CoursesTab() {
     }
   };
 
-  const handleNavigateToCourses = ()=>{
+  const handleNavigateToCourses = () => {
     router.push("/");
-  }
+  };
 
   const extractVideoId = (url: string) => {
     const regExp =
@@ -100,7 +115,40 @@ export default function CoursesTab() {
     setSelectedVideo(null);
   };
 
-  // Loading state
+  const handleApplyProject = async (
+    userId: number | null,
+    courseId: number
+  ) => {
+    if (userId === null) return;
+    setApplyingProject(true);
+    setApplyStatus(null);
+
+    try {
+      const response = await userService.applyProject(userId, courseId);
+
+      if (response.success) {
+        setApplyStatus({
+          success: true,
+          message: "Project application submitted successfully!",
+        });
+        handleContinueLearning(courseId);
+      } else {
+        setApplyStatus({
+          success: false,
+          message: response.message || "Failed to apply for project",
+        });
+      }
+    } catch (err) {
+      setApplyStatus({
+        success: false,
+        message: "An unexpected error occurred",
+      });
+      console.error("Error applying for project:", err);
+    } finally {
+      setApplyingProject(false);
+    }
+  };
+
   if (loading && userId === null) {
     return (
       <SidebarProvider>
@@ -124,7 +172,6 @@ export default function CoursesTab() {
     );
   }
 
-  // Course details view
   if (selectedCourse) {
     return (
       <SidebarProvider>
@@ -154,7 +201,57 @@ export default function CoursesTab() {
                         {selectedCourse.remainingDays}
                       </p>
                     </div>
+
+                    {/* Add Apply for Project button here */}
+                    <div className="flex flex-col items-end gap-2">
+                      {selectedCourse.projectApply ? (
+                        <Badge className="bg-green-100 text-green-800 border-green-200 hover:bg-green-100 px-3 py-2">
+                          <CheckCircle className="w-4 h-4 mr-1" />
+                          Project Applied
+                        </Badge>
+                      ) : (
+                        <Button
+                          onClick={() =>
+                            handleApplyProject(userId, selectedCourse.courseId)
+                          }
+                          disabled={applyingProject}
+                          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+                        >
+                          {applyingProject
+                            ? "Applying..."
+                            : "Apply for Project"}
+                        </Button>
+                      )}
+                    </div>
                   </div>
+
+                  {/* Application status message */}
+                  {applyStatus && (
+                    <div
+                      className={`p-4 rounded-xl ${
+                        applyStatus.success
+                          ? "bg-green-50 border border-green-200"
+                          : "bg-red-50 border border-red-200"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        {applyStatus.success ? (
+                          <CheckCircle className="w-5 h-5 text-green-600" />
+                        ) : (
+                          <AlertCircle className="w-5 h-5 text-red-600" />
+                        )}
+                        <p
+                          className={
+                            applyStatus.success
+                              ? "text-green-700"
+                              : "text-red-700"
+                          }
+                        >
+                          {applyStatus.message}
+                        </p>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                     {/* Video Player */}
@@ -183,35 +280,39 @@ export default function CoursesTab() {
                         Course Content
                       </h2>
                       <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
-                        {selectedCourse.coursePlayListDTOList.map((video, index) => (
-                          <div
-                            key={index}
-                            className={`p-4 rounded-xl cursor-pointer transition-all duration-200 ${
-                              selectedVideo === video.videoUrl
-                                ? "bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 shadow-md"
-                                : "bg-white/70 hover:bg-white/90 border border-slate-200 hover:shadow-lg"
-                            }`}
-                            onClick={() => setSelectedVideo(video.videoUrl)}
-                          >
-                            <div className="flex items-start gap-3">
-                              <div className={`p-2 rounded-lg ${
-                                selectedVideo === video.videoUrl 
-                                  ? "bg-blue-100 text-blue-600"
-                                  : "bg-slate-100 text-slate-600"
-                              }`}>
-                                <Play className="w-4 h-4" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="font-medium text-slate-900 leading-tight">
-                                  {video.topicName}
-                                </p>
-                                <p className="text-xs text-slate-500 mt-1 truncate">
-                                  Video {index + 1}
-                                </p>
+                        {selectedCourse.coursePlayListDTOList.map(
+                          (video, index) => (
+                            <div
+                              key={index}
+                              className={`p-4 rounded-xl cursor-pointer transition-all duration-200 ${
+                                selectedVideo === video.videoUrl
+                                  ? "bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 shadow-md"
+                                  : "bg-white/70 hover:bg-white/90 border border-slate-200 hover:shadow-lg"
+                              }`}
+                              onClick={() => setSelectedVideo(video.videoUrl)}
+                            >
+                              <div className="flex items-start gap-3">
+                                <div
+                                  className={`p-2 rounded-lg ${
+                                    selectedVideo === video.videoUrl
+                                      ? "bg-blue-100 text-blue-600"
+                                      : "bg-slate-100 text-slate-600"
+                                  }`}
+                                >
+                                  <Play className="w-4 h-4" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-medium text-slate-900 leading-tight">
+                                    {video.topicName}
+                                  </p>
+                                  <p className="text-xs text-slate-500 mt-1 truncate">
+                                    Video {index + 1}
+                                  </p>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        ))}
+                          )
+                        )}
                       </div>
                     </div>
                   </div>
@@ -239,7 +340,8 @@ export default function CoursesTab() {
                     My Learning Journey
                   </h1>
                   <p className="text-slate-600 text-lg max-w-2xl mx-auto">
-                    Continue your educational journey with our comprehensive courses
+                    Continue your educational journey with our comprehensive
+                    courses
                   </p>
                 </div>
 
@@ -272,10 +374,14 @@ export default function CoursesTab() {
                           No Courses Found
                         </h3>
                         <p className="text-slate-600">
-                          You haven't enrolled in any courses yet. Start your learning journey today!
+                          You haven't enrolled in any courses yet. Start your
+                          learning journey today!
                         </p>
                       </div>
-                      <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-3 rounded-xl font-medium transition-all duration-200" onClick={handleNavigateToCourses}>
+                      <Button
+                        className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-3 rounded-xl font-medium transition-all duration-200"
+                        onClick={handleNavigateToCourses}
+                      >
                         Browse Courses
                       </Button>
                     </div>
@@ -294,8 +400,8 @@ export default function CoursesTab() {
 
                     <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
                       {courses.map((course) => (
-                        <Card 
-                          key={course.id} 
+                        <Card
+                          key={course.id}
                           className="group bg-white/80 backdrop-blur-sm border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 rounded-2xl overflow-hidden"
                         >
                           <CardHeader className="pb-4">
@@ -321,7 +427,7 @@ export default function CoursesTab() {
                               </Badge>
                             </div>
                           </CardHeader>
-                          
+
                           <CardContent className="space-y-6">
                             <div className="grid grid-cols-1 gap-4">
                               <div className="flex items-center justify-between text-sm">
@@ -345,21 +451,33 @@ export default function CoursesTab() {
                             </div>
 
                             {/* Status Card */}
-                            <div className={`p-4 rounded-xl ${
-                              course.courseStatus === "Active"
-                                ? "bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200"
-                                : "bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200"
-                            }`}>
+                            <div
+                              className={`p-4 rounded-xl ${
+                                course.courseStatus === "Active"
+                                  ? "bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200"
+                                  : "bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200"
+                              }`}
+                            >
                               <div className="flex items-center gap-3">
-                                <Star className={`w-5 h-5 ${
-                                  course.courseStatus === "Active" ? "text-blue-600" : "text-emerald-600"
-                                }`} />
-                                <p className={`text-sm font-medium ${
-                                  course.courseStatus === "Active" ? "text-blue-700" : "text-emerald-700"
-                                }`}>
+                                <Star
+                                  className={`w-5 h-5 ${
+                                    course.courseStatus === "Active"
+                                      ? "text-blue-600"
+                                      : "text-emerald-600"
+                                  }`}
+                                />
+                                <p
+                                  className={`text-sm font-medium ${
+                                    course.courseStatus === "Active"
+                                      ? "text-blue-700"
+                                      : "text-emerald-700"
+                                  }`}
+                                >
                                   {course.courseStatus === "Active"
                                     ? "Course is currently active"
-                                    : `Course completed on ${course.endDate.split(" ")[0]}`}
+                                    : `Course completed on ${
+                                        course.endDate.split(" ")[0]
+                                      }`}
                                 </p>
                               </div>
                             </div>
