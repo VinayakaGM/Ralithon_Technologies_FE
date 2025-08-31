@@ -29,6 +29,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { useRouter } from "next/navigation";
 import { AdminSidebar } from "@/components/admin-sidebar";
 import { AdminHeader } from "@/components/admin-header";
+import { AlertCircle, CheckCircle } from "lucide-react";
 
 export default function EnrolledCoursesTab() {
   const [courses, setCourses] = useState<EnrolledCourse[]>([]);
@@ -40,6 +41,11 @@ export default function EnrolledCoursesTab() {
   );
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("courses");
+  const [applyingProject, setApplyingProject] = useState(false);
+  const [applyStatus, setApplyStatus] = useState<{
+    success?: boolean;
+    message?: string;
+  } | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -97,6 +103,40 @@ export default function EnrolledCoursesTab() {
     router.push("/");
   };
 
+  const handleApplyProject = async (
+    userId: number | null,
+    courseId: number
+  ) => {
+    if (userId === null) return;
+    setApplyingProject(true);
+    setApplyStatus(null);
+
+    try {
+      const response = await userService.applyProject(userId, courseId);
+
+      if (response.success) {
+        setApplyStatus({
+          success: true,
+          message: "Project application submitted successfully!",
+        });
+        handleContinueLearning(courseId);
+      } else {
+        setApplyStatus({
+          success: false,
+          message: response.message || "Failed to apply for project",
+        });
+      }
+    } catch (err) {
+      setApplyStatus({
+        success: false,
+        message: "An unexpected error occurred",
+      });
+      console.error("Error applying for project:", err);
+    } finally {
+      setApplyingProject(false);
+    }
+  };
+
   const extractVideoId = (url: string) => {
     const regExp =
       /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
@@ -109,7 +149,6 @@ export default function EnrolledCoursesTab() {
     setSelectedVideo(null);
   };
 
-  // Loading state
   if (loading && userId === null) {
     return (
       <SidebarProvider>
@@ -133,7 +172,6 @@ export default function EnrolledCoursesTab() {
     );
   }
 
-  // Course details view
   if (selectedCourse) {
     return (
       <SidebarProvider>
@@ -163,7 +201,57 @@ export default function EnrolledCoursesTab() {
                         {selectedCourse.remainingDays}
                       </p>
                     </div>
+
+                    {/* Add Apply for Project button here */}
+                    <div className="flex flex-col items-end gap-2">
+                      {selectedCourse.projectApply ? (
+                        <Badge className="bg-green-100 text-green-800 border-green-200 hover:bg-green-100 px-3 py-2">
+                          <CheckCircle className="w-4 h-4 mr-1" />
+                          Project Applied
+                        </Badge>
+                      ) : (
+                        <Button
+                          onClick={() =>
+                            handleApplyProject(userId, selectedCourse.courseId)
+                          }
+                          disabled={applyingProject}
+                          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+                        >
+                          {applyingProject
+                            ? "Applying..."
+                            : "Apply for Project"}
+                        </Button>
+                      )}
+                    </div>
                   </div>
+
+                  {/* Application status message */}
+                  {applyStatus && (
+                    <div
+                      className={`p-4 rounded-xl ${
+                        applyStatus.success
+                          ? "bg-green-50 border border-green-200"
+                          : "bg-red-50 border border-red-200"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        {applyStatus.success ? (
+                          <CheckCircle className="w-5 h-5 text-green-600" />
+                        ) : (
+                          <AlertCircle className="w-5 h-5 text-red-600" />
+                        )}
+                        <p
+                          className={
+                            applyStatus.success
+                              ? "text-green-700"
+                              : "text-red-700"
+                          }
+                        >
+                          {applyStatus.message}
+                        </p>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                     {/* Video Player */}
