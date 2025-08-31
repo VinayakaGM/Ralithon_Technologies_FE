@@ -17,11 +17,25 @@ export interface ApiResponse {
   data?: any;
 }
 
+export interface Note {
+  notesId: number;
+  subject: string;
+  downloadUrl: string;
+  notesType: string | null;
+  price: number | null;
+}
+
+export interface UserCourseNotes {
+  courseId: number;
+  courseName: string;
+  notes: Note[];
+}
+
 export interface Assessment {
   assessmentId: number;
   subjectName: string;
   topicName: string;
-  assessmentType: "Paid" | "Free"; 
+  assessmentType: "Paid" | "Free";
   price: number;
   awsUrl: string;
 }
@@ -43,7 +57,6 @@ export interface UserAssessment {
   assessmentId: number;
   assessmentSubmit: AssessmentSubmit;
 }
-
 
 export interface EnrollCoursePayload {
   id: number;
@@ -70,7 +83,6 @@ export interface AssessmentStartResponse {
   message: string;
   assessment: AssessmentQuestion[];
   attemptId?: string | null;
-
 }
 
 export interface AssessmentAttemptResponse {
@@ -108,6 +120,8 @@ export interface EnrolledCourse {
 }
 
 export interface CourseDetails {
+  courseId: number;
+  projectApply: boolean;
   courseName: string;
   startDate: string;
   endDate: string;
@@ -189,7 +203,6 @@ class UserService {
     try {
       const formData = new FormData();
 
-      // Create userDTO as a JSON string and append directly
       const userDTO = JSON.stringify({
         firstName: userData.firstName || "",
         lastName: userData.lastName || "",
@@ -198,18 +211,14 @@ class UserService {
 
       formData.append("userDTO", userDTO);
 
-      // Handle profile image
       if (profileImage) {
         if (profileImage.startsWith("data:image")) {
-          // Convert data URL to blob for new images
           const blob = this.dataURLtoBlob(profileImage);
           formData.append("profileImage", blob, "profile.png");
         } else if (profileImage) {
-          // For existing image URLs or empty values
           formData.append("profileImage", profileImage);
         }
       } else {
-        // Send empty string if no image (matches your curl example)
         formData.append("profileImage", "");
       }
 
@@ -307,7 +316,7 @@ class UserService {
         null,
         {
           headers: { ...this.getHeaders(), Accept: "*/*" },
-          params: { count }
+          params: { count },
         }
       )
       .then((response) => ({
@@ -325,18 +334,14 @@ class UserService {
     answer: string
   ): Promise<ApiResponse> {
     return axios
-      .post(
-        `${API_URL}admin/assessments/answer/${userId}`,
-        null,
-        {
-          headers: this.getHeaders(),
-          params: {
-            questionId,
-            answer,
-            assessmentId
-          }
-        }
-      )
+      .post(`${API_URL}admin/assessments/answer/${userId}`, null, {
+        headers: this.getHeaders(),
+        params: {
+          questionId,
+          answer,
+          assessmentId,
+        },
+      })
       .then((response) => ({
         success: true,
         data: response.data,
@@ -354,7 +359,7 @@ class UserService {
         `${API_URL}admin/assessments/submit/${assessmentId}/${userId}`,
         null,
         {
-          headers: this.getHeaders()
+          headers: this.getHeaders(),
         }
       )
       .then((response) => ({
@@ -364,17 +369,44 @@ class UserService {
       }))
       .catch((error) => this.handleError(error));
   }
-getUserAssessments(userId: number): Promise<ApiResponse & { data?: UserAssessment[] }> {
-  return axios
-    .get(`${API_URL}dashboard/assessments?userId=${userId}`, {
-      headers: this.getHeaders()
-    })
-    .then((response) => ({
-      success: true,
-      data: response.data as UserAssessment[],
-    }))
-    .catch((error) => this.handleError(error));
-}
+  getUserAssessments(
+    userId: number
+  ): Promise<ApiResponse & { data?: UserAssessment[] }> {
+    return axios
+      .get(`${API_URL}dashboard/assessments?userId=${userId}`, {
+        headers: this.getHeaders(),
+      })
+      .then((response) => ({
+        success: true,
+        data: response.data as UserAssessment[],
+      }))
+      .catch((error) => this.handleError(error));
+  }
+  applyProject(userId: number | null, courseId: number): Promise<ApiResponse> {
+    return axios
+      .get(`${API_URL}user-courses/apply-project/${userId}/${courseId}`, {
+        headers: this.getHeaders(),
+      })
+      .then((response) => ({
+        success: true,
+        data: response.data,
+        message: "Project applied successfully",
+      }))
+      .catch((error) => this.handleError(error));
+  }
+  getUserNotes(
+    userId: number | null
+  ): Promise<ApiResponse & { data?: UserCourseNotes[] }> {
+    return axios
+      .get(`${API_URL}user-courses/user-notes/${userId}`, {
+        headers: this.getHeaders(),
+      })
+      .then((response) => ({
+        success: true,
+        data: response.data as UserCourseNotes[],
+      }))
+      .catch((error) => this.handleError(error));
+  }
 }
 
 export default new UserService();

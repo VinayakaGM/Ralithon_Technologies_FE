@@ -1,6 +1,13 @@
 "use client";
 
-import { User, FileText, BookOpen, Award, Trophy } from "lucide-react";
+import {
+  User,
+  FileText,
+  BookOpen,
+  Award,
+  Trophy,
+  NotebookText,
+} from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -31,6 +38,12 @@ const menuItems = [
     title: "Enrolled Courses",
     icon: BookOpen,
     path: "/student-dashboard/courses",
+  },
+  {
+    id: "Notes",
+    title: "Notes",
+    icon: NotebookText,
+    path: "/student-dashboard/notes",
   },
   // {
   //   id: "certificates",

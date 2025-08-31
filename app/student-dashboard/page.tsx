@@ -12,6 +12,7 @@ import CertificatesTab from "@/app/student-dashboard/certificates/page";
 import AchievementsTab from "@/app/student-dashboard/achievements/page";
 import authService from "@/services/auth.service";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import StudentNotesPage from "@/app/student-dashboard/notes/page";
 
 export default function StudentDashboard() {
   const [user, setUser] = useState<any>(null);
@@ -57,7 +58,9 @@ export default function StudentDashboard() {
       case "courses":
         return <CoursesTab />;
       case "certificates":
-        return <CertificatesTab />;
+        return <CoursesTab />;
+      case "notes":
+        return <StudentNotesPage />;
       case "achievements":
         return <AchievementsTab />;
       default:
