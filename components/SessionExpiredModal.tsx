@@ -19,7 +19,6 @@ export const SessionExpiredModal: React.FC<SessionExpiredModalProps> = ({
   const router = useRouter();
 
   const handleLoginClick = () => {
-    // setShowAuthModal(true);
     router.push("/");
     onClose();
   };
@@ -35,16 +34,20 @@ export const SessionExpiredModal: React.FC<SessionExpiredModalProps> = ({
     setShowAuthModal(false);
   };
 
-  // Don't return null when isOpen is false - we still want to render AuthModal if needed
+  // Don't render anything if not open and auth modal is also not open
+  if (!isOpen && !showAuthModal) {
+    return null;
+  }
+
   return (
     <>
       {isOpen && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-xl">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-md w-full shadow-xl">
             <div className="text-center mb-2">
-              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
+              <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
                 <svg
-                  className="w-6 h-6 text-red-600"
+                  className="w-6 h-6 text-red-600 dark:text-red-500"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -57,10 +60,10 @@ export const SessionExpiredModal: React.FC<SessionExpiredModalProps> = ({
                   />
                 </svg>
               </div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                 Session Expired
               </h2>
-              <p className="text-gray-600 mb-6">
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
                 Your session has expired due to inactivity. Please log in again
                 to continue.
               </p>
@@ -68,7 +71,7 @@ export const SessionExpiredModal: React.FC<SessionExpiredModalProps> = ({
             <div className="flex flex-col sm:flex-row gap-3">
               <button
                 onClick={onClose}
-                className="px-4 py-2.5 text-gray-700 font-medium rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors flex-1"
+                className="px-4 py-2.5 text-gray-700 dark:text-gray-300 font-medium rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex-1"
               >
                 Close
               </button>
@@ -76,7 +79,7 @@ export const SessionExpiredModal: React.FC<SessionExpiredModalProps> = ({
                 onClick={handleLoginClick}
                 className="px-4 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm flex-1"
               >
-                Log In Again
+                Back to Home
               </button>
             </div>
           </div>
