@@ -141,6 +141,19 @@ class AuthService {
     return !!this.getAuthToken() && !!this.getCurrentUser();
   }
 
+  // Add a public method to set user data from outside
+  setUserData(token: string, userData: User): void {
+    if (typeof window === "undefined") return;
+
+    try {
+      localStorage.setItem("user", JSON.stringify(userData));
+      localStorage.setItem("token", token);
+    } catch (error) {
+      console.error("Error storing user data:", error);
+      throw new Error("Failed to store authentication data");
+    }
+  }
+
   private setUser(authData: AuthResponse): void {
     if (typeof window === "undefined") return;
 

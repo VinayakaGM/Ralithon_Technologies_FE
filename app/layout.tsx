@@ -4,7 +4,6 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SessionProvider } from "@/context/SessionContext";
-import SessionExpiredModal from "@/components/SessionExpiredModal";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -30,7 +29,6 @@ export default function RootLayout({
           >
             {children}
             <Toaster />
-            <SessionExpiredModal />
           </ThemeProvider>
         </SessionProvider>
       </body>
