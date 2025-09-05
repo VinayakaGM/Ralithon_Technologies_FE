@@ -40,7 +40,7 @@ const menuItems = [
     path: "/student-dashboard/courses",
   },
   {
-    id: "Notes",
+    id: "notes",
     title: "Notes",
     icon: NotebookText,
     path: "/student-dashboard/notes",

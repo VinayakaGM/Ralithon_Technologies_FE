@@ -13,6 +13,9 @@ import {
   BookOpen,
   ClipboardList,
   Check,
+  AlertCircle,
+  AlertTriangle,
+  Info,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -73,9 +76,10 @@ export default function RalithonWebsite() {
   const pathName = usePathname();
   const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([]);
   const [isTakingAssessment, setIsTakingAssessment] = useState(false);
-  const [assessmentData, setAssessmentData] =
-    useState<AssessmentAttemptResponse | null>(null);
   const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
+  const [showAssessmentConfirmModal, setShowAssessmentConfirmModal] =
+    useState(false);
+  const [showEnrollConfirmModal, setShowEnrollConfirmModal] = useState(false);
 
   useEffect(() => {
     const lastClosed = localStorage.getItem("hiringModalClosed");
@@ -378,6 +382,16 @@ export default function RalithonWebsite() {
     setAuthMode(newMode);
   };
 
+  const handleTakeAssessmentClick = (course: Course) => {
+    if (!userId) {
+      toast.error("Please log in to take assessment");
+      setShowAuthModal(true);
+      return;
+    }
+    setSelectedCourse(course);
+    setShowAssessmentConfirmModal(true);
+  };
+
   const handleTakeAssessment = async (course: Course) => {
     if (!userId) {
       toast.error("Please log in to take assessment");
@@ -548,6 +562,15 @@ export default function RalithonWebsite() {
       script.onerror = () => resolve(false);
       document.body.appendChild(script);
     });
+  };
+
+  const handleEnrollClick = (course: Course) => {
+    if (!startDate) {
+      toast.error("Please select a start date");
+      return;
+    }
+    setSelectedCourse(course);
+    setShowEnrollConfirmModal(true);
   };
 
   const handleEnrollCourse = async (course: Course) => {
@@ -1192,7 +1215,7 @@ export default function RalithonWebsite() {
                 <div className="space-y-3">
                   <Button
                     className="w-full flex items-center justify-between bg-blue-600 hover:bg-blue-700 text-sm py-2"
-                    onClick={() => handleTakeAssessment(selectedCourse)}
+                    onClick={() => handleTakeAssessmentClick(selectedCourse)}
                     disabled={isTakingAssessment}
                   >
                     <span>
@@ -1213,13 +1236,13 @@ export default function RalithonWebsite() {
                           ? "bg-green-600 hover:bg-green-700"
                           : "bg-purple-600 hover:bg-purple-700"
                       }`}
-                      onClick={() => handleEnrollCourse(selectedCourse)}
+                      onClick={() => handleEnrollClick(selectedCourse)}
                       disabled={!startDate}
                     >
                       <span>
                         {selectedCourse.courseType?.toLowerCase() === "free"
                           ? "Enroll Now"
-                          : `Pay ₹${
+                          : `Enroll Now - ₹${
                               selectedCourse.courseFee?.toFixed(2) || "0.00"
                             }`}
                       </span>
@@ -1366,6 +1389,176 @@ export default function RalithonWebsite() {
         onModeChange={handleToggleAuthMode}
         customMessage={customMessage}
       />
+      {showAssessmentConfirmModal && selectedCourse && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="flex justify-between items-start mb-4">
+              <h3 className="text-xl font-bold text-gray-800">
+                Important Notice
+              </h3>
+              <button
+                onClick={() => setShowAssessmentConfirmModal(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="mb-6">
+              <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <AlertTriangle className="h-5 w-5 text-yellow-400" />
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm text-yellow-700">
+                      Please read the following instructions carefully before
+                      starting the assessment.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <ul className="text-sm text-gray-600 space-y-2 mb-4">
+                <li className="flex items-start">
+                  <AlertCircle className="h-4 w-4 text-red-500 mr-2 mt-0.5 flex-shrink-0" />
+                  <span>
+                    Once you start the assessment, the timer will begin and
+                    cannot be paused.
+                  </span>
+                </li>
+                <li className="flex items-start">
+                  <AlertCircle className="h-4 w-4 text-red-500 mr-2 mt-0.5 flex-shrink-0" />
+                  <span>
+                    If you navigate away or close the browser window, your
+                    assessment will be automatically submitted.
+                  </span>
+                </li>
+                <li className="flex items-start">
+                  <AlertCircle className="h-4 w-4 text-red-500 mr-2 mt-0.5 flex-shrink-0" />
+                  <span>
+                    You cannot retake this assessment without purchasing
+                    additional attempts.
+                  </span>
+                </li>
+                <li className="flex items-start">
+                  <AlertCircle className="h-4 w-4 text-red-500 mr-2 mt-0.5 flex-shrink-0" />
+                  <span>
+                    Ensure you have a stable internet connection before
+                    proceeding.
+                  </span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setShowAssessmentConfirmModal(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => {
+                  setShowAssessmentConfirmModal(false);
+                  handleTakeAssessment(selectedCourse);
+                }}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                Continue to Assessment
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Enrollment Confirmation Modal */}
+      {showEnrollConfirmModal && selectedCourse && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="flex justify-between items-start mb-4">
+              <h3 className="text-xl font-bold text-gray-800">
+                Confirm Enrollment
+              </h3>
+              <button
+                onClick={() => setShowEnrollConfirmModal(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="mb-6">
+              <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-4">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <Info className="h-5 w-5 text-blue-400" />
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm text-blue-700">
+                      You are about to enroll in{" "}
+                      <span className="font-semibold">
+                        {selectedCourse.courseName}
+                      </span>
+                      .
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-3 text-sm text-gray-600">
+                <p>By enrolling in this course, you agree to:</p>
+                <ul className="list-disc pl-5 space-y-1">
+                  <li>Complete the course within the specified duration</li>
+                  <li>Adhere to the platform's code of conduct</li>
+                  <li>Maintain academic integrity in all assessments</li>
+                  {selectedCourse.courseType?.toLowerCase() !== "free" && (
+                    <li>
+                      Pay the course fee of ₹
+                      {selectedCourse.courseFee?.toFixed(2)}
+                    </li>
+                  )}
+                </ul>
+
+                <div className="mt-4 p-3 bg-gray-50 rounded-md">
+                  <div className="flex justify-between">
+                    <span className="font-medium">Course Start Date:</span>
+                    <span>{new Date(startDate).toLocaleDateString()}</span>
+                  </div>
+                  {selectedCourse.courseType?.toLowerCase() !== "free" && (
+                    <div className="flex justify-between mt-2">
+                      <span className="font-medium">Amount to Pay:</span>
+                      <span className="font-bold">
+                        ₹{selectedCourse.courseFee?.toFixed(2)}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setShowEnrollConfirmModal(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setShowEnrollConfirmModal(false);
+                  handleEnrollCourse(selectedCourse);
+                }}
+                className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+              >
+                {selectedCourse.courseType?.toLowerCase() === "free"
+                  ? "Confirm Enrollment"
+                  : `Pay ₹${selectedCourse.courseFee?.toFixed(2)}`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {showHiringModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 relative animate-in fade-in duration-300">

@@ -287,7 +287,12 @@ export function AuthModal({
               description: `You've been automatically logged in. Welcome to Ralithon Technologies!`,
             });
             localStorage.setItem("authToken", loginResponse.token);
-            login(response.token);
+            login(response.token, {
+              userId: response.userId,
+              email: response.email,
+              userType: response.userType,
+              userStatus: response.userStatus,
+            });
             setShowOTPModal(false);
             onClose();
             if (onAuthSuccess) onAuthSuccess();
@@ -344,7 +349,12 @@ export function AuthModal({
           } Welcome to Ralithon Technologies!`,
         });
         localStorage.setItem("authToken", response.token);
-        login(response.token);
+        login(response.token, {
+          userId: response.userId,
+          email: response.email,
+          userType: response.userType,
+          userStatus: response.userStatus,
+        });
         onClose();
         if (onAuthSuccess) onAuthSuccess();
       } else {
