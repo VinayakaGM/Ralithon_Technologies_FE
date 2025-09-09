@@ -16,6 +16,15 @@ import {
   AlertCircle,
   AlertTriangle,
   Info,
+  Building,
+  GraduationCap,
+  Handshake,
+  Lightbulb,
+  Rocket,
+  Users,
+  BarChart3,
+  Layout,
+  Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -481,7 +490,7 @@ export default function RalithonWebsite() {
                 } else {
                   toast.error(
                     assessmentResponse.message ||
-                      "Failed to start assessment after payment"
+                    "Failed to start assessment after payment"
                   );
                 }
               } else {
@@ -490,7 +499,7 @@ export default function RalithonWebsite() {
             } catch (verErr: any) {
               toast.error(
                 "Payment verification error: " +
-                  (verErr.message || "Unknown error")
+                (verErr.message || "Unknown error")
               );
             }
           },
@@ -546,8 +555,8 @@ export default function RalithonWebsite() {
       console.error("Assessment error:", error);
       toast.error(
         error.response?.data?.message ||
-          error.message ||
-          "An error occurred while starting the assessment"
+        error.message ||
+        "An error occurred while starting the assessment"
       );
     } finally {
       setIsTakingAssessment(false);
@@ -645,7 +654,7 @@ export default function RalithonWebsite() {
           } catch (verErr: any) {
             toast.error(
               "Payment verification error: " +
-                (verErr.message || "Unknown error")
+              (verErr.message || "Unknown error")
             );
           }
         },
@@ -671,8 +680,8 @@ export default function RalithonWebsite() {
       console.error("Error:", error);
       toast.error(
         error.response?.data?.message ||
-          error.message ||
-          "An error occurred during enrollment"
+        error.message ||
+        "An error occurred during enrollment"
       );
     }
   };
@@ -697,11 +706,10 @@ export default function RalithonWebsite() {
         {heroSlides.map((slide, index) => (
           <div
             key={index}
-            className={`absolute inset-0 transition-all duration-1000 ${
-              index === currentSlide
-                ? "opacity-100 scale-100"
-                : "opacity-0 scale-105"
-            }`}
+            className={`absolute inset-0 transition-all duration-1000 ${index === currentSlide
+              ? "opacity-100 scale-100"
+              : "opacity-0 scale-105"
+              }`}
           >
             <div className="absolute inset-0 bg-black bg-opacity-50"></div>
             <Image
@@ -723,30 +731,27 @@ export default function RalithonWebsite() {
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-center text-white max-w-4xl px-4">
                 <h1
-                  className={`text-5xl md:text-6xl font-bold mb-6 transform transition-all duration-1000 ${
-                    index === currentSlide
-                      ? "translate-y-0 opacity-100"
-                      : "translate-y-10 opacity-0"
-                  }`}
+                  className={`text-5xl md:text-6xl font-bold mb-6 transform transition-all duration-1000 ${index === currentSlide
+                    ? "translate-y-0 opacity-100"
+                    : "translate-y-10 opacity-0"
+                    }`}
                 >
                   {slide.title}
                 </h1>
                 <p
-                  className={`text-xl md:text-2xl mb-8 transform transition-all duration-1000 delay-300 ${
-                    index === currentSlide
-                      ? "translate-y-0 opacity-100"
-                      : "translate-y-10 opacity-0"
-                  }`}
+                  className={`text-xl md:text-2xl mb-8 transform transition-all duration-1000 delay-300 ${index === currentSlide
+                    ? "translate-y-0 opacity-100"
+                    : "translate-y-10 opacity-0"
+                    }`}
                 >
                   {slide.subtitle}
                 </p>
                 <Button
                   size="lg"
-                  className={`bg-gradient-to-br from-blue-600 to-blue-800 hover:bg-blue-700 text-lg px-8 py-4 transform transition-all duration-1000 delay-500 hover:scale-105 ${
-                    index === currentSlide
-                      ? "translate-y-0 opacity-100"
-                      : "translate-y-10 opacity-0"
-                  }`}
+                  className={`bg-gradient-to-br from-blue-600 to-blue-800 hover:bg-blue-700 text-lg px-8 py-4 transform transition-all duration-1000 delay-500 hover:scale-105 ${index === currentSlide
+                    ? "translate-y-0 opacity-100"
+                    : "translate-y-10 opacity-0"
+                    }`}
                   onClick={() => scrollToSection("about")}
                 >
                   Read More <ArrowRight className="ml-2 h-5 w-5" />
@@ -761,9 +766,8 @@ export default function RalithonWebsite() {
           {heroSlides.map((_, index) => (
             <button
               key={index}
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                index === currentSlide ? "bg-white" : "bg-white bg-opacity-50"
-              }`}
+              className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentSlide ? "bg-white" : "bg-white bg-opacity-50"
+                }`}
               onClick={() => setCurrentSlide(index)}
             />
           ))}
@@ -771,146 +775,226 @@ export default function RalithonWebsite() {
       </section>
 
       {/* About Company Section - Removed statistics, only company information */}
-      <section id="about" className="py-20 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div
-            data-animate
-            className={`text-center mb-16 transform transition-all duration-1000 ${
-              visibleElements.has("about-header")
-                ? "translate-y-0 opacity-100"
-                : "translate-y-10 opacity-0"
-            }`}
-            id="about-header"
-          >
-            <h2 className="text-4xl font-bold text-gray-800 mb-6">
-              About Ralithon Technologies
-            </h2>
-            <div className="w-20 h-1 bg-gradient-to-br from-blue-600 to-blue-800 mx-auto mb-8"></div>
+      <section id="about" className="py-20 bg-white">
+        <div className="container mx-auto px-4 max-w-7xl">
+          {/* Section Header */}
+          <div className="text-center mb-16 animate-fade-in">
+            <h2 className="text-5xl font-bold text-gray-800 mb-4">About Ralithon Technologies</h2>
+            <div className="w-24 h-1 bg-gradient-to-br from-blue-600 to-blue-800 mx-auto mb-6"></div>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+              Transforming businesses through innovative technology solutions and digital excellence
+            </p>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* About Company Details - Only company information */}
-            <div
-              data-animate
-              className={`transform transition-all duration-1000 delay-200 ${
-                visibleElements.has("about-content")
-                  ? "translate-x-0 opacity-100"
-                  : "-translate-x-10 opacity-0"
-              }`}
-              id="about-content"
-            >
-              <h3 className="text-3xl font-bold text-gray-800 mb-6">
-                Leading IT Solutions Provider
-              </h3>
-              <p className="text-lg text-gray-600 mb-6 leading-relaxed">
-                Ralithon Technologies is a premier IT company dedicated to
-                delivering innovative and reliable technology solutions. We
-                specialize in transforming businesses through cutting-edge
-                technology and digital innovation. Our comprehensive services
-                span across web development, mobile applications, artificial
-                intelligence, machine learning, and cloud engineering.
-              </p>
-              <p className="text-lg text-gray-600 mb-6 leading-relaxed">
-                Our team consists of highly skilled developers, designers,
-                engineers, and technology consultants who are passionate about
-                creating solutions that drive business growth. We follow
-                industry best practices and use the latest technologies to
-                ensure our clients receive world-class services that meet their
-                specific requirements.
-              </p>
-              <p className="text-lg text-gray-600 mb-6 leading-relaxed">
-                At Ralithon Technologies, we believe in building long-term
-                partnerships with our clients. We provide end-to-end solutions
-                from initial consultation and planning to development,
-                deployment, and ongoing support. Our commitment to quality,
-                innovation, and customer satisfaction sets us apart in the
-                competitive IT industry.
-              </p>
-              <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-                We also offer comprehensive internship programs to nurture the
-                next generation of technology professionals. Our training
-                programs are designed to provide hands-on experience with
-                real-world projects, mentorship from industry experts, and
-                career development opportunities in various technology domains.
-              </p>
+          {/* Main Content */}
+          <div className="grid lg:grid-cols-3 gap-8 mb-16">
+            {/* Company Description */}
+            <div className="lg:col-span-2">
+              <div className="bg-white rounded-xl shadow-lg p-8 card-hover">
+                <div className="flex items-center mb-6">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center mr-4">
+                    <Building className="h-6 w-6 text-white" />
+                  </div>
+                  <h3 className="text-3xl font-bold text-gray-800">Leading IT Solutions Provider</h3>
+                </div>
+
+                <p className="text-lg text-gray-600 mb-6 leading-relaxed">
+                  Ralithon Technologies is a premier IT company dedicated to delivering innovative and reliable technology solutions. We specialize in transforming businesses through cutting-edge technology and digital innovation.
+                </p>
+
+                <p className="text-lg text-gray-600 mb-6 leading-relaxed">
+                  Our comprehensive services span across web development, mobile applications, artificial intelligence, machine learning, and cloud engineering. We follow industry best practices and use the latest technologies to ensure our clients receive world-class services.
+                </p>
+              </div>
             </div>
 
-            {/* Amazing Photographs */}
-            <div
-              data-animate
-              className={`transform transition-all duration-1000 delay-400 ${
-                visibleElements.has("about-images")
-                  ? "translate-x-0 opacity-100"
-                  : "translate-x-10 opacity-0"
-              }`}
-              id="about-images"
-            >
-              <div className="grid grid-cols-2 gap-4">
+            {/* Stats and Values */}
+            <div className="space-y-8">
+              <div className="bg-white rounded-xl shadow-lg p-8 card-hover">
+                <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">Our Values</h3>
+
                 <div className="space-y-4">
-                  <img
-                    src={`${IMAGE_URL}ralithon01.png`}
-                    alt="Team working together"
-                    className="rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
-                  />
-                  <img
-                    src={`${IMAGE_URL}ralithon02.png`}
-                    alt="Modern office space"
-                    className="rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
-                  />
-                </div>
-                <div className="space-y-4 mt-8">
-                  <img
-                    src={`${IMAGE_URL}ralithon03.png`}
-                    alt="Technology innovation"
-                    className="rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
-                  />
-                  <img
-                    src={`${IMAGE_URL}ralithon04.png`}
-                    alt="Development process"
-                    className="rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
-                  />
+                  <div className="flex items-center">
+                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                      <Lightbulb className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <span className="font-medium text-gray-800">Innovation</span>
+                  </div>
+
+                  <div className="flex items-center">
+                    <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                      <Check className="h-5 w-5 text-green-600" />
+                    </div>
+                    <span className="font-medium text-gray-800">Quality</span>
+                  </div>
+
+                  <div className="flex items-center">
+                    <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                      <Users className="h-5 w-5 text-purple-600" />
+                    </div>
+                    <span className="font-medium text-gray-800">Customer Focus</span>
+                  </div>
+
+                  <div className="flex items-center">
+                    <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center mr-3">
+                      <Rocket className="h-5 w-5 text-orange-600" />
+                    </div>
+                    <span className="font-medium text-gray-800">Growth</span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+
+          {/* Key Points - Horizontal Layout */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+            <div className="flex items-start bg-white rounded-xl shadow-lg p-6 card-hover">
+              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3 mt-1">
+                <Check className="h-4 w-4 text-blue-600" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-800 mb-1">Industry Best Practices</h4>
+                <p className="text-gray-600 text-sm">Following proven methodologies and standards</p>
+              </div>
+            </div>
+
+            <div className="flex items-start bg-white rounded-xl shadow-lg p-6 card-hover">
+              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3 mt-1">
+                <Users className="h-4 w-4 text-blue-600" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-800 mb-1">Expert Team</h4>
+                <p className="text-gray-600 text-sm">Skilled developers and consultants</p>
+              </div>
+            </div>
+
+            <div className="flex items-start bg-white rounded-xl shadow-lg p-6 card-hover">
+              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3 mt-1">
+                <Handshake className="h-4 w-4 text-blue-600" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-800 mb-1">Long-term Partnerships</h4>
+                <p className="text-gray-600 text-sm">Building lasting client relationships</p>
+              </div>
+            </div>
+
+            <div className="flex items-start bg-white rounded-xl shadow-lg p-6 card-hover">
+              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3 mt-1">
+                <GraduationCap className="h-4 w-4 text-blue-600" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-800 mb-1">Training Programs</h4>
+                <p className="text-gray-600 text-sm">Nurturing next-gen professionals</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Expertise Section */}
+          <div className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl p-8 text-white">
+            <h3 className="text-3xl font-bold mb-8 text-center">Our Expertise</h3>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Code className="h-8 w-8 text-white" />
+                </div>
+                <h4 className="font-semibold mb-2">Web Development</h4>
+                <p className="text-sm opacity-90">Modern, responsive websites</p>
+              </div>
+
+              <div className="text-center">
+                <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Smartphone className="h-8 w-8 text-white" />
+                </div>
+                <h4 className="font-semibold mb-2">Mobile Apps</h4>
+                <p className="text-sm opacity-90">Native & cross-platform</p>
+              </div>
+
+              <div className="text-center">
+                <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Brain className="h-8 w-8 text-white" />
+                </div>
+                <h4 className="font-semibold mb-2">AI & ML</h4>
+                <p className="text-sm opacity-90">Intelligent solutions</p>
+              </div>
+
+              <div className="text-center">
+                <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Cloud className="h-8 w-8 text-white" />
+                </div>
+                <h4 className="font-semibold mb-2">Cloud Engineering</h4>
+                <p className="text-sm opacity-90">Scalable infrastructure</p>
+              </div>
+            </div>
+          </div>
+
+          {/* CTA Section */}
+          <div className="text-center mt-16">
+            <h3 className="text-3xl font-bold text-gray-800 mb-6">Ready to Transform Your Business?</h3>
+            <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+              Partner with us for innovative solutions that drive growth and success. Let's discuss your project requirements.
+            </p>
+            <Button
+              onClick={() => scrollToSection("contact")}
+              className="bg-gradient-to-br from-blue-600 to-blue-800 text-white px-8 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition duration-300 transform hover:-translate-y-1"
+            >
+              Get In Touch
+            </Button>
+          </div>
         </div>
       </section>
 
-      {/* What We Do Section */}
+      {/* What We Do Section - Revised to avoid duplication */}
       <section id="services" className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div
             data-animate
-            className={`text-center mb-16 transform transition-all duration-1000 ${
-              visibleElements.has("services-header")
+            className={`text-center mb-16 transform transition-all duration-1000 ${visibleElements.has("services-header")
                 ? "translate-y-0 opacity-100"
                 : "translate-y-10 opacity-0"
-            }`}
+              }`}
             id="services-header"
           >
             <h2 className="text-4xl font-bold text-gray-800 mb-6">
-              What We Do
+              Our Service Approach
             </h2>
             <div className="w-20 h-1 bg-gradient-to-br from-blue-600 to-blue-800 mx-auto mb-8"></div>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              We provide comprehensive IT services and solutions to help
-              businesses grow and succeed in the digital world. Our expertise
-              covers a wide range of technologies and services designed to meet
-              your specific business needs.
+              We don't just deliver solutions - we partner with you to understand your business goals and create tailored strategies that drive real results. Our process is designed for maximum impact at every stage of your digital transformation.
             </p>
           </div>
 
-          {/* Services Cards - Web Development, App Development, AI & ML, Cloud Engineering */}
+          {/* Service Process Cards */}
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {services.map((service, index) => (
+            {[
+              {
+                icon: <Search className="h-10 w-10 text-blue-600 mx-auto" />,
+                title: "Discovery & Analysis",
+                description: "We begin by deeply understanding your business needs, challenges, and objectives to create a strategic roadmap."
+              },
+              {
+                icon: <Layout className="h-10 w-10 text-blue-600 mx-auto" />,
+                title: "Solution Design",
+                description: "Our experts craft tailored solutions that align with your goals and leverage the right technologies."
+              },
+              {
+                icon: <Code className="h-10 w-10 text-blue-600 mx-auto" />,
+                title: "Development & Implementation",
+                description: "We build robust, scalable solutions using agile methodologies and industry best practices."
+              },
+              {
+                icon: <BarChart3 className="h-10 w-10 text-blue-600 mx-auto" />,
+                title: "Optimization & Growth",
+                description: "We continuously monitor, refine, and enhance your solutions to ensure long-term success."
+              }
+            ].map((service, index) => (
               <Card
                 key={index}
                 data-animate
-                className={`text-center hover:shadow-xl transition-all duration-500 transform hover:scale-105 ${
-                  visibleElements.has(`service-${index}`)
+                className={`text-center hover:shadow-xl transition-all duration-500 transform hover:scale-105 ${visibleElements.has(`service-${index}`)
                     ? "translate-y-0 opacity-100"
                     : "translate-y-10 opacity-0"
-                }`}
+                  }`}
                 id={`service-${index}`}
                 style={{ animationDelay: `${index * 200}ms ` }}
               >
@@ -930,16 +1014,14 @@ export default function RalithonWebsite() {
           </div>
         </div>
       </section>
-
       <section id="courses" className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div
             data-animate
-            className={`text-center mb-16 transform transition-all duration-1000 ${
-              visibleElements.has("internships")
-                ? "translate-y-0 opacity-100"
-                : "translate-y-10 opacity-0"
-            }`}
+            className={`text-center mb-16 transform transition-all duration-1000 ${visibleElements.has("internships")
+              ? "translate-y-0 opacity-100"
+              : "translate-y-10 opacity-0"
+              }`}
             id="internships"
           >
             <h2 className="text-4xl font-bold text-gray-800 mb-6">
@@ -1022,11 +1104,10 @@ export default function RalithonWebsite() {
                           </span>
                         </div>
                         <div
-                          className={`text-xs font-bold rounded-full px-3 py-1 whitespace-nowrap ${
-                            course.courseType?.toLowerCase() === "free"
-                              ? "bg-green-100 text-green-600"
-                              : "bg-red-100 text-red-600"
-                          }`}
+                          className={`text-xs font-bold rounded-full px-3 py-1 whitespace-nowrap ${course.courseType?.toLowerCase() === "free"
+                            ? "bg-green-100 text-green-600"
+                            : "bg-red-100 text-red-600"
+                            }`}
                         >
                           {course.courseType?.toUpperCase() || "PAID"}
                         </div>
@@ -1056,11 +1137,10 @@ export default function RalithonWebsite() {
               {/* Description text - Same structure as Internships */}
               <div
                 data-animate
-                className={`text-center transform transition-all duration-1000 ${
-                  visibleElements.has("internships")
-                    ? "translate-y-0 opacity-100"
-                    : "translate-y-10 opacity-0"
-                }`}
+                className={`text-center transform transition-all duration-1000 ${visibleElements.has("internships")
+                  ? "translate-y-0 opacity-100"
+                  : "translate-y-10 opacity-0"
+                  }`}
                 id="internships"
               >
                 <p className="text-lg text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
@@ -1078,14 +1158,12 @@ export default function RalithonWebsite() {
 
       {selectedCourse && (
         <div
-          className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity ${
-            showCourseModal ? "opacity-100" : "opacity-0 pointer-events-none"
-          }`}
+          className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity ${showCourseModal ? "opacity-100" : "opacity-0 pointer-events-none"
+            }`}
         >
           <div
-            className={`bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto transform transition-all ${
-              showCourseModal ? "scale-100" : "scale-95"
-            }`}
+            className={`bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto transform transition-all ${showCourseModal ? "scale-100" : "scale-95"
+              }`}
             style={{
               position: "fixed",
               top: "50%",
@@ -1106,11 +1184,10 @@ export default function RalithonWebsite() {
                   </h3>
                   <div className="flex items-center space-x-2 mt-1">
                     <span
-                      className={`text-xs font-bold rounded-full px-3 py-1 ${
-                        selectedCourse.courseType?.toLowerCase() === "free"
-                          ? "bg-green-100 text-green-600"
-                          : "bg-red-100 text-red-600"
-                      }`}
+                      className={`text-xs font-bold rounded-full px-3 py-1 ${selectedCourse.courseType?.toLowerCase() === "free"
+                        ? "bg-green-100 text-green-600"
+                        : "bg-red-100 text-red-600"
+                        }`}
                     >
                       {selectedCourse.courseType?.toUpperCase() || "PAID"}
                     </span>
@@ -1181,11 +1258,10 @@ export default function RalithonWebsite() {
                         Status:
                       </span>
                       <span
-                        className={`text-sm ${
-                          selectedCourse.status
-                            ? "text-green-600"
-                            : "text-gray-600"
-                        }`}
+                        className={`text-sm ${selectedCourse.status
+                          ? "text-green-600"
+                          : "text-gray-600"
+                          }`}
                       >
                         {selectedCourse.status ? "Active" : "Inactive"}
                       </span>
@@ -1231,20 +1307,18 @@ export default function RalithonWebsite() {
                     </div>
                   ) : (
                     <Button
-                      className={`w-full flex items-center justify-between text-sm py-2 ${
-                        selectedCourse.courseType?.toLowerCase() === "free"
-                          ? "bg-green-600 hover:bg-green-700"
-                          : "bg-purple-600 hover:bg-purple-700"
-                      }`}
+                      className={`w-full flex items-center justify-between text-sm py-2 ${selectedCourse.courseType?.toLowerCase() === "free"
+                        ? "bg-green-600 hover:bg-green-700"
+                        : "bg-purple-600 hover:bg-purple-700"
+                        }`}
                       onClick={() => handleEnrollClick(selectedCourse)}
                       disabled={!startDate}
                     >
                       <span>
                         {selectedCourse.courseType?.toLowerCase() === "free"
                           ? "Enroll Now"
-                          : `Enroll Now - ₹${
-                              selectedCourse.courseFee?.toFixed(2) || "0.00"
-                            }`}
+                          : `Enroll Now - ₹${selectedCourse.courseFee?.toFixed(2) || "0.00"
+                          }`}
                       </span>
                       <BookOpen className="h-4 w-4" />
                     </Button>
@@ -1287,11 +1361,10 @@ export default function RalithonWebsite() {
         <div className="container mx-auto px-4">
           <div
             data-animate
-            className={`transform transition-all duration-1000 ${
-              visibleElements.has("contact-form")
-                ? "translate-y-0 opacity-100"
-                : "translate-y-10 opacity-0"
-            }`}
+            className={`transform transition-all duration-1000 ${visibleElements.has("contact-form")
+              ? "translate-y-0 opacity-100"
+              : "translate-y-10 opacity-0"
+              }`}
             id="contact-form"
           >
             <ModernContactForm onSubmit={handleContactSubmit} />
@@ -1304,11 +1377,10 @@ export default function RalithonWebsite() {
         <div className="container mx-auto px-4">
           <div
             data-animate
-            className={`text-center mb-4 transform transition-all duration-1000 ${
-              visibleElements.has("faq-header")
-                ? "translate-y-0 opacity-100"
-                : "translate-y-10 opacity-0"
-            }`}
+            className={`text-center mb-4 transform transition-all duration-1000 ${visibleElements.has("faq-header")
+              ? "translate-y-0 opacity-100"
+              : "translate-y-10 opacity-0"
+              }`}
             id="faq-header"
           >
             <h2 className="text-4xl font-bold text-gray-800 mb-6">
@@ -1327,29 +1399,26 @@ export default function RalithonWebsite() {
             >
               <span>{faqExpanded ? "Hide FAQs" : "View All FAQs"}</span>
               <ChevronDown
-                className={`h-5 w-5 transition-transform duration-300 ${
-                  faqExpanded ? "rotate-180" : "rotate-0"
-                }`}
+                className={`h-5 w-5 transition-transform duration-300 ${faqExpanded ? "rotate-180" : "rotate-0"
+                  }`}
               />
             </Button>
           </div>
 
           {/* Collapsible FAQ Content */}
           <div
-            className={`max-w-4xl mx-auto overflow-hidden transition-all duration-500 ease-in-out ${
-              faqExpanded ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
-            }`}
+            className={`max-w-4xl mx-auto overflow-hidden transition-all duration-500 ease-in-out ${faqExpanded ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
+              }`}
           >
             <div className="space-y-6 pt-8">
               {faqData.map((faq, index) => (
                 <Card
                   key={index}
                   data-animate
-                  className={`px-6 py-4 hover:shadow-lg transition-all duration-500 transform ${
-                    faqExpanded && visibleElements.has(`faq-${index}`)
-                      ? "translate-y-0 opacity-100"
-                      : "translate-y-10 opacity-0"
-                  }`}
+                  className={`px-6 py-4 hover:shadow-lg transition-all duration-500 transform ${faqExpanded && visibleElements.has(`faq-${index}`)
+                    ? "translate-y-0 opacity-100"
+                    : "translate-y-10 opacity-0"
+                    }`}
                   id={`faq-${index}`}
                   style={{
                     animationDelay: faqExpanded ? `${index * 150}ms` : "0ms",
