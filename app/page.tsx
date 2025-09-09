@@ -22,6 +22,9 @@ import {
   Lightbulb,
   Rocket,
   Users,
+  BarChart3,
+  Layout,
+  Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -704,8 +707,8 @@ export default function RalithonWebsite() {
           <div
             key={index}
             className={`absolute inset-0 transition-all duration-1000 ${index === currentSlide
-                ? "opacity-100 scale-100"
-                : "opacity-0 scale-105"
+              ? "opacity-100 scale-100"
+              : "opacity-0 scale-105"
               }`}
           >
             <div className="absolute inset-0 bg-black bg-opacity-50"></div>
@@ -729,16 +732,16 @@ export default function RalithonWebsite() {
               <div className="text-center text-white max-w-4xl px-4">
                 <h1
                   className={`text-5xl md:text-6xl font-bold mb-6 transform transition-all duration-1000 ${index === currentSlide
-                      ? "translate-y-0 opacity-100"
-                      : "translate-y-10 opacity-0"
+                    ? "translate-y-0 opacity-100"
+                    : "translate-y-10 opacity-0"
                     }`}
                 >
                   {slide.title}
                 </h1>
                 <p
                   className={`text-xl md:text-2xl mb-8 transform transition-all duration-1000 delay-300 ${index === currentSlide
-                      ? "translate-y-0 opacity-100"
-                      : "translate-y-10 opacity-0"
+                    ? "translate-y-0 opacity-100"
+                    : "translate-y-10 opacity-0"
                     }`}
                 >
                   {slide.subtitle}
@@ -746,8 +749,8 @@ export default function RalithonWebsite() {
                 <Button
                   size="lg"
                   className={`bg-gradient-to-br from-blue-600 to-blue-800 hover:bg-blue-700 text-lg px-8 py-4 transform transition-all duration-1000 delay-500 hover:scale-105 ${index === currentSlide
-                      ? "translate-y-0 opacity-100"
-                      : "translate-y-10 opacity-0"
+                    ? "translate-y-0 opacity-100"
+                    : "translate-y-10 opacity-0"
                     }`}
                   onClick={() => scrollToSection("about")}
                 >
@@ -941,7 +944,7 @@ export default function RalithonWebsite() {
         </div>
       </section>
 
-      {/* What We Do Section */}
+      {/* What We Do Section - Revised to avoid duplication */}
       <section id="services" className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div
@@ -953,20 +956,38 @@ export default function RalithonWebsite() {
             id="services-header"
           >
             <h2 className="text-4xl font-bold text-gray-800 mb-6">
-              What We Do
+              Our Service Approach
             </h2>
             <div className="w-20 h-1 bg-gradient-to-br from-blue-600 to-blue-800 mx-auto mb-8"></div>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              We provide comprehensive IT services and solutions to help
-              businesses grow and succeed in the digital world. Our expertise
-              covers a wide range of technologies and services designed to meet
-              your specific business needs.
+              We don't just deliver solutions - we partner with you to understand your business goals and create tailored strategies that drive real results. Our process is designed for maximum impact at every stage of your digital transformation.
             </p>
           </div>
 
-          {/* Services Cards - Web Development, App Development, AI & ML, Cloud Engineering */}
+          {/* Service Process Cards */}
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {services.map((service, index) => (
+            {[
+              {
+                icon: <Search className="h-10 w-10 text-blue-600 mx-auto" />,
+                title: "Discovery & Analysis",
+                description: "We begin by deeply understanding your business needs, challenges, and objectives to create a strategic roadmap."
+              },
+              {
+                icon: <Layout className="h-10 w-10 text-blue-600 mx-auto" />,
+                title: "Solution Design",
+                description: "Our experts craft tailored solutions that align with your goals and leverage the right technologies."
+              },
+              {
+                icon: <Code className="h-10 w-10 text-blue-600 mx-auto" />,
+                title: "Development & Implementation",
+                description: "We build robust, scalable solutions using agile methodologies and industry best practices."
+              },
+              {
+                icon: <BarChart3 className="h-10 w-10 text-blue-600 mx-auto" />,
+                title: "Optimization & Growth",
+                description: "We continuously monitor, refine, and enhance your solutions to ensure long-term success."
+              }
+            ].map((service, index) => (
               <Card
                 key={index}
                 data-animate
@@ -993,14 +1014,13 @@ export default function RalithonWebsite() {
           </div>
         </div>
       </section>
-
       <section id="courses" className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div
             data-animate
             className={`text-center mb-16 transform transition-all duration-1000 ${visibleElements.has("internships")
-                ? "translate-y-0 opacity-100"
-                : "translate-y-10 opacity-0"
+              ? "translate-y-0 opacity-100"
+              : "translate-y-10 opacity-0"
               }`}
             id="internships"
           >
@@ -1085,8 +1105,8 @@ export default function RalithonWebsite() {
                         </div>
                         <div
                           className={`text-xs font-bold rounded-full px-3 py-1 whitespace-nowrap ${course.courseType?.toLowerCase() === "free"
-                              ? "bg-green-100 text-green-600"
-                              : "bg-red-100 text-red-600"
+                            ? "bg-green-100 text-green-600"
+                            : "bg-red-100 text-red-600"
                             }`}
                         >
                           {course.courseType?.toUpperCase() || "PAID"}
@@ -1118,8 +1138,8 @@ export default function RalithonWebsite() {
               <div
                 data-animate
                 className={`text-center transform transition-all duration-1000 ${visibleElements.has("internships")
-                    ? "translate-y-0 opacity-100"
-                    : "translate-y-10 opacity-0"
+                  ? "translate-y-0 opacity-100"
+                  : "translate-y-10 opacity-0"
                   }`}
                 id="internships"
               >
@@ -1165,8 +1185,8 @@ export default function RalithonWebsite() {
                   <div className="flex items-center space-x-2 mt-1">
                     <span
                       className={`text-xs font-bold rounded-full px-3 py-1 ${selectedCourse.courseType?.toLowerCase() === "free"
-                          ? "bg-green-100 text-green-600"
-                          : "bg-red-100 text-red-600"
+                        ? "bg-green-100 text-green-600"
+                        : "bg-red-100 text-red-600"
                         }`}
                     >
                       {selectedCourse.courseType?.toUpperCase() || "PAID"}
@@ -1239,8 +1259,8 @@ export default function RalithonWebsite() {
                       </span>
                       <span
                         className={`text-sm ${selectedCourse.status
-                            ? "text-green-600"
-                            : "text-gray-600"
+                          ? "text-green-600"
+                          : "text-gray-600"
                           }`}
                       >
                         {selectedCourse.status ? "Active" : "Inactive"}
@@ -1288,8 +1308,8 @@ export default function RalithonWebsite() {
                   ) : (
                     <Button
                       className={`w-full flex items-center justify-between text-sm py-2 ${selectedCourse.courseType?.toLowerCase() === "free"
-                          ? "bg-green-600 hover:bg-green-700"
-                          : "bg-purple-600 hover:bg-purple-700"
+                        ? "bg-green-600 hover:bg-green-700"
+                        : "bg-purple-600 hover:bg-purple-700"
                         }`}
                       onClick={() => handleEnrollClick(selectedCourse)}
                       disabled={!startDate}
@@ -1342,8 +1362,8 @@ export default function RalithonWebsite() {
           <div
             data-animate
             className={`transform transition-all duration-1000 ${visibleElements.has("contact-form")
-                ? "translate-y-0 opacity-100"
-                : "translate-y-10 opacity-0"
+              ? "translate-y-0 opacity-100"
+              : "translate-y-10 opacity-0"
               }`}
             id="contact-form"
           >
@@ -1358,8 +1378,8 @@ export default function RalithonWebsite() {
           <div
             data-animate
             className={`text-center mb-4 transform transition-all duration-1000 ${visibleElements.has("faq-header")
-                ? "translate-y-0 opacity-100"
-                : "translate-y-10 opacity-0"
+              ? "translate-y-0 opacity-100"
+              : "translate-y-10 opacity-0"
               }`}
             id="faq-header"
           >
@@ -1396,8 +1416,8 @@ export default function RalithonWebsite() {
                   key={index}
                   data-animate
                   className={`px-6 py-4 hover:shadow-lg transition-all duration-500 transform ${faqExpanded && visibleElements.has(`faq-${index}`)
-                      ? "translate-y-0 opacity-100"
-                      : "translate-y-10 opacity-0"
+                    ? "translate-y-0 opacity-100"
+                    : "translate-y-10 opacity-0"
                     }`}
                   id={`faq-${index}`}
                   style={{
