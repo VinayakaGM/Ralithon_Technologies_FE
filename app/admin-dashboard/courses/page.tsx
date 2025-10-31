@@ -45,6 +45,8 @@ import {
   Clock,
   Upload,
   FileText,
+  DollarSign,
+  Shield,
 } from "lucide-react";
 import { ImageIcon } from "lucide-react";
 import AdminCourseService, {
@@ -126,8 +128,8 @@ export default function CourseManagementTab() {
               ? ""
               : Number(value)
             : name === "durationInWeek"
-            ? Number(value)
-            : value,
+              ? Number(value)
+              : value,
       }));
     }
   };
@@ -235,20 +237,19 @@ export default function CourseManagementTab() {
         resetForm();
         await fetchCourses();
         toast.success(
-          `Course ${
-            editingCourseId !== null ? "updated" : "created"
+          `Course ${editingCourseId !== null ? "updated" : "created"
           } successfully!`
         );
       } else {
         setError(
           response.message ||
-            `Failed to ${editingCourseId !== null ? "update" : "create"} course`
+          `Failed to ${editingCourseId !== null ? "update" : "create"} course`
         );
       }
     } catch (error: any) {
       setError(
         error.message ||
-          `Failed to ${editingCourseId !== null ? "update" : "create"} course`
+        `Failed to ${editingCourseId !== null ? "update" : "create"} course`
       );
     } finally {
       setIsSubmitting(false);
@@ -268,10 +269,6 @@ export default function CourseManagementTab() {
     return status ? "Active" : "Inactive";
   };
 
-  const getStatusVariant = (status: boolean) => {
-    return status ? "default" : "secondary";
-  };
-
   const handleDeleteCourse = async (courseId: number) => {
     if (confirm("Are you sure you want to delete this course?")) {
       try {
@@ -288,6 +285,12 @@ export default function CourseManagementTab() {
     }
   };
 
+  // Calculate course statistics
+  const totalCourses = courses.length;
+  const activeCourses = courses.filter((c) => c.status).length;
+  const paidCourses = courses.filter((c) => c.courseType === "PAID").length;
+  const freeCourses = courses.filter((c) => c.courseType === "FREE").length;
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
@@ -299,7 +302,7 @@ export default function CourseManagementTab() {
               <div className="space-y-8">
                 <div className="flex items-center justify-between">
                   <div className="space-y-2">
-                    <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+                    <h1 className="text-2xl font-bold text-gray-800">
                       Course Management
                     </h1>
                     <p className="text-slate-600 text-lg">
@@ -314,7 +317,12 @@ export default function CourseManagementTab() {
                     }}
                   >
                     <DialogTrigger asChild>
-                      <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-200 px-6 py-3 h-auto">
+                      <Button
+                        className="text-white shadow-lg hover:shadow-xl transition-all duration-200 px-6 py-3 h-auto"
+                        style={{
+                          background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                        }}
+                      >
                         <Plus className="h-5 w-5 mr-2" />
                         Add Course
                       </Button>
@@ -553,15 +561,18 @@ export default function CourseManagementTab() {
                           <Button
                             onClick={handleSubmit}
                             disabled={isSubmitting}
-                            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-200 px-8 py-3 h-auto"
+                            className="text-white shadow-lg hover:shadow-xl transition-all duration-200 px-8 py-3 h-auto"
+                            style={{
+                              background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                            }}
                           >
                             {isSubmitting
                               ? editingCourseId !== null
                                 ? "Updating..."
                                 : "Creating..."
                               : editingCourseId !== null
-                              ? "Update Course"
-                              : "Create Course"}
+                                ? "Update Course"
+                                : "Create Course"}
                           </Button>
                         </div>
                       </div>
@@ -820,7 +831,10 @@ export default function CourseManagementTab() {
                           <Button
                             onClick={handleSubmit}
                             disabled={isSubmitting}
-                            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-200 px-8 py-3 h-auto"
+                            className="text-white shadow-lg hover:shadow-xl transition-all duration-200 px-8 py-3 h-auto"
+                            style={{
+                              background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                            }}
                           >
                             {isSubmitting ? "Updating..." : "Update Course"}
                           </Button>
@@ -831,29 +845,44 @@ export default function CourseManagementTab() {
                 </div>
 
                 <div className="grid gap-6 md:grid-cols-4">
+                  {/* Total Courses - Blue Theme */}
                   <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-blue-50/50 hover:shadow-xl transition-all duration-200">
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <div className="text-3xl font-bold text-blue-600 mb-1">
-                            {courses.length}
+                          <div
+                            className="text-3xl font-bold mb-1"
+                            style={{
+                              background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)",
+                              WebkitBackgroundClip: "text",
+                              WebkitTextFillColor: "transparent"
+                            }}
+                          >
+                            {totalCourses}
                           </div>
                           <div className="text-sm font-medium text-slate-600">
                             Total Courses
                           </div>
                         </div>
-                        <div className="h-12 w-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                          <BookOpen className="h-6 w-6 text-blue-600" />
+                        <div
+                          className="h-12 w-12 rounded-xl flex items-center justify-center"
+                          style={{
+                            background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                          }}
+                        >
+                          <BookOpen className="h-6 w-6 text-white" />
                         </div>
                       </div>
                     </CardContent>
                   </Card>
+
+                  {/* Active Courses - Green Theme */}
                   <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-emerald-50/50 hover:shadow-xl transition-all duration-200">
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
                         <div>
                           <div className="text-3xl font-bold text-emerald-600 mb-1">
-                            {courses.filter((c) => c.status).length}
+                            {activeCourses}
                           </div>
                           <div className="text-sm font-medium text-slate-600">
                             Active Courses
@@ -865,36 +894,37 @@ export default function CourseManagementTab() {
                       </div>
                     </CardContent>
                   </Card>
-                  <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-purple-50/50 hover:shadow-xl transition-all duration-200">
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className="text-3xl font-bold text-purple-600 mb-1">
-                            0
-                          </div>
-                          <div className="text-sm font-medium text-slate-600">
-                            Total Enrollments
-                          </div>
-                        </div>
-                        <div className="h-12 w-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                          <Users className="h-6 w-6 text-purple-600" />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-amber-50/50 hover:shadow-xl transition-all duration-200">
+                  <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-amber-50/50">
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
                         <div>
                           <div className="text-3xl font-bold text-amber-600 mb-1">
-                            {courses.filter((c) => !c.status).length}
+                            {paidCourses}
                           </div>
                           <div className="text-sm font-medium text-slate-600">
-                            Inactive Courses
+                            Paid Courses
                           </div>
                         </div>
                         <div className="h-12 w-12 bg-amber-100 rounded-xl flex items-center justify-center">
-                          <Clock className="h-6 w-6 text-amber-600" />
+                          <DollarSign className="h-6 w-6 text-amber-600" />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  {/* Free Courses - Green Theme */}
+                  <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-green-50/50 hover:shadow-xl transition-all duration-200">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="text-3xl font-bold text-green-600 mb-1">
+                            {freeCourses}
+                          </div>
+                          <div className="text-sm font-medium text-slate-600">
+                            Free Courses
+                          </div>
+                        </div>
+                        <div className="h-12 w-12 bg-green-100 rounded-xl flex items-center justify-center">
+                          <Shield className="h-6 w-6 text-green-600" />
                         </div>
                       </div>
                     </CardContent>
@@ -913,7 +943,12 @@ export default function CourseManagementTab() {
                   <CardContent className="p-0">
                     {isLoading ? (
                       <div className="flex flex-col justify-center items-center h-64 space-y-4">
-                        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600"></div>
+                        <div
+                          className="animate-spin rounded-full h-12 w-12 border-4 border-t-blue-600"
+                          style={{
+                            borderColor: "rgb(55, 182, 241) rgb(55, 182, 241) rgb(55, 182, 241) rgb(2, 116, 186)"
+                          }}
+                        ></div>
                         <p className="text-slate-600 font-medium">
                           Loading courses...
                         </p>
@@ -976,12 +1011,10 @@ export default function CourseManagementTab() {
                                 </TableCell>
                                 <TableCell>
                                   <Badge
-                                    className={`text-xs font-bold rounded-full px-3 py-1 whitespace-nowrap ${
-                                      course.courseType?.toLowerCase() ===
-                                      "free"
-                                        ? "bg-green-100 text-green-600"
-                                        : "bg-red-100 text-red-600"
-                                    }`}
+                                    className={`text-xs font-bold rounded-full px-3 py-1 whitespace-nowrap ${course.courseType === "PAID"
+                                        ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white"
+                                        : "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white"
+                                      }`}
                                   >
                                     {course.courseType}
                                   </Badge>
@@ -998,7 +1031,7 @@ export default function CourseManagementTab() {
                                     className={
                                       course.status
                                         ? "bg-emerald-100 text-emerald-700 border-emerald-200 font-medium"
-                                        : "bg-slate-100 text-slate-600 border-slate-200 font-medium"
+                                        : "bg-rose-100 text-rose-700 border-rose-200 font-medium"
                                     }
                                   >
                                     {getStatusBadge(course.status)}

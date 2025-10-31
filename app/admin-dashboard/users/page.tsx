@@ -151,7 +151,7 @@ export default function UserManagementTab() {
               <div className="space-y-8">
                 <div className="flex items-center justify-between">
                   <div className="space-y-2">
-                    <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+                    <h1 className="text-2xl font-bold text-gray-800">
                       User Management
                     </h1>
                     <p className="text-slate-600 text-lg">Manage all registered users and their permissions</p>
@@ -177,13 +177,13 @@ export default function UserManagementTab() {
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <div className="text-3xl font-bold text-emerald-600 mb-1">
+                          <div className="text-3xl font-bold text-blue-600 mb-1">
                             {users.filter((u) => u.role === "ROLE_STUDENT").length}
                           </div>
                           <div className="text-sm font-medium text-slate-600">Students</div>
                         </div>
-                        <div className="p-3 bg-emerald-100 rounded-xl">
-                          <UserCheck className="h-6 w-6 text-emerald-600" />
+                        <div className="p-3 bg-blue-100 rounded-xl">
+                          <UserCheck className="h-6 w-6 text-blue-600" />
                         </div>
                       </div>
                     </CardContent>
@@ -193,13 +193,13 @@ export default function UserManagementTab() {
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <div className="text-3xl font-bold text-indigo-600 mb-1">
+                          <div className="text-3xl font-bold text-blue-600 mb-1">
                             {users.filter((u) => u.role === "ROLE_ADMIN").length}
                           </div>
                           <div className="text-sm font-medium text-slate-600">Administrators</div>
                         </div>
-                        <div className="p-3 bg-indigo-100 rounded-xl">
-                          <Shield className="h-6 w-6 text-indigo-600" />
+                        <div className="p-3 bg-blue-100 rounded-xl">
+                          <Shield className="h-6 w-6 text-blue-600" />
                         </div>
                       </div>
                     </CardContent>
@@ -209,13 +209,13 @@ export default function UserManagementTab() {
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <div className="text-3xl font-bold text-orange-600 mb-1">
+                          <div className="text-3xl font-bold text-blue-600 mb-1">
                             {users.filter((u) => u.status).length}
                           </div>
                           <div className="text-sm font-medium text-slate-600">Active Users</div>
                         </div>
-                        <div className="p-3 bg-orange-100 rounded-xl">
-                          <Activity className="h-6 w-6 text-orange-600" />
+                        <div className="p-3 bg-blue-100 rounded-xl">
+                          <Activity className="h-6 w-6 text-blue-600" />
                         </div>
                       </div>
                     </CardContent>
@@ -264,9 +264,12 @@ export default function UserManagementTab() {
                               <button
                                 className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all duration-200 ${
                                   roleFilter === "all"
-                                    ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-sm"
+                                    ? "text-white shadow-sm"
                                     : "text-slate-600 hover:bg-blue-50 hover:text-blue-700"
                                 }`}
+                                style={roleFilter === "all" ? {
+                                  background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                                } : {}}
                                 onClick={() => handleRoleFilterChange("all")}
                               >
                                 All Roles
@@ -274,9 +277,12 @@ export default function UserManagementTab() {
                               <button
                                 className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all duration-200 ${
                                   roleFilter === "ROLE_STUDENT"
-                                    ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-sm"
+                                    ? "text-white shadow-sm"
                                     : "text-slate-600 hover:bg-blue-50 hover:text-blue-700"
                                 }`}
+                                style={roleFilter === "ROLE_STUDENT" ? {
+                                  background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                                } : {}}
                                 onClick={() => handleRoleFilterChange("ROLE_STUDENT")}
                               >
                                 Students
@@ -284,9 +290,12 @@ export default function UserManagementTab() {
                               <button
                                 className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all duration-200 ${
                                   roleFilter === "ROLE_ADMIN"
-                                    ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-sm"
+                                    ? "text-white shadow-sm"
                                     : "text-slate-600 hover:bg-blue-50 hover:text-blue-700"
                                 }`}
+                                style={roleFilter === "ROLE_ADMIN" ? {
+                                  background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                                } : {}}
                                 onClick={() => handleRoleFilterChange("ROLE_ADMIN")}
                               >
                                 Administrators
@@ -300,9 +309,12 @@ export default function UserManagementTab() {
                               <button
                                 className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all duration-200 ${
                                   statusFilter === "all"
-                                    ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-sm"
+                                    ? "text-white shadow-sm"
                                     : "text-slate-600 hover:bg-blue-50 hover:text-blue-700"
                                 }`}
+                                style={statusFilter === "all" ? {
+                                  background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                                } : {}}
                                 onClick={() => handleStatusFilterChange("all")}
                               >
                                 All Statuses
@@ -310,9 +322,12 @@ export default function UserManagementTab() {
                               <button
                                 className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all duration-200 ${
                                   statusFilter === "active"
-                                    ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-sm"
+                                    ? "text-white shadow-sm"
                                     : "text-slate-600 hover:bg-blue-50 hover:text-blue-700"
                                 }`}
+                                style={statusFilter === "active" ? {
+                                  background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                                } : {}}
                                 onClick={() => handleStatusFilterChange("active")}
                               >
                                 Active
@@ -320,9 +335,12 @@ export default function UserManagementTab() {
                               <button
                                 className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all duration-200 ${
                                   statusFilter === "inactive"
-                                    ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-sm"
+                                    ? "text-white shadow-sm"
                                     : "text-slate-600 hover:bg-blue-50 hover:text-blue-700"
                                 }`}
+                                style={statusFilter === "inactive" ? {
+                                  background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                                } : {}}
                                 onClick={() => handleStatusFilterChange("inactive")}
                               >
                                 Inactive
@@ -374,7 +392,12 @@ export default function UserManagementTab() {
                                 <TableCell className="py-4">
                                   <div className="flex items-center gap-3">
                                     <Avatar className="h-10 w-10 ring-2 ring-slate-100">
-                                      <AvatarFallback className="bg-gradient-to-br from-blue-500 to-blue-600 text-white font-semibold">
+                                      <AvatarFallback 
+                                        className="text-white font-semibold"
+                                        style={{
+                                          background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                                        }}
+                                      >
                                         {user.firstName.charAt(0)}
                                         {user.lastName.charAt(0)}
                                       </AvatarFallback>
@@ -392,9 +415,12 @@ export default function UserManagementTab() {
                                     variant={user.role === "ROLE_ADMIN" ? "default" : "secondary"}
                                     className={
                                       user.role === "ROLE_ADMIN"
-                                        ? "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 border-0 shadow-sm"
+                                        ? "text-white border-0 shadow-sm"
                                         : "bg-slate-100 text-slate-700 hover:bg-slate-200 border-0"
                                     }
+                                    style={user.role === "ROLE_ADMIN" ? {
+                                      background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                                    } : {}}
                                   >
                                     {user.role === "ROLE_ADMIN" ? "Admin" : "Student"}
                                   </Badge>
