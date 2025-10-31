@@ -1,17 +1,17 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
-export default function NotFound() {
+function NotFoundContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [redirectCountdown, setRedirectCountdown] = useState(0);
-  
+
   const isTokenExpired = searchParams.get('expired') === 'true';
 
   useEffect(() => {
-    // Handle token expiration redirect
     if (isTokenExpired) {
       // Clear storage
       if (typeof window !== 'undefined') {
@@ -19,8 +19,8 @@ export default function NotFound() {
         localStorage.removeItem('refreshToken');
         sessionStorage.clear();
       }
-      
-      // Set up countdown
+
+      // Setup countdown
       setRedirectCountdown(5);
       const countdownInterval = setInterval(() => {
         setRedirectCountdown(prev => {
@@ -40,7 +40,7 @@ export default function NotFound() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white flex items-center justify-center p-4">
       <div className="max-w-md w-full text-center">
-        {/* Animated 404 display */}
+        {/* 404 / Session Expired */}
         <div className="mb-8">
           <div className="text-9xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 mb-4">
             404
@@ -55,7 +55,7 @@ export default function NotFound() {
           </p>
         </div>
 
-        {/* Redirect countdown for expired sessions */}
+        {/* Countdown */}
         {isTokenExpired && redirectCountdown > 0 && (
           <div className="mb-6 p-3 bg-slate-800/50 rounded-lg">
             <div className="flex items-center justify-center space-x-2">
@@ -67,7 +67,7 @@ export default function NotFound() {
           </div>
         )}
 
-        {/* Action buttons */}
+        {/* Button */}
         <div className="flex flex-col space-y-3 mb-8">
           <Link
             href="/"
@@ -78,5 +78,13 @@ export default function NotFound() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function NotFound() {
+  return (
+  <Suspense fallback={<LoadingSpinner message='Loading...'/>}>
+      <NotFoundContent />
+    </Suspense>
   );
 }
