@@ -202,13 +202,25 @@ export function Header({
                 onClick={() => handleNavigation(item.id)}
                 className={`relative px-1 py-2 font-medium transition-all duration-300 ${
                   activeSection === item.id && isHomePage
-                    ? "text-transparent bg-clip-text bg-gradient-to-br from-blue-600 to-blue-800"
+                    ? "text-transparent bg-clip-text"
                     : "text-gray-700 hover:text-blue-600"
                 }`}
+                style={
+                  activeSection === item.id && isHomePage
+                    ? { 
+                        background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)",
+                        WebkitBackgroundClip: "text",
+                        backgroundClip: "text"
+                      }
+                    : {}
+                }
               >
                 {item.label}
                 {activeSection === item.id && isHomePage && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600" />
+                  <div 
+                    className="absolute bottom-0 left-0 right-0 h-0.5"
+                    style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}
+                  />
                 )}
               </button>
             ))}
@@ -226,7 +238,10 @@ export function Header({
                           alt={`${userDetails.firstName} ${userDetails.lastName}`}
                         />
                       ) : (
-                        <AvatarFallback className="bg-gradient-to-br from-blue-600 to-blue-800 text-white">
+                        <AvatarFallback 
+                          className="text-white"
+                          style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}
+                        >
                           {currentUser.email?.charAt(0).toUpperCase()}
                         </AvatarFallback>
                       )}
@@ -292,13 +307,14 @@ export function Header({
               <div className="flex items-center space-x-2">
                 <Button
                   variant="outline"
-                  className="text-blue-600 border-blue-600 hover:bg-blue-50 px-4 py-2 rounded-full"
+                  className="px-4 py-2 rounded-full hover:bg-gray-50 border-[rgb(2,116,186)] text-[rgb(2,116,186)] hover:text-[rgb(2,116,186)]"
                   onClick={handleSignInClick}
                 >
                   Sign In
                 </Button>
                 <Button
-                  className="bg-gradient-to-br from-blue-600 to-blue-800 hover:bg-blue-700 text-white px-4 py-2 rounded-full"
+                  className="text-white px-4 py-2 rounded-full"
+                  style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}
                   onClick={handleSignUpClick}
                 >
                   Sign Up
@@ -335,9 +351,18 @@ export function Header({
                 onClick={() => handleNavigation(item.id)}
                 className={`block w-full text-left px-4 py-3 rounded-lg font-medium ${
                   activeSection === item.id && isHomePage
-                    ? "text-transparent bg-clip-text bg-gradient-to-br from-blue-600 to-blue-800"
+                    ? "text-transparent bg-clip-text"
                     : "text-gray-700 hover:bg-gray-100"
                 }`}
+                style={
+                  activeSection === item.id && isHomePage
+                    ? { 
+                        background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)",
+                        WebkitBackgroundClip: "text",
+                        backgroundClip: "text"
+                      }
+                    : {}
+                }
               >
                 {item.label}
               </button>
@@ -378,7 +403,7 @@ export function Header({
                     setMobileMenuOpen(false);
                     handleSignInClick();
                   }}
-                  className="block w-full text-left px-4 py-3 rounded-lg font-medium text-blue-600 hover:bg-blue-50 border border-blue-600"
+                  className="block w-full text-left px-4 py-3 rounded-lg font-medium border border-[rgb(2,116,186)] text-[rgb(2,116,186)] hover:bg-gray-50"
                 >
                   Sign In
                 </button>
@@ -387,7 +412,8 @@ export function Header({
                     setMobileMenuOpen(false);
                     handleSignUpClick();
                   }}
-                  className="block w-full text-left px-4 py-3 rounded-lg font-medium text-white bg-gradient-to-br from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900"
+                  className="block w-full text-left px-4 py-3 rounded-lg font-medium text-white"
+                  style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}
                 >
                   Sign Up
                 </button>

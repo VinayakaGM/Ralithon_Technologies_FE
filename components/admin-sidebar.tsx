@@ -1,6 +1,6 @@
 "use client";
 
-import { Users, FileText, BookOpen, NotebookText } from "lucide-react";
+import { Users, FileText, BookOpen, NotebookText, Home } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -70,9 +70,18 @@ export function AdminSidebar({ activeTab, setActiveTab }: AdminSidebarProps) {
     router.push("/");
   };
 
+  const handleHomeClick = () => {
+    router.push("/");
+  };
+
   return (
     <Sidebar className="border-r border-gray-200 bg-white">
-      <SidebarHeader className="p-4 border-b border-gray-200">
+      <SidebarHeader 
+        className="p-4 border-b border-gray-200"
+        style={{
+          background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+        }}
+      >
         <div className="flex items-center space-x-3">
           <button
             onClick={handleLogoClick}
@@ -82,10 +91,27 @@ export function AdminSidebar({ activeTab, setActiveTab }: AdminSidebarProps) {
               <img src={`${IMAGE_URL}logo.png`} alt="Ralithon Technologies" />
             </div>
           </button>
-          <h2 className="text-lg font-bold text-gray-800">Admin Dashboard</h2>
+          <h2 className="text-lg font-bold text-white">Admin Dashboard</h2>
         </div>
       </SidebarHeader>
       <SidebarContent className="p-4">
+        {/* Home Button */}
+        <div className="mb-4">
+          <SidebarMenuButton
+            onClick={handleHomeClick}
+            className="w-full justify-start p-3 rounded-lg transition-all duration-300 text-gray-700 hover:bg-gray-100 hover:text-blue-600"
+            style={{
+              paddingTop: "30px",
+              paddingBottom: "30px",
+            }}
+          >
+            <Home className="h-5 w-5 mr-3" />
+            <div className="text-left">
+              <div className="font-medium">Back to Home</div>
+            </div>
+          </SidebarMenuButton>
+        </div>
+
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-3" style={{ gap: "10px" }}>
@@ -99,12 +125,15 @@ export function AdminSidebar({ activeTab, setActiveTab }: AdminSidebarProps) {
                     isActive={currentActive === item.id}
                     className={`w-full justify-start p-3 rounded-lg transition-all duration-300 ${
                       currentActive === item.id
-                        ? "bg-gradient-to-br from-blue-600 to-blue-800 text-white shadow-lg"
+                        ? "text-white shadow-lg"
                         : "text-gray-700 hover:bg-gray-100 hover:text-blue-600"
                     }`}
                     style={{
                       paddingTop: "30px",
                       paddingBottom: "30px",
+                      ...(currentActive === item.id ? {
+                        background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                      } : {})
                     }}
                   >
                     <item.icon

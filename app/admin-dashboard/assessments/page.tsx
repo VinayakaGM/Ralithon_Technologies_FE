@@ -273,7 +273,7 @@ export default function AssessmentMonitoringTab() {
               <div className="space-y-8">
                 <div className="flex items-center justify-between">
                   <div className="space-y-2">
-                    <h2 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+                    <h2 className="text-2xl font-bold text-gray-800">
                       Assessment Management
                     </h2>
                     <p className="text-slate-600 text-lg">
@@ -299,7 +299,12 @@ export default function AssessmentMonitoringTab() {
                     }}
                   >
                     <DialogTrigger asChild>
-                      <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 px-6 py-3 rounded-xl">
+                      <Button 
+                        className="text-white shadow-lg hover:shadow-xl transition-all duration-200 px-6 py-3 rounded-xl"
+                        style={{
+                          background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                        }}
+                      >
                         <Plus className="h-5 w-5 mr-2" />
                         Add Assessment
                       </Button>
@@ -460,7 +465,10 @@ export default function AssessmentMonitoringTab() {
                           <Button
                             onClick={handleSubmit}
                             disabled={isSubmitting}
-                            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 px-6 py-3 rounded-xl"
+                            className="text-white shadow-lg hover:shadow-xl transition-all duration-200 px-6 py-3 rounded-xl"
+                            style={{
+                              background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                            }}
                           >
                             {isSubmitting
                               ? editingAssessment
@@ -498,16 +506,10 @@ export default function AssessmentMonitoringTab() {
                                 Assessment Type
                               </p>
                               <Badge
-                                variant={
-                                  viewAssessment.assessmentType === "Paid"
-                                    ? "default"
-                                    : "secondary"
-                                }
-                                className={`${
-                                  viewAssessment.assessmentType === "Paid"
-                                    ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white"
-                                    : "bg-gradient-to-r from-blue-500 to-indigo-500 text-white"
-                                } px-3 py-1 rounded-full`}
+                                className="text-white px-3 py-1 rounded-full"
+                                style={{
+                                  background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                                }}
                               >
                                 {viewAssessment.assessmentType}
                               </Badge>
@@ -552,24 +554,43 @@ export default function AssessmentMonitoringTab() {
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                          <div 
+                            className="text-3xl font-bold mb-1"
+                            style={{
+                              background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)",
+                              WebkitBackgroundClip: "text",
+                              WebkitTextFillColor: "transparent"
+                            }}
+                          >
                             {assessments.length}
                           </div>
                           <div className="text-sm font-medium text-slate-600 mt-1">
                             Total Assessments
                           </div>
                         </div>
-                        <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                        <div 
+                          className="p-3 rounded-xl group-hover:scale-110 transition-transform duration-300"
+                          style={{
+                            background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                          }}
+                        >
                           <FileText className="h-6 w-6 text-white" />
                         </div>
                       </div>
                     </CardContent>
                   </Card>
-                  <Card className="bg-gradient-to-br from-white to-emerald-50/50 border-0 shadow-lg hover:shadow-xl transition-all duration-300 group">
+                  <Card className="bg-gradient-to-br from-white to-blue-50/50 border-0 shadow-lg hover:shadow-xl transition-all duration-300 group">
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <div className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">
+                          <div 
+                            className="text-3xl font-bold mb-1"
+                            style={{
+                              background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)",
+                              WebkitBackgroundClip: "text",
+                              WebkitTextFillColor: "transparent"
+                            }}
+                          >
                             {
                               assessments.filter(
                                 (a) => a.assessmentType === "Free"
@@ -580,17 +601,29 @@ export default function AssessmentMonitoringTab() {
                             Free Assessments
                           </div>
                         </div>
-                        <div className="p-3 bg-gradient-to-br from-emerald-500 to-green-500 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                        <div 
+                          className="p-3 rounded-xl group-hover:scale-110 transition-transform duration-300"
+                          style={{
+                            background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                          }}
+                        >
                           <BookOpen className="h-6 w-6 text-white" />
                         </div>
                       </div>
                     </CardContent>
                   </Card>
-                  <Card className="bg-gradient-to-br from-white to-purple-50/50 border-0 shadow-lg hover:shadow-xl transition-all duration-300 group">
+                  <Card className="bg-gradient-to-br from-white to-blue-50/50 border-0 shadow-lg hover:shadow-xl transition-all duration-300 group">
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <div className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-violet-600 bg-clip-text text-transparent">
+                          <div 
+                            className="text-3xl font-bold mb-1"
+                            style={{
+                              background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)",
+                              WebkitBackgroundClip: "text",
+                              WebkitTextFillColor: "transparent"
+                            }}
+                          >
                             {
                               assessments.filter(
                                 (a) => a.assessmentType === "Paid"
@@ -601,7 +634,12 @@ export default function AssessmentMonitoringTab() {
                             Premium Assessments
                           </div>
                         </div>
-                        <div className="p-3 bg-gradient-to-br from-purple-500 to-violet-500 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                        <div 
+                          className="p-3 rounded-xl group-hover:scale-110 transition-transform duration-300"
+                          style={{
+                            background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                          }}
+                        >
                           <DollarSign className="h-6 w-6 text-white" />
                         </div>
                       </div>
@@ -626,7 +664,12 @@ export default function AssessmentMonitoringTab() {
                   <CardContent>
                     {isLoading ? (
                       <div className="flex flex-col justify-center items-center h-64 space-y-4">
-                        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600"></div>
+                        <div 
+                          className="animate-spin rounded-full h-12 w-12 border-4 border-t-blue-600"
+                          style={{
+                            borderColor: "rgb(55, 182, 241) rgb(55, 182, 241) rgb(55, 182, 241) rgb(2, 116, 186)"
+                          }}
+                        ></div>
                         <p className="text-slate-600 font-medium">
                           Loading assessments...
                         </p>
@@ -681,12 +724,10 @@ export default function AssessmentMonitoringTab() {
                                 </TableCell>
                                 <TableCell>
                                   <Badge
-                                    className={`text-xs font-bold rounded-full px-3 py-1 whitespace-nowrap ${
-                                      assessment.assessmentType?.toLowerCase() ===
-                                      "free"
-                                        ? "bg-green-100 text-green-600"
-                                        : "bg-red-100 text-red-600"
-                                    }`}
+                                    className="text-white text-xs font-bold rounded-full px-3 py-1 whitespace-nowrap"
+                                    style={{
+                                      background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                                    }}
                                   >
                                     {assessment.assessmentType}
                                   </Badge>

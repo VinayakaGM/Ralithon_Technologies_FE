@@ -546,8 +546,14 @@ export function AuthModal({
                   I have read and agree to the&nbsp;
                   <Link
                     href="/policy"
-                    className="text-blue-600 hover:underline"
+                    className="hover:underline"
                     target="_blank"
+                    style={{ 
+                      background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)",
+                      WebkitBackgroundClip: "text",
+                      backgroundClip: "text",
+                      color: "transparent"
+                    }}
                   >
                     Terms and Conditions
                   </Link>
@@ -560,7 +566,8 @@ export function AuthModal({
 
               <Button
                 type="submit"
-                className="bg-gradient-to-br from-blue-600 to-blue-800 w-full mt-2"
+                className="w-full mt-2 text-white"
+                style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}
                 disabled={
                   isLoadingForSignUp || !isCaptchaValid || !acceptedTerms
                 }
@@ -575,6 +582,12 @@ export function AuthModal({
                   type="button"
                   onClick={handleToggleMode}
                   className="p-0 h-auto text-sm underline"
+                  style={{ 
+                    background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)",
+                    WebkitBackgroundClip: "text",
+                    backgroundClip: "text",
+                    color: "transparent"
+                  }}
                 >
                   Sign-in
                 </Button>
@@ -625,7 +638,8 @@ export function AuthModal({
 
               <Button
                 type="submit"
-                className="bg-gradient-to-br from-blue-600 to-blue-800 w-full"
+                className="w-full text-white"
+                style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}
                 disabled={isLoadingForSignIn || !isCaptchaValid}
               >
                 {isLoadingForSignIn ? "Signing in..." : "Sign In"}
@@ -636,7 +650,13 @@ export function AuthModal({
                   variant="link"
                   type="button"
                   onClick={() => setShowForgotPasswordModal(true)}
-                  className="p-0 h-auto text-sm text-blue-600"
+                  className="p-0 h-auto text-sm"
+                  style={{ 
+                    background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)",
+                    WebkitBackgroundClip: "text",
+                    backgroundClip: "text",
+                    color: "transparent"
+                  }}
                 >
                   Forgot your password?
                 </Button>
@@ -648,6 +668,12 @@ export function AuthModal({
                   type="button"
                   onClick={handleToggleMode}
                   className="p-0 h-auto text-sm underline"
+                  style={{ 
+                    background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)",
+                    WebkitBackgroundClip: "text",
+                    backgroundClip: "text",
+                    color: "transparent"
+                  }}
                 >
                   Sign-up
                 </Button>
