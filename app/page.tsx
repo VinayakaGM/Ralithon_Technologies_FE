@@ -98,12 +98,12 @@ export default function RalithonWebsite() {
   const mentors = [
     {
       id: 1,
-      name: "Dr. Alok Choudhary",
+      name: "Dr. Rajesh Kumar",
       role: "Professor & HOD",
       department: "Electronics and Communication Department",
       college: "ABC Engineering College",
       experience: "15+ years teaching",
-      image: `/images/professor1.jpeg`,
+      image: `${IMAGE_URL}professor2.jpg`,
       bio: "Dr. Rajesh Kumar has been guiding students in computer science for over 15 years. His expertise in software engineering and database management has helped shape countless successful careers in the IT industry.",
       expertise: ["Software Engineering", "Database Systems", "Algorithms"],
       achievements: [
