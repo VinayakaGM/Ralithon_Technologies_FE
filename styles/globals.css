@@ -92,3 +92,19 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+
+/* Ensure proper tap targets on mobile */
+@media (max-width: 768px) {
+  button, 
+  [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Improve touch feedback */
+  .touch-manipulation {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+}
