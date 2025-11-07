@@ -25,8 +25,6 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
-  Award,
-  Briefcase,
   ClipboardList,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -49,7 +47,6 @@ import usersService, {
   Course,
   EnrolledCourse,
 } from "@/services/users.service";
-import AdminCourseService from "@/services/admin.service";
 import authService from "@/services/auth.service";
 import type {
   RazorpayCheckoutResponse,
@@ -72,9 +69,6 @@ export default function RalithonWebsite() {
   const [mounted, setMounted] = useState(false);
   const [userDetails, setUserDetails] = useState<any>(null);
   const [customMessage, setCustomMessage] = useState<string | undefined>();
-  const [courses, setCourses] = useState<any[]>([]);
-  const [loadingCourses, setLoadingCourses] = useState(false);
-  const [courseError, setCourseError] = useState<string | null>(null);
   const [selectedCourse, setSelectedCourse] = useState<any>(null);
   const [startDate, setStartDate] = useState("");
   const [showCourseModal, setShowCourseModal] = useState(false);
@@ -206,28 +200,6 @@ export default function RalithonWebsite() {
 
   const currentUser = mounted ? AuthService.getCurrentUser() : null;
 
-  // const fetchUserData = async () => {
-  //   const currentUser = localStorage.getItem("user");
-  //   if (!currentUser) return;
-
-  //   try {
-  //     const user = JSON.parse(currentUser);
-  //     if (user?.userId) {
-  //       setUserId(user.userId);
-  //       const response = await usersService.getEnrolledCourses(user.userId);
-  //       if (response.success) {
-  //         setEnrolledCourses(response.data);
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.error("Error:", error);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   fetchCourses();
-  // }, []);
-
   useEffect(() => {
     if (currentUser?.userId) {
       setUserId(currentUser.userId);
@@ -284,7 +256,7 @@ export default function RalithonWebsite() {
     {
       title: "Internship Opportunities",
       subtitle: "Gain hands-on experience with real projects and mentorship.",
-      image: "/images/internships.jpg",
+      image: "/images/internships.webp",
       cta1: "Apply Now",
       cta2: "Learn More",
       action1: () => console.log("Apply Now clicked"),
@@ -293,7 +265,7 @@ export default function RalithonWebsite() {
     {
       title: "IT Consulting Services",
       subtitle: "Delivering innovative IT solutions to help your business grow.",
-      image: "/images/itservices.jpg",
+      image: "/images/itservices.webp",
       cta1: "Explore Services",
       cta2: "Contact Us",
       action1: () => console.log("Explore Services clicked"),
@@ -302,7 +274,7 @@ export default function RalithonWebsite() {
     {
       title: "IT Services & Support",
       subtitle: "Managed IT, Cloud, and infrastructure support tailored for you.",
-      image: "/images/itconsultant.jpg",
+      image: "/images/itconsultant.webp",
       cta1: "Explore Services",
       cta2: "Contact Us",
       action1: () => console.log("Explore Services clicked"),
@@ -916,7 +888,49 @@ export default function RalithonWebsite() {
           <div className="text-center">
             <h3 className="text-2xl font-bold text-gray-900 mb-6">Ready to Transform Your Business?</h3>
             <p className="text-lg text-gray-700 mb-8 max-w-2xl mx-auto">
-              Partner with us for innovative solutions that drive growth and success. Let's discuss your project requirements.
+              Partner with us for innovative solutions that drive growth and success.
+              Explore our{' '}
+              <button
+                onClick={() => scrollToSection("services")}
+                className="font-semibold hover:opacity-80 transition-opacity cursor-pointer"
+                style={{
+                  background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                  color: "transparent"
+                }}
+              >
+                services
+              </button>
+              , learn from our{' '}
+              <button
+                onClick={() => scrollToSection("mentors")}
+                className="font-semibold hover:opacity-80 transition-opacity cursor-pointer"
+                style={{
+                  background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                  color: "transparent"
+                }}
+              >
+                expert guides
+              </button>
+              , or check out our{' '}
+              <button
+                onClick={() => router.push('/internships')}
+                className="font-semibold hover:opacity-80 transition-opacity cursor-pointer"
+                style={{
+                  background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                  color: "transparent"
+                }}
+              >
+                internship programs
+              </button>.
             </p>
             <Button
               onClick={() => scrollToSection("contact")}
