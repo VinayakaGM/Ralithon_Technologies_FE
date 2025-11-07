@@ -135,62 +135,62 @@ export function ModernContactForm({ onSubmit }: ModernContactFormProps) {
   const RequiredLabel = ({ name, label }: { name: string; label: string }) => (
     <label
       htmlFor={name}
-      className="block text-sm font-medium text-gray-700 mb-1"
+      className="block text-sm font-medium text-slate-700 mb-1"
     >
       {label} <span className="text-red-500">*</span>
     </label>
   );
 
   return (
-    <div className="bg-white rounded-3xl shadow-2xl overflow-hidden max-w-6xl mx-auto">
+    <div className="bg-white rounded-3xl shadow-xl overflow-hidden max-w-6xl mx-auto border border-gray-200">
       <div className="grid lg:grid-cols-5 min-h-[400px]">
-        <div className="lg:col-span-2 bg-gradient-to-br from-gray-800 to-gray-900 p-6 lg:p-8 text-gray-300 relative overflow-hidden">
-          <div className="absolute top-4 right-4 w-20 h-20 border-2 border-gray-600 rounded-full"></div>
-          <div className="absolute top-6 right-6 w-16 h-16 border-2 border-gray-700 rounded-full"></div>
+        {/* Left Side - Contact Info */}
+        <div className="lg:col-span-2 bg-gradient-to-br from-slate-700 to-slate-800 p-6 lg:p-8 text-white relative overflow-hidden border-r border-slate-600">
+          <div className="absolute top-4 right-4 w-20 h-20 border-2 border-cyan-400/30 rounded-full"></div>
+          <div className="absolute top-6 right-6 w-16 h-16 border-2 border-blue-400/30 rounded-full"></div>
 
           <div className="relative z-10 h-full flex flex-col justify-center">
             <h2 className="text-2xl font-bold mb-4 text-white">
-              Contact Us
+              Get In Touch
             </h2>
-            <p className="text-base lg:text-lg text-gray-400 mb-6 leading-relaxed">
-              Not sure what you need? The team at Ralithon Technologies will be
-              happy to listen to you and suggest solutions you hadn't
-              considered.
+            <div className="w-12 h-1 bg-gradient-to-r from-cyan-400 to-blue-400 rounded-full mb-6"></div>
+            <p className="text-base lg:text-lg text-slate-200 mb-8 leading-relaxed">
+              Have questions about our programs? Our team is here to help you find the right path for your career growth.
             </p>
 
             <div className="space-y-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center">
-                  <Mail className="h-5 w-5 text-blue-400" />
+              <div className="flex items-center space-x-3 p-3 bg-slate-600/30 rounded-lg border border-slate-500/30 hover:bg-slate-600/40 transition-colors">
+                <div className="w-10 h-10 bg-cyan-500/20 rounded-full flex items-center justify-center border border-cyan-400/40">
+                  <Mail className="h-5 w-5 text-cyan-300" />
                 </div>
                 <div>
-                  <p className="text-gray-400 text-xs">Email</p>
+                  <p className="text-slate-300 text-xs">Email</p>
                   <p className="text-white font-medium text-sm">
                     career@ralithontechnologies.in
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center">
-                  <Phone className="h-5 w-5 text-blue-400" />
+              <div className="flex items-center space-x-3 p-3 bg-slate-600/30 rounded-lg border border-slate-500/30 hover:bg-slate-600/40 transition-colors">
+                <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center border border-blue-400/40">
+                  <Phone className="h-5 w-5 text-blue-300" />
                 </div>
                 <div>
-                  <p className="text-gray-400 text-xs">Support</p>
+                  <p className="text-slate-300 text-xs">Phone</p>
                   <p className="text-white font-medium text-sm">
                     +91 7999751661
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center">
-                  <MapPin className="h-5 w-5 text-blue-400" />
+              <div className="flex items-center space-x-3 p-3 bg-slate-600/30 rounded-lg border border-slate-500/30 hover:bg-slate-600/40 transition-colors">
+                <div className="w-10 h-10 bg-cyan-500/20 rounded-full flex items-center justify-center border border-cyan-400/40">
+                  <MapPin className="h-5 w-5 text-cyan-300" />
                 </div>
                 <div>
-                  <p className="text-gray-400 text-xs">Address</p>
+                  <p className="text-slate-300 text-xs">Location</p>
                   <p className="text-white font-medium text-sm">
-                  Indore, Madhya Pradesh
+                    Indore, Madhya Pradesh
                   </p>
                 </div>
               </div>
@@ -198,12 +198,13 @@ export function ModernContactForm({ onSubmit }: ModernContactFormProps) {
           </div>
         </div>
 
-        <div className="lg:col-span-3 p-6 lg:p-8 bg-gray-50">
+        {/* Right Side - Form */}
+        <div className="lg:col-span-3 p-6 lg:p-8 bg-slate-50">
           <div className="max-w-2xl">
-            <h3 className="text-2xl font-bold text-gray-800 mb-2">
-              We'd love to hear from you!
+            <h3 className="text-2xl font-bold text-slate-800 mb-2">
+              Send us a message
             </h3>
-            <p className="text-lg text-gray-600 mb-6">Let's get in touch</p>
+            <p className="text-slate-600 mb-6">We'll get back to you within 24 hours</p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid md:grid-cols-2 gap-4">
@@ -216,25 +217,21 @@ export function ModernContactForm({ onSubmit }: ModernContactFormProps) {
                     value={formData.fullName}
                     onChange={handleChange}
                     className={`w-full px-3 py-2 border ${
-                      errors.fullName ? "border-red-500" : "border-gray-200"
-                    } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white`}
+                      errors.fullName ? "border-red-500" : "border-gray-300"
+                    } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-colors`}
                     placeholder="Enter your full name"
-                    style={{ fontSize: "13px" }}
                   />
                   {errors.fullName && (
-                    <p
-                      className="mt-1 text-red-600"
-                      style={{ fontSize: "12px" }}
-                    >
+                    <p className="mt-1 text-red-600 text-sm">
                       {errors.fullName}
                     </p>
                   )}
                 </div>
 
                 <div>
-                  <RequiredLabel name="phone" label="Phone number" />
+                  <RequiredLabel name="phone" label="Phone Number" />
                   <div className="flex">
-                    <div className="px-3 py-2 border border-gray-200 rounded-l-lg bg-gray-100 text-sm flex items-center">
+                    <div className="px-3 py-2 border border-gray-300 rounded-l-lg bg-gray-50 text-gray-700 text-sm flex items-center font-medium border-r-0">
                       +91
                     </div>
                     <input
@@ -245,17 +242,13 @@ export function ModernContactForm({ onSubmit }: ModernContactFormProps) {
                       onChange={handleChange}
                       maxLength={10}
                       className={`flex-1 px-3 py-2 border ${
-                        errors.phone ? "border-red-500" : "border-gray-200"
-                      } border-l-0 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white`}
-                      placeholder="Enter your phone"
-                      style={{ fontSize: "13px" }}
+                        errors.phone ? "border-red-500" : "border-gray-300"
+                      } rounded-r-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-colors`}
+                      placeholder="Enter your phone number"
                     />
                   </div>
                   {errors.phone && (
-                    <p
-                      className="mt-1 text-red-600"
-                      style={{ fontSize: "12px" }}
-                    >
+                    <p className="mt-1 text-red-600 text-sm">
                       {errors.phone}
                     </p>
                   )}
@@ -264,7 +257,7 @@ export function ModernContactForm({ onSubmit }: ModernContactFormProps) {
 
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <RequiredLabel name="email" label="Email" />
+                  <RequiredLabel name="email" label="Email Address" />
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <Mail className="h-4 w-4 text-gray-400" />
@@ -276,24 +269,20 @@ export function ModernContactForm({ onSubmit }: ModernContactFormProps) {
                       value={formData.email}
                       onChange={handleChange}
                       className={`w-full pl-9 pr-3 py-2 border ${
-                        errors.email ? "border-red-500" : "border-gray-200"
-                      } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white`}
-                      placeholder="abc@example.com"
-                      style={{ fontSize: "13px" }}
+                        errors.email ? "border-red-500" : "border-gray-300"
+                      } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-colors`}
+                      placeholder="your.email@example.com"
                     />
                   </div>
                   {errors.email && (
-                    <p
-                      className="mt-1 text-red-600"
-                      style={{ fontSize: "12px" }}
-                    >
+                    <p className="mt-1 text-red-600 text-sm">
                       {errors.email}
                     </p>
                   )}
                 </div>
 
                 <div>
-                  <RequiredLabel name="address" label="Address" />
+                  <RequiredLabel name="address" label="Your Address" />
                   <input
                     type="text"
                     id="address"
@@ -301,16 +290,12 @@ export function ModernContactForm({ onSubmit }: ModernContactFormProps) {
                     value={formData.address}
                     onChange={handleChange}
                     className={`w-full px-3 py-2 border ${
-                      errors.address ? "border-red-500" : "border-gray-200"
-                    } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white`}
-                    placeholder="Enter your address"
-                    style={{ fontSize: "13px" }}
+                      errors.address ? "border-red-500" : "border-gray-300"
+                    } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-colors`}
+                    placeholder="Enter your complete address"
                   />
                   {errors.address && (
-                    <p
-                      className="mt-1 text-red-600"
-                      style={{ fontSize: "12px" }}
-                    >
+                    <p className="mt-1 text-red-600 text-sm">
                       {errors.address}
                     </p>
                   )}
@@ -326,13 +311,12 @@ export function ModernContactForm({ onSubmit }: ModernContactFormProps) {
                   value={formData.message}
                   onChange={handleChange}
                   className={`w-full px-3 py-2 border ${
-                    errors.message ? "border-red-500" : "border-gray-200"
-                  } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white resize-none`}
-                  placeholder="How can we help you?"
-                  style={{ fontSize: "13px" }}
+                    errors.message ? "border-red-500" : "border-gray-300"
+                  } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white resize-none transition-colors`}
+                  placeholder="Tell us about your requirements or questions..."
                 />
                 {errors.message && (
-                  <p className="mt-1 text-red-600" style={{ fontSize: "12px" }}>
+                  <p className="mt-1 text-red-600 text-sm">
                     {errors.message}
                   </p>
                 )}
@@ -341,16 +325,19 @@ export function ModernContactForm({ onSubmit }: ModernContactFormProps) {
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="bg-gradient-to-br from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-900 text-white px-6 py-2 rounded-lg font-medium items-center space-x-2 transition-all duration-200 text-sm"
+                className="w-full text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5"
+                style={{
+                  background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                }}
               >
                 {isSubmitting ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    <span>Sending...</span>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    <span>Sending your message...</span>
                   </>
                 ) : (
                   <>
-                    <Send className="h-4 w-4" />
+                    <Send className="h-4 w-4 mr-2" />
                     <span>Send Message</span>
                   </>
                 )}

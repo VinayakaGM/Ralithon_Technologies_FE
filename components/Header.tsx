@@ -23,7 +23,7 @@ interface HeaderProps {
   activeSection: string;
   setActiveSection: (section: string) => void;
   setShowAuthModal: (show: boolean) => void;
-  setAuthMode: (mode: "signin" | "signup") => void; // New prop
+  setAuthMode: (mode: "signin" | "signup") => void;
   scrollToSection: (sectionId: string) => void;
 }
 
@@ -31,7 +31,7 @@ export function Header({
   activeSection,
   setActiveSection,
   setShowAuthModal,
-  setAuthMode, // New prop
+  setAuthMode,
   scrollToSection,
 }: HeaderProps) {
   const { logout } = useSession();
@@ -47,6 +47,7 @@ export function Header({
   const [mounted, setMounted] = useState(false);
 
   const isHomePage = pathName === "/";
+  const isInternshipsPage = pathName === "/internships";
 
   useEffect(() => {
     setMounted(true);
@@ -134,6 +135,17 @@ export function Header({
     setMobileMenuOpen(false);
   };
 
+  // FIXED: Always navigate to internships page, never scroll to section
+  const handleInternshipsClick = () => {
+    router.push("/internships");
+    setMobileMenuOpen(false);
+  };
+
+   const handleContactUsClick = () => {
+    router.push("/contact");
+    setMobileMenuOpen(false);
+  };
+
   const handleDashboardRedirect = async (e: React.MouseEvent) => {
     e.preventDefault();
     if (!currentUser || isRedirecting) return;
@@ -162,11 +174,15 @@ export function Header({
   };
 
   const navItems = [
-    { id: "home", label: "Home" },
-    { id: "about", label: "About" },
-    { id: "services", label: "Services" },
-    { id: "internships", label: "Internship & Programs" },
-    { id: "contact", label: "Contact" },
+    { id: "home", label: "Home", onClick: () => handleNavigation("home") },
+    { id: "about", label: "About", onClick: () => handleNavigation("about") },
+    { id: "services", label: "Services", onClick: () => handleNavigation("services") },
+    { 
+      id: "internships", 
+      label: "Internship & Programs", 
+      onClick: handleInternshipsClick, // Always goes to separate page
+    },
+    { id: "contact", label: "Contact", onClick: handleContactUsClick },
   ];
 
   const handleSignInClick = () => {
@@ -177,6 +193,16 @@ export function Header({
   const handleSignUpClick = () => {
     setAuthMode("signup");
     setShowAuthModal(true);
+  };
+
+  // Helper function to determine if a nav item is active
+  const isNavItemActive = (item: any) => {
+    if (item.id === "internships") {
+      return isInternshipsPage; // Only active when on internships page
+    }else if (item.id === "contact") {
+      return pathName === "/contact"; // Only active when on contact page
+    }
+    return isHomePage && activeSection === item.id;
   };
 
   return (
@@ -199,14 +225,14 @@ export function Header({
             {navItems.map((item) => (
               <button
                 key={item.id}
-                onClick={() => handleNavigation(item.id)}
+                onClick={item.onClick}
                 className={`relative px-1 py-2 font-medium transition-all duration-300 ${
-                  activeSection === item.id && isHomePage
+                  isNavItemActive(item)
                     ? "text-transparent bg-clip-text"
                     : "text-gray-700 hover:text-blue-600"
                 }`}
                 style={
-                  activeSection === item.id && isHomePage
+                  isNavItemActive(item)
                     ? { 
                         background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)",
                         WebkitBackgroundClip: "text",
@@ -216,7 +242,7 @@ export function Header({
                 }
               >
                 {item.label}
-                {activeSection === item.id && isHomePage && (
+                {isNavItemActive(item) && (
                   <div 
                     className="absolute bottom-0 left-0 right-0 h-0.5"
                     style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}
@@ -348,14 +374,14 @@ export function Header({
             {navItems.map((item) => (
               <button
                 key={item.id}
-                onClick={() => handleNavigation(item.id)}
+                onClick={item.onClick}
                 className={`block w-full text-left px-4 py-3 rounded-lg font-medium ${
-                  activeSection === item.id && isHomePage
+                  isNavItemActive(item)
                     ? "text-transparent bg-clip-text"
                     : "text-gray-700 hover:bg-gray-100"
                 }`}
                 style={
-                  activeSection === item.id && isHomePage
+                  isNavItemActive(item)
                     ? { 
                         background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)",
                         WebkitBackgroundClip: "text",
@@ -366,7 +392,7 @@ export function Header({
               >
                 {item.label}
               </button>
-            ))}{" "}
+            ))}
             {currentUser && (
               <>
                 <button

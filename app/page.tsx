@@ -206,63 +206,33 @@ export default function RalithonWebsite() {
 
   const currentUser = mounted ? AuthService.getCurrentUser() : null;
 
-  const fetchUserData = async () => {
-    const currentUser = localStorage.getItem("user");
-    if (!currentUser) return;
+  // const fetchUserData = async () => {
+  //   const currentUser = localStorage.getItem("user");
+  //   if (!currentUser) return;
 
-    try {
-      const user = JSON.parse(currentUser);
-      if (user?.userId) {
-        setUserId(user.userId);
-        const response = await usersService.getEnrolledCourses(user.userId);
-        if (response.success) {
-          setEnrolledCourses(response.data);
-        }
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  };
+  //   try {
+  //     const user = JSON.parse(currentUser);
+  //     if (user?.userId) {
+  //       setUserId(user.userId);
+  //       const response = await usersService.getEnrolledCourses(user.userId);
+  //       if (response.success) {
+  //         setEnrolledCourses(response.data);
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error("Error:", error);
+  //   }
+  // };
 
-  useEffect(() => {
-    fetchCourses();
-  }, []);
+  // useEffect(() => {
+  //   fetchCourses();
+  // }, []);
 
   useEffect(() => {
     if (currentUser?.userId) {
       setUserId(currentUser.userId);
     }
   }, [currentUser]);
-
-  const fetchCourses = async () => {
-    setLoadingCourses(true);
-    setCourseError(null);
-    try {
-      const response = await AdminCourseService.getAllCourses();
-
-      if (!response) {
-        throw new Error("No response from server");
-      }
-
-      if (response.success && Array.isArray(response.data)) {
-        const activeCourses = response.data.filter(
-          (course) => course.status === true
-        );
-        setCourses(activeCourses);
-      } else {
-        throw new Error(response.message || "Invalid course data format");
-      }
-      await fetchUserData();
-    } catch (error) {
-      setCourseError(
-        error instanceof Error ? error.message : "An unknown error occurred"
-      );
-      console.error("Failed to fetch courses:", error);
-      setCourses([]);
-    } finally {
-      setLoadingCourses(false);
-    }
-  };
 
   useEffect(() => {
     const fetchAndStoreUserDetails = async () => {
@@ -342,7 +312,7 @@ export default function RalithonWebsite() {
 
   const faqData = [
     {
-      question: "What services does Ralithon Technologies offer?",
+      question: "What services does Ralithon offer?",
       answer:
         "We offer comprehensive IT services including web development, mobile app development, AI & ML solutions, cloud engineering, and various internship programs to help businesses grow and succeed in the digital world.",
     },
@@ -386,9 +356,7 @@ export default function RalithonWebsite() {
         "home",
         "about",
         "services",
-        "internships",
         "mentors",
-        "contact",
         "faq",
       ];
       const scrollPosition = window.scrollY + 100;
@@ -849,7 +817,7 @@ export default function RalithonWebsite() {
         <div className="container mx-auto px-4 max-w-7xl">
           {/* Section Header */}
           <div className="text-center mb-16 animate-fade-in">
-            <h2 className="text-4xl font-extrabold text-gray-900 mb-4 tracking-tight">About Ralithon Technologies</h2>
+            <h2 className="text-4xl font-extrabold text-gray-900 mb-4 tracking-tight">About Ralithon</h2>
             <div
               className="w-28 h-1 mx-auto mb-6 rounded-full"
               style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}
@@ -874,7 +842,7 @@ export default function RalithonWebsite() {
                   <h3 className="text-2xl font-semibold text-gray-900">Leading IT Solutions Provider</h3>
                 </div>
                 <p className="text-gray-700 mb-4 leading-relaxed">
-                  Ralithon Technologies is a premier IT company dedicated to delivering innovative and reliable technology solutions. We specialize in transforming businesses through cutting-edge technology and digital innovation.
+                  Ralithon is a premier IT company dedicated to delivering innovative and reliable technology solutions. We specialize in transforming businesses through cutting-edge technology and digital innovation.
                 </p>
                 <p className="text-gray-700 leading-relaxed">
                   Our comprehensive services span web development, mobile applications, artificial intelligence, machine learning, and cloud engineering. We follow industry best practices and use the latest technologies to ensure our clients receive world-class services.
@@ -1032,131 +1000,6 @@ export default function RalithonWebsite() {
               </Card>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* Internships Section */}
-      <section id="courses" className="py-10 bg-gradient-to-b from-white to-gray-50">
-        <div className="container mx-auto px-4">
-          {/* Section Title */}
-          <div
-            data-animate
-            id="internships"
-            className={`text-center mb-16 transition-all duration-1000 ${visibleElements.has("internships")
-              ? "translate-y-0 opacity-100"
-              : "translate-y-8 opacity-0"
-              }`}
-          >
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">
-              Internship & Programs
-            </h2>
-            <div className="w-24 h-1 mx-auto rounded-full bg-gradient-to-r from-sky-400 to-sky-700" />
-            <p className="text-gray-600 text-lg mt-4 max-w-2xl mx-auto">
-              Gain real-world skills with curated industry-ready programs.
-            </p>
-          </div>
-
-          {/* Loader */}
-          {loadingCourses ? (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-              {[1, 2, 3, 4].map(i => (
-                <Card key={i} className="animate-pulse rounded-2xl shadow-sm">
-                  <div className="h-48 bg-gray-200 rounded-t-2xl"></div>
-                  <div className="p-6 space-y-3">
-                    <div className="h-6 bg-gray-200 rounded w-3/4" />
-                    <div className="h-4 bg-gray-200 rounded w-full" />
-                    <div className="h-4 bg-gray-200 rounded w-5/6" />
-                    <div className="h-10 bg-gray-200 rounded mt-4" />
-                  </div>
-                </Card>
-              ))}
-            </div>
-          ) : courseError ? (
-            <div className="text-center py-12">
-              <p className="text-red-500 font-medium">{courseError}</p>
-              <Button onClick={fetchCourses} className="mt-4">Retry</Button>
-            </div>
-          ) : courses.length === 0 ? (
-            <div className="text-center py-12 text-gray-600 font-medium">
-              No courses available at the moment.
-            </div>
-          ) : (
-            <>
-              {/* Courses Grid */}
-              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-                {courses.map((course, index) => (
-                  <Card
-                    key={index}
-                    data-animate
-                    id={`course-${index}`}
-                    style={{ animationDelay: `${index * 120}ms` }}
-                    className={`overflow-hidden rounded-2xl bg-white shadow-sm border border-gray-100 transition-all duration-500 hover:shadow-2xl hover:-translate-y-1`}
-                  >
-                    <div className="relative w-full h-40 bg-white rounded-t-xl">
-                      <Image
-                        src={course.courseImageUrl}
-                        alt={course.courseName}
-                        fill
-                        className="object-contain p-6"
-                        loading="lazy"
-                      />
-                      <div className="absolute top-4 left-4 bg-white rounded-full p-2 shadow-md">
-                        <BookOpen className="h-7 w-7 text-sky-700" />
-                      </div>
-                    </div>
-                    <CardHeader className="pb-1">
-                      <CardTitle className="text-lg font-semibold text-gray-800 text-center line-clamp-1">
-                        {course.courseName}
-                      </CardTitle>
-                    </CardHeader>
-
-                    <CardContent className="space-y-5 p-5">
-                      {/* Description */}
-                      <div className="h-20 overflow-y-auto pr-2 text-sm text-gray-600 leading-relaxed custom-scroll">
-                        {course.description || "No description available"}
-                      </div>
-
-                      {/* Duration + Badge */}
-                      <div className="flex justify-between text-sm font-medium">
-                        <span className="text-gray-700">
-                          Duration: <span className="font-normal">
-                            {course.durationInWeek ? `${course.durationInWeek} weeks` : "Flexible"}
-                          </span>
-                        </span>
-                      </div>
-
-                      {/* Button */}
-                      <Button
-                        size="sm"
-                        className="w-full text-sm py-2 rounded-lg font-semibold shadow-md bg-gradient-to-r from-sky-400 to-sky-700 hover:opacity-90"
-                        onClick={() => {
-                          setSelectedCourse(course);
-                          currentUser ? setShowCourseModal(true) : (setShowAuthModal(true), setCustomMessage(`Please register or sign in to enroll in ${course.courseName}`));
-                        }}
-                      >
-                        Apply Now
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-
-              {/* Bottom Text */}
-              <div
-                data-animate
-                id="internships"
-                className={`text-center transition-all duration-1000 ${visibleElements.has("internships")
-                  ? "translate-y-0 opacity-100"
-                  : "translate-y-8 opacity-0"
-                  }`}
-              >
-                {/* <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                  Accelerate your learning with hands-on curriculum, real industry mentors,
-                  and practical exposure to elevate your career opportunities.
-                </p> */}
-              </div>
-            </>
-          )}
         </div>
       </section>
       {selectedCourse && (
@@ -1365,7 +1208,7 @@ export default function RalithonWebsite() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-2xl font-bold text-gray-800 mb-6">Our Guides</h2>
-            <div className="w-24 h-1 mx-auto rounded-full bg-gradient-to-r from-sky-400 to-sky-700" />
+            <div className="w-24 h-1 mx-auto rounded-full bg-gradient-to-r from-sky-400 to-sky-700 mb-6" />
             <p className="text-gray-500 max-w-md mx-auto">Academic excellence meets industry insight</p>
           </div>
 
@@ -1739,7 +1582,6 @@ export default function RalithonWebsite() {
           </div>
         </div>
       )}
-
       {showHiringModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
           <div className="w-full max-w-sm bg-white rounded-xl shadow-lg border border-gray-200 relative animate-in fade-in duration-200">
@@ -1747,7 +1589,7 @@ export default function RalithonWebsite() {
             {/* Close Button */}
             <button
               onClick={handleCloseHiringModal}
-              className="absolute top-2 right-2 p-2 text-gray-500 hover:text-gray-700 rounded-md"
+              className="absolute top-3 right-3 p-3 text-gray-500 hover:text-gray-700 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-400 touch-manipulation"
               aria-label="Close"
             >
               <X className="h-5 w-5" />
@@ -1775,7 +1617,6 @@ export default function RalithonWebsite() {
                 Gain hands-on experience & earn certification through evaluation.
               </p>
 
-              {/* Line */}
               <hr className="border-gray-200 mb-5" />
 
               {/* Internship Section */}
@@ -1804,9 +1645,9 @@ export default function RalithonWebsite() {
               <button
                 onClick={() => {
                   handleCloseHiringModal();
-                  scrollToSection("internships");
+                  router.push("/internships");
                 }}
-                className="w-full text-white text-sm font-medium py-2.5 rounded-lg hover:shadow-md transition"
+                className="w-full text-white text-sm font-medium py-3 rounded-lg hover:shadow-md transition active:scale-95 touch-manipulation"
                 style={{
                   background: "linear-gradient(270deg, rgb(55,182,241) 0%, rgb(2,116,186) 100%)"
                 }}
@@ -1814,9 +1655,10 @@ export default function RalithonWebsite() {
                 Apply for Internship
               </button>
 
+              {/* Cancel Button */}
               <button
                 onClick={handleCloseHiringModal}
-                className="w-full mt-2 text-gray-600 text-xs hover:underline"
+                className="w-full mt-3 text-gray-700 text-sm py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition touch-manipulation"
               >
                 Cancel
               </button>
@@ -1824,7 +1666,6 @@ export default function RalithonWebsite() {
           </div>
         </div>
       )}
-
 
       {/* Scroll to Top Button - Bottom Right Corner */}
       {showScrollTop && (
