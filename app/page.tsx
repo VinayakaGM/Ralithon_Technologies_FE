@@ -92,31 +92,30 @@ export default function RalithonWebsite() {
   const mentors = [
     {
       id: 1,
-      name: "Dr. Rajesh Kumar",
-      role: "Professor & HOD",
-      department: "Electronics and Communication Department",
-      college: "ABC Engineering College",
+      name: "Dr. Alok Choudhary",
+      role: "Associate Prof.",
+      department: "Mechanical Engineering ",
+      college: "Dr. A.P.J. Abdul Kalam University, Indore",
       experience: "15+ years teaching",
-      image: `${IMAGE_URL}professor2.jpg`,
+      image: `/images/professor1.webp`,
       bio: "Dr. Rajesh Kumar has been guiding students in computer science for over 15 years. His expertise in software engineering and database management has helped shape countless successful careers in the IT industry.",
       expertise: ["Software Engineering", "Database Systems", "Algorithms"],
       achievements: [
-        "Guided 50+ student projects",
-        "Published 20+ research papers",
+        "Guided Several Master Degree projects ",
+        "Full Stack Development Expert",
         "Industry-Academia Collaboration Expert",
-        "Student Mentor Award Winner"
       ],
       words: "The foundation of success in technology lies in strong fundamentals and continuous learning. Your dedication to mastering core concepts will take you far in this ever-evolving field.",
-      impact: "Dr. Kumar's guidance helped us establish strong development practices and understand the importance of scalable architecture in our projects."
+      impact: "Dr. Alok Choudhary provided invaluable guidance in integrating and implementing various technological components within our academic framework. His vision and expertise have effectively bridged the gap between technology and education, significantly contributing to our professional and career development."
     },
     {
       id: 2,
-      name: "Prof. Sunita Sharma",
+      name: "Prof Rahul Sen",
       role: "Associate Professor",
       department: "Information Technology",
-      college: "XYZ Institute of Technology",
+      college: "Geetanjali Institute of Technical Studies, Udaipur",
       experience: "12+ years teaching",
-      image: `${IMAGE_URL}professor2.jpg`,
+      image: `/images/professor2.webp`,
       bio: "Prof. Sunita Sharma specializes in web technologies and mobile application development. Her practical approach to teaching has helped students bridge the gap between academic learning and industry requirements.",
       expertise: ["Web Technologies", "Mobile Development", "UI/UX Design"],
       achievements: [
@@ -130,12 +129,12 @@ export default function RalithonWebsite() {
     },
     {
       id: 3,
-      name: "Dr. Amit Patel",
+      name: "Hardik Patel",
       role: "Senior Professor",
       department: "Artificial Intelligence",
       college: "PQR College of Engineering",
       experience: "18+ years teaching",
-      image: `${IMAGE_URL}professor3.jpg`,
+      image: `/images/professor3.webp`,
       bio: "With nearly two decades of experience in AI and machine learning, Dr. Amit Patel has been at the forefront of introducing cutting-edge technologies to students. His research in neural networks has been widely recognized.",
       expertise: ["Machine Learning", "Neural Networks", "Data Science"],
       achievements: [
@@ -749,7 +748,7 @@ export default function RalithonWebsite() {
             <p className="text-base sm:text-lg md:text-xl text-white/90 mb-6 transition-all duration-[2500ms] ease-in-out">
               {slides[slideIndex].subtitle}
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+            {/* <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
               <button className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition"
                 style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}>
                 {slides[slideIndex].cta1}
@@ -770,7 +769,7 @@ export default function RalithonWebsite() {
                 </span>
               </button>
 
-            </div>
+            </div> */}
           </div>
 
           <div className="hidden md:block md:flex-1">
@@ -1221,7 +1220,7 @@ export default function RalithonWebsite() {
       <section id="mentors" className="py-10 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">Our Guides</h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">Our Mentors</h2>
             <div className="w-24 h-1 mx-auto rounded-full bg-gradient-to-r from-sky-400 to-sky-700 mb-6" />
             <p className="text-gray-500 max-w-md mx-auto">Academic excellence meets industry insight</p>
           </div>
