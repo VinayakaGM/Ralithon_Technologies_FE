@@ -175,14 +175,14 @@ export default function ContactPage() {
             link: "tel:+917999751661",
             color: "from-green-500 to-emerald-500"
         },
-        {
-            icon: <MapPin className="h-6 w-6" />,
-            title: "Visit Us",
-            description: "Come say hello at our office",
-            details: "Indore, Madhya Pradesh",
-            link: "https://maps.google.com/?q=Indore,Madhya+Pradesh",
-            color: "from-purple-500 to-pink-500"
-        }
+        // {
+        //     icon: <MapPin className="h-6 w-6" />,
+        //     title: "Visit Us",
+        //     description: "Come say hello at our office",
+        //     details: "Indore, Madhya Pradesh",
+        //     link: "https://maps.google.com/?q=Indore,Madhya+Pradesh",
+        //     color: "from-purple-500 to-pink-500"
+        // }
     ];
 
     const companyInfo = [
@@ -241,13 +241,13 @@ export default function ContactPage() {
             <section className="py-12 bg-white">
                 <div className="container mx-auto px-4">
                     <div className="text-center mb-10">
-                        <h2 className="text-3xl font-bold text-gray-900 mb-2">Asking Here</h2>
+                        <h2 className="text-3xl font-bold text-gray-900 mb-2">Ways to Reach Us</h2>
                         <p className="text-gray-600 text-base">
                             Choose the most convenient way to get in touch with our team
                         </p>
                     </div>
 
-                    <div className="grid md:grid-cols-3 sm:grid-cols-2 gap-6">
+                    <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
                         {contactInfo.map((item, index) => (
                             <a
                                 key={index}
@@ -469,7 +469,7 @@ export default function ContactPage() {
                                             disabled={isSubmitting}
                                             className="w-full text-white px-6 py-4 rounded-lg font-semibold transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5 text-lg"
                                             style={{
-                                                background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                                                background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)"
                                             }}
                                         >
                                             {isSubmitting ? (
@@ -510,7 +510,7 @@ export default function ContactPage() {
                             <Button
                                 className="mt-4 text-white"
                                 style={{
-                                    background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                                    background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)"
                                 }}
                                 onClick={() => window.open('https://maps.google.com/?q=Indore,Madhya+Pradesh', '_blank')}
                             >

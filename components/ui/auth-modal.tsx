@@ -549,7 +549,7 @@ export function AuthModal({
                     className="hover:underline"
                     target="_blank"
                     style={{ 
-                      background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)",
+                      background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)",
                       WebkitBackgroundClip: "text",
                       backgroundClip: "text",
                       color: "transparent"
@@ -567,7 +567,7 @@ export function AuthModal({
               <Button
                 type="submit"
                 className="w-full mt-2 text-white"
-                style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}
+                style={{ background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)" }}
                 disabled={
                   isLoadingForSignUp || !isCaptchaValid || !acceptedTerms
                 }
@@ -583,7 +583,7 @@ export function AuthModal({
                   onClick={handleToggleMode}
                   className="p-0 h-auto text-sm underline"
                   style={{ 
-                    background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)",
+                    background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)",
                     WebkitBackgroundClip: "text",
                     backgroundClip: "text",
                     color: "transparent"
@@ -639,7 +639,7 @@ export function AuthModal({
               <Button
                 type="submit"
                 className="w-full text-white"
-                style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}
+                style={{ background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)" }}
                 disabled={isLoadingForSignIn || !isCaptchaValid}
               >
                 {isLoadingForSignIn ? "Signing in..." : "Sign In"}
@@ -652,7 +652,7 @@ export function AuthModal({
                   onClick={() => setShowForgotPasswordModal(true)}
                   className="p-0 h-auto text-sm"
                   style={{ 
-                    background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)",
+                    background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)",
                     WebkitBackgroundClip: "text",
                     backgroundClip: "text",
                     color: "transparent"
@@ -669,7 +669,7 @@ export function AuthModal({
                   onClick={handleToggleMode}
                   className="p-0 h-auto text-sm underline"
                   style={{ 
-                    background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)",
+                    background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)",
                     WebkitBackgroundClip: "text",
                     backgroundClip: "text",
                     color: "transparent"
