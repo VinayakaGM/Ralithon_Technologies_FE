@@ -266,7 +266,11 @@ export default function ContactPage() {
                                         {item.title}
                                     </h3>
                                     <p className="text-sm text-gray-600 leading-snug">{item.description}</p>
-                                    <p className="text-sm font-medium text-gray-900 mt-1">{item.details}</p>
+                                    <p className="text-sm font-medium text-gray-900 mt-1 break-all">
+                                        {item.details}
+                                    </p>
+
+
                                 </div>
                             </a>
                         ))}
