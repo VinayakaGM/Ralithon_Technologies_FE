@@ -73,7 +73,7 @@ export default function InternshipsPage() {
             id: 1,
             name: "Dr. Alok Choudhary",
             role: "Director - Academic Strategy & Student Development",
-            experience: "10+ Years in EdTech",
+            experience: "16+ Years in EdTech",
             company: "Ralithon Technologies",
             location: "Indore, M.P.",
             image: "/images/professor1.webp", 

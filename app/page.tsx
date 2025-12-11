@@ -28,6 +28,7 @@ import {
   Award,
   Briefcase,
   ClipboardList,
+  MapPin,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -98,78 +99,38 @@ export default function RalithonWebsite() {
   const mentors = [
     {
       id: 1,
-      name: "Dr. Rajesh Kumar",
-      role: "Professor & HOD",
-      department: "Electronics and Communication Department",
-      college: "ABC Engineering College",
-      experience: "15+ years teaching",
-      image: `${IMAGE_URL}professor2.jpg`,
-      bio: "Dr. Rajesh Kumar has been guiding students in computer science for over 15 years. His expertise in software engineering and database management has helped shape countless successful careers in the IT industry.",
-      expertise: ["Software Engineering", "Database Systems", "Algorithms"],
-      achievements: [
-        "Guided 50+ student projects",
-        "Published 20+ research papers",
-        "Industry-Academia Collaboration Expert",
-        "Student Mentor Award Winner"
-      ],
-      words: "The foundation of success in technology lies in strong fundamentals and continuous learning. Your dedication to mastering core concepts will take you far in this ever-evolving field.",
-      impact: "Dr. Kumar's guidance helped us establish strong development practices and understand the importance of scalable architecture in our projects."
+      name: "Dr. Alok Choudhary",
+      role: "Director - Academic Strategy & Student Development",
+      experience: "16+ Years in EdTech",
+      company: "Ralithon Technologies",
+      location: "Indore, M.P.",
+      image: "/images/professor1.webp",
+      description: "Dr. Alok Choudhary provided invaluable guidance in integrating and implementing various technological components within our academic framework. His vision and expertise have effectively bridged the gap between technology and education, significantly contributing to our professional and career development.",
+      expertise: ["Industry-Academia Collaboration Expert"]
     },
     {
       id: 2,
-      name: "Prof. Sunita Sharma",
-      role: "Associate Professor",
-      department: "Information Technology",
-      college: "XYZ Institute of Technology",
-      experience: "12+ years teaching",
-      image: `${IMAGE_URL}professor2.jpg`,
-      bio: "Prof. Sunita Sharma specializes in web technologies and mobile application development. Her practical approach to teaching has helped students bridge the gap between academic learning and industry requirements.",
-      expertise: ["Web Technologies", "Mobile Development", "UI/UX Design"],
-      achievements: [
-        "Mentored 100+ web projects",
-        "Industry Workshop Coordinator",
-        "Full Stack Development Expert",
-        "Student Innovation Guide"
-      ],
-      words: "In the world of technology, your ability to adapt and learn new frameworks is as important as your core knowledge. Stay curious and never stop building.",
-      impact: "Prof. Sharma's insights into modern web development frameworks were crucial in helping us build responsive and user-friendly applications."
+      name: "Hardik Patel ",
+      role: "Growth Advisor",
+      experience: "15+ Years in Software Development",
+      company: "Ralithon Technologies",
+      location: "Ahmedabad , Gujarat",
+      image: "/images/professor2.webp", // Replace with your actual image path
+      description: "His approach of seamlessly blending technology with academics resonates strongly with current industry requirements. As an entrepreneur, I’ve witnessed how his initiatives empower students with future-ready skills and foster meaningful innovation in the professional landscape.",
+      expertise: ["Full Stack Development", "Cloud Architecture", "Mentoring"]
     },
     {
       id: 3,
-      name: "Dr. Amit Patel",
-      role: "Senior Professor",
-      department: "Artificial Intelligence",
-      college: "PQR College of Engineering",
-      experience: "18+ years teaching",
-      image: `${IMAGE_URL}professor3.jpg`,
-      bio: "With nearly two decades of experience in AI and machine learning, Dr. Amit Patel has been at the forefront of introducing cutting-edge technologies to students. His research in neural networks has been widely recognized.",
-      expertise: ["Machine Learning", "Neural Networks", "Data Science"],
-      achievements: [
-        "AI Research Pioneer",
-        "Patent Holder in ML Algorithms",
-        "International Conference Speaker",
-        "Research Grant Recipient"
-      ],
-      words: "Artificial Intelligence is not just about algorithms, it's about solving real-world problems. Focus on understanding the problem deeply before jumping to solutions.",
-      impact: "Dr. Patel's mentorship in AI concepts enabled us to implement intelligent features in our applications and understand the ethical implications of AI."
+      name: "Prof. Rahul Sen",
+      role: "Skill Development Mentor",
+      experience: "8+ Years in Curriculum Design",
+      company: "Ralithon Technologies",
+      location: "Udaipur , Rajasthan",
+      image: "/images/professor3.webp", // Replace with your actual image path
+      description: "His strategy of integrating modern technology with academic practices has consistently aligned with evolving industry standards. His initiatives and leadership have empowered students with real-world skills, strengthening their readiness for emerging professional opportunities.",
+      expertise: ["Curriculum Design", "Career Guidance", "Skill Development"]
     }
   ];
-
-  // Auto-slide for mentors carousel
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentMentorIndex((prev) => (prev + 1) % mentors.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, [mentors.length]);
-
-  const nextMentor = () => {
-    setCurrentMentorIndex((prev) => (prev + 1) % mentors.length);
-  };
-
-  const prevMentor = () => {
-    setCurrentMentorIndex((prev) => (prev - 1 + mentors.length) % mentors.length);
-  };
 
   // Rest of your existing useEffect hooks and state declarations...
   useEffect(() => {
@@ -1204,6 +1165,95 @@ export default function RalithonWebsite() {
           </div>
         </div>
       )}
+      <section id="mentors" className="py-16 bg-white">
+        <div className="container mx-auto px-2">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Our Mentors
+            </h2>
+            <div
+              className="w-28 h-1 mx-auto mb-6 rounded-full"
+              style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}
+            ></div>
+            {/* <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                                  Learn directly from industry professionals who guide you through hands-on projects and real-world scenarios
+                              </p> */}
+          </div>
+
+          {/* Responsive Grid - 1 column on mobile, 3 on desktop */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6">
+            {mentors.map((mentor) => (
+              <div
+                key={mentor.id}
+                className="bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-200 hover:shadow-2xl transition-all duration-300"
+              >
+                {/* Mentor Image - Responsive and handles different sizes */}
+                <div className="relative w-full h-72 bg-gradient-to-br from-blue-50 to-cyan-50">
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="relative w-48 h-48 md:w-56 md:h-56 rounded-full overflow-hidden border-4 border-white shadow-lg">
+                      <Image
+                        src={mentor.image}
+                        alt={mentor.name}
+                        fill
+                        className="object-cover object-center"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 400px"
+                        style={{ objectPosition: 'center 20%' }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-6 text-center">
+                  {/* Name and Role */}
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                    {mentor.name}
+                  </h3>
+                  <div className="flex items-center justify-center text-blue-600 mb-3">
+                    {/* <Briefcase className="h-5 w-5 mr-2" /> */}
+                    <span className="font-semibold">{mentor.role}</span>
+                  </div>
+
+                  {/* Company and Location */}
+                  <div className="mb-4">
+                    <p className="text-gray-700 font-medium mb-1">{mentor.company}</p>
+                    <div className="flex items-center justify-center text-gray-500 text-sm">
+                      <MapPin className="h-4 w-4 mr-1" />
+                      {mentor.location}
+                    </div>
+                  </div>
+
+                  {/* Experience */}
+                  <div className="mb-4">
+                    <div className="inline-block bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-sm font-semibold">
+                      {mentor.experience}
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <p className="text-gray-600 mb-4 leading-relaxed">
+                    {mentor.description}
+                  </p>
+
+                  {/* Expertise Tags */}
+                  <div className="pt-4 border-t border-gray-100">
+                    <h4 className="text-sm font-semibold text-gray-700 mb-3">Areas of Expertise:</h4>
+                    <div className="flex flex-wrap justify-center gap-2">
+                      {mentor.expertise.map((skill, index) => (
+                        <span
+                          key={index}
+                          className="px-3 py-1 bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-700 rounded-full text-xs font-medium"
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
       {/* Contact Section */}
       <section id="contact" className="py-10 bg-gray-100">
         <div className="container mx-auto px-4">
