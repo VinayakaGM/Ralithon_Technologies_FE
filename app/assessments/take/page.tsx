@@ -5,28 +5,23 @@ import { useRouter } from "next/navigation";
 import AuthService from "@/services/auth.service";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import {
   Clock,
   ChevronRight,
-  ChevronLeft,
-  BookOpen,
-  Flag,
   RotateCw,
-  Eye,
   CheckCircle,
   XCircle,
-  Code,
-  Calculator,
-  Languages,
-  Play,
-  Terminal,
-  Cpu,
-  FileText,
+  AlertCircle,
+  BarChart3,
+  BookOpen,
+  Target,
+  ArrowRight,
+  Home,
+  LayoutDashboard,
+  Edit,
+  Badge,
 } from "lucide-react";
 import assessmentsService from "@/services/assessments.service";
 
@@ -42,12 +37,6 @@ interface Question {
   userAnswer: string | null;
   type: 'multiple_choice' | 'programming';
   section: 'APTITUDE' | 'ENGLISH' | 'CODING';
-  testCases?: TestCase[];
-}
-
-interface TestCase {
-  input: string;
-  expectedOutput: string;
 }
 
 interface AssessmentData {
@@ -58,166 +47,57 @@ interface AssessmentData {
   courseName?: string;
 }
 
-interface CompilationResult {
-  success: boolean;
-  output: string;
-  error: string;
-  testCases?: {
-    passed: number;
-    total: number;
-    results: {
-      input: string;
-      expected: string;
-      actual: string;
-      passed: boolean;
-    }[];
-  };
+interface TestResult {
+  userId: number;
+  score: number;
+  correctAnswers: number;
+  totalQuestions: number;
+  timeSpent: number;
+  assessmentId: number;
+  courseName: string;
+  completedAt: string;
+  answers: Answer[];
 }
 
-const TEST_DURATION = 30 * 60;
-const QUESTION_TIME_LIMIT = 30;
-
-// Code Editor Component
-interface CodeEditorProps {
-  value: string;
-  onChange: (value: string) => void;
-  disabled?: boolean;
-  language?: string;
-  onLanguageChange?: (language: string) => void;
+interface Answer {
+  questionId: string;
+  selectedAnswer: string;
+  correctAnswer: string;
+  isCorrect: boolean;
+  question: string;
+  options: { [key: string]: string };
+  isTextAnswer?: boolean;
+  userTextAnswer?: string;
 }
 
-const CodeEditor: React.FC<CodeEditorProps> = ({
-  value,
-  onChange,
-  disabled = false,
-  language = "java",
-  onLanguageChange
-}) => {
-  return (
-    <div className="w-full h-full border border-gray-200 rounded-lg overflow-hidden bg-white">
-      <div className="bg-gray-50 px-4 py-2 border-b border-gray-200 flex justify-between items-center">
-        <div className="flex items-center space-x-2">
-          <Code className="h-4 w-4 text-gray-600" />
-          <span className="text-sm font-medium text-gray-700">Code Editor</span>
-        </div>
-        <div className="flex items-center space-x-2">
-          {onLanguageChange && (
-            <Select value={language} onValueChange={onLanguageChange}>
-              <SelectTrigger className="w-28 h-7 text-xs">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="java">Java</SelectItem>
-                <SelectItem value="python">Python</SelectItem>
-                <SelectItem value="cpp">C++</SelectItem>
-                <SelectItem value="javascript">JavaScript</SelectItem>
-              </SelectContent>
-            </Select>
-          )}
-          <Badge variant="secondary" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
-            {language.toUpperCase()}
-          </Badge>
-        </div>
-      </div>
-      <Textarea
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={`// Write your ${language} code here...\n// Use proper formatting and comments`}
-        disabled={disabled}
-        className="font-mono text-sm min-h-[300px] w-full resize-none border-0 rounded-none focus-visible:ring-0 bg-white"
-        style={{
-          fontFamily: 'Consolas, Monaco, "Andale Mono", monospace',
-          lineHeight: '1.5',
-          tabSize: 2
-        }}
-      />
-      <div className="bg-gray-50 px-4 py-1.5 border-t border-gray-200 text-xs text-gray-500 flex justify-between">
-        <span>Line: 1, Col: 1</span>
-        <span>{value.length} chars</span>
-      </div>
-    </div>
-  );
+// Total time: 30 minutes = 1800 seconds
+const TOTAL_TEST_DURATION = 30 * 60; // 1800 seconds
+
+// First 20 questions: 1 min each, Last 2 questions: 5 min each
+const getQuestionTimeLimit = (questionIndex: number): number => {
+  if (questionIndex < 20) {
+    return 60; // 1 minute for first 20 questions
+  } else {
+    return 300; // 5 minutes for last 2 questions
+  }
 };
 
-// Compiler Output Component
-interface CompilerOutputProps {
-  result: CompilationResult | null;
-  isRunning: boolean;
-}
+// Check if question requires text answer (last 2 questions)
+const isTextAnswerQuestion = (questionIndex: number) => {
+  return questionIndex >= 20; // Last 2 questions (0-based index)
+};
 
-const CompilerOutput: React.FC<CompilerOutputProps> = ({ result, isRunning }) => {
-  return (
-    <div className="w-full h-full border border-gray-200 rounded-lg overflow-hidden bg-white">
-      <div className="bg-gray-50 px-4 py-2 border-b border-gray-200 flex items-center space-x-2">
-        <Terminal className="h-4 w-4 text-gray-600" />
-        <span className="text-sm font-medium text-gray-700">Execution Results</span>
-        {result && (
-          <Badge
-            variant={result.success ? "default" : "destructive"}
-            className="text-xs"
-          >
-            {result.success ? "Success" : "Failed"}
-          </Badge>
-        )}
-      </div>
-      <div className="p-3 bg-white min-h-[120px] max-h-[120px] overflow-auto font-mono text-sm">
-        {isRunning ? (
-          <div className="flex items-center space-x-2 text-gray-600">
-            <Cpu className="h-4 w-4 animate-pulse" />
-            <span>Compiling and executing...</span>
-          </div>
-        ) : result ? (
-          <div className="space-y-2">
-            {result.error ? (
-              <div className="space-y-1">
-                <div className="flex items-center space-x-1 text-red-600">
-                  <XCircle className="h-3 w-3" />
-                  <span className="font-medium">Compilation Error</span>
-                </div>
-                <pre className="text-red-600 text-xs bg-red-50 p-2 rounded border border-red-200 whitespace-pre-wrap">
-                  {result.error}
-                </pre>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <div className="flex items-center space-x-1 text-green-600">
-                  <CheckCircle className="h-3 w-3" />
-                  <span className="font-medium">Execution Successful</span>
-                </div>
-                {result.output && (
-                  <pre className="text-gray-700 text-xs bg-gray-50 p-2 rounded border border-gray-200 whitespace-pre-wrap">
-                    {result.output}
-                  </pre>
-                )}
-                {result.testCases && (
-                  <div className="flex items-center space-x-2 text-xs">
-                    <span className="text-gray-600">Test Cases:</span>
-                    <Badge variant={result.testCases.passed === result.testCases.total ? "default" : "secondary"} className="text-xs">
-                      {result.testCases.passed}/{result.testCases.total} passed
-                    </Badge>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="flex items-center space-x-2 text-gray-500">
-            <FileText className="h-4 w-4" />
-            <span className="text-sm">Run your code to see results</span>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+// Gradient style for buttons
+const gradientStyle = {
+  background: 'linear-gradient(270deg, rgb(6, 132, 190) 0%, rgb(2, 116, 186) 100%)'
 };
 
 // Assessment Header Component
 const AssessmentHeader: React.FC<{
   timeLeft: number;
-  currentSection: string;
   currentQuestion: number;
   totalQuestions: number;
-}> = ({ timeLeft, currentSection, currentQuestion, totalQuestions }) => {
+}> = ({ timeLeft, currentQuestion, totalQuestions }) => {
   const formatTime = (s: number) =>
     `${Math.floor(s / 60).toString().padStart(2, "0")}:${(s % 60).toString().padStart(2, "0")}`;
 
@@ -226,19 +106,18 @@ const AssessmentHeader: React.FC<{
       {/* Main Header */}
       <div className="border-b border-gray-700">
         <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center space-x-3">
-            <img
-              src="/images/logo.jpeg"   // update path
-              alt="Ralithon Logo"
-              width={38}
-              height={38}
-              className="object-contain"
-            />
-            <div>
-              <h1 className="text-xl font-bold">Ralithon Technologies Assessment</h1>
-              <p className="text-gray-300 text-sm mt-1">
-                {currentSection} Section - {currentQuestion}
-              </p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <img
+                src="/images/logo.jpeg"
+                alt="Ralithon Logo"
+                width={38}
+                height={38}
+                className="object-contain"
+              />
+              <div>
+                <h1 className="text-xl font-bold">Ralithon Technologies Assessment</h1>
+              </div>
             </div>
           </div>
         </div>
@@ -254,7 +133,7 @@ const AssessmentHeader: React.FC<{
                 {formatTime(timeLeft)}
               </span>
               <span className="text-gray-300 text-sm ml-2">
-                Time Left
+                Total Time Left
               </span>
             </div>
             <div className="text-gray-300 text-sm">
@@ -267,73 +146,294 @@ const AssessmentHeader: React.FC<{
   );
 };
 
-// // Answer Status Legend Component
-// const AnswerStatusLegend: React.FC = () => {
-//   return (
-//     <div className="status-legend">
-//       <div className="status-item">
-//         <span className="status-color answered"></span>
-//         <span className="status-label">Answered</span>
-//       </div>
-//       <div className="status-item">
-//         <span className="status-color not-answered"></span>
-//         <span className="status-label">Not Answered</span>
-//       </div>
-//       <div className="status-item">
-//         <span className="status-color marked"></span>
-//         <span className="status-label">Marked for Review</span>
-//       </div>
-//     </div>
-//   );
-// };
+// Results Header Component
+const ResultsHeader: React.FC<{
+  onTakeAnotherTest: () => void;
+  onGoHome: () => void;
+  onGoDashboard: () => void;
+}> = ({ onGoHome, onGoDashboard }) => {
+  return (
+    <div className="bg-gray-900 text-white">
+      <div className="border-b border-gray-700">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <img
+                src="/images/logo.jpeg"
+                alt="Ralithon Logo"
+                width={38}
+                height={38}
+                className="object-contain"
+              />
+              <div>
+                <h1 className="text-lg sm:text-xl font-bold">Assessment Results</h1>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-1 sm:space-x-2">
+              <Button
+                onClick={onGoHome}
+                variant="outline"
+                size="sm"
+                className="p-2 sm:px-4 bg-white/10 text-white border-white/20 hover:bg-white/20"
+              >
+                <Home className="h-4 w-4" />
+                <span className="hidden sm:inline ml-2">Go to Home</span>
+              </Button>
+
+              <Button
+                onClick={onGoDashboard}
+                style={gradientStyle}
+                size="sm"
+                className="p-2 sm:px-4"
+              >
+                <LayoutDashboard className="h-4 w-4" />
+                <span className="hidden sm:inline ml-2">Dashboard</span>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Results Component
+const ResultsPage: React.FC<{
+  result: TestResult;
+  onTakeAnotherTest: () => void;
+  onGoHome: () => void;
+  onGoDashboard: () => void;
+}> = ({ result, onTakeAnotherTest, onGoHome, onGoDashboard }) => {
+  const [activeTab, setActiveTab] = useState<"overview" | "review">("overview");
+  const [expandedQuestion, setExpandedQuestion] = useState<number | null>(null);
+
+  const score = result.score;
+  const isPassed = score >= 60;
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}m ${secs}s`;
+  };
+
+  const getScoreColor = (score: number) => {
+    if (score >= 80) return "text-green-600";
+    if (score >= 60) return "text-blue-600";
+    if (score >= 40) return "text-yellow-600";
+    return "text-red-600";
+  };
+
+  const getScoreBgColor = (score: number) => {
+    if (score >= 80) return "bg-green-100";
+    if (score >= 60) return "bg-blue-100";
+    if (score >= 40) return "bg-yellow-100";
+    return "bg-red-100";
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Results Header */}
+      <ResultsHeader
+        onTakeAnotherTest={onTakeAnotherTest}
+        onGoHome={onGoHome}
+        onGoDashboard={onGoDashboard}
+      />
+
+      <div className="max-w-6xl mx-auto px-6 py-8">
+        {/* Score Card */}
+        <div
+          className={`${getScoreBgColor(score)} rounded-xl shadow p-6 mb-8 border-l-4 ${isPassed ? "border-l-green-500" : "border-l-red-500"
+            }`}
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">{score}% Score</h2>
+              <p className="text-gray-700 mt-1">
+                {result.correctAnswers} out of {result.totalQuestions} correct
+              </p>
+              <p className="text-gray-500 text-sm mt-1">
+                Completed in {formatTime(result.timeSpent)}
+              </p>
+            </div>
+
+            <div className="mt-4 sm:mt-0">
+              {isPassed ? (
+                <p className="text-green-700 font-semibold flex items-center gap-1">
+                  <CheckCircle className="h-5 w-5" /> Passed
+                </p>
+              ) : (
+                <p className="text-red-700 font-semibold flex items-center gap-1">
+                  <XCircle className="h-5 w-5" /> Failed
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="bg-white rounded-xl shadow border overflow-hidden mb-8">
+          <div className="flex border-b">
+            <button
+              onClick={() => setActiveTab("overview")}
+              className={`flex-1 px-4 py-3 text-center font-semibold ${activeTab === "overview"
+                ? "text-indigo-600 border-b-2 border-indigo-600"
+                : "text-gray-500 hover:text-gray-800"
+                }`}
+            >
+              <BarChart3 className="inline h-4 w-4 mr-1" /> Overview
+            </button>
+
+            <button
+              onClick={() => setActiveTab("review")}
+              className={`flex-1 px-4 py-3 text-center font-semibold ${activeTab === "review"
+                ? "text-indigo-600 border-b-2 border-indigo-600"
+                : "text-gray-500 hover:text-gray-800"
+                }`}
+            >
+              <BookOpen className="inline h-4 w-4 mr-1" /> Review Answers
+            </button>
+          </div>
+
+          <div className="p-6">
+            {activeTab === "overview" && (
+              <div className="space-y-4 text-sm text-gray-700">
+                <p className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <span>Correct Answers: <strong>{result.correctAnswers}</strong></span>
+                </p>
+                <p className="flex items-center gap-2">
+                  <XCircle className="h-4 w-4 text-red-600" />
+                  <span>Incorrect Answers: <strong>{result.totalQuestions - result.correctAnswers}</strong></span>
+                </p>
+                <p className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-blue-600" />
+                  <span>Time Taken: <strong>{formatTime(result.timeSpent)}</strong></span>
+                </p>
+                <p className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-purple-600" />
+                  <span>Completed On: <strong>{new Date(result.completedAt).toLocaleString()}</strong></span>
+                </p>
+              </div>
+            )}
+
+            {activeTab === "review" && (
+              <div className="space-y-3">
+                {result.answers.map((answer, index) => (
+                  <div key={index} className="border rounded-lg overflow-hidden">
+                    <button
+                      onClick={() => setExpandedQuestion(expandedQuestion === index ? null : index)}
+                      className="w-full text-left p-3 hover:bg-gray-50 flex justify-between items-center"
+                    >
+                      <div className="flex items-center gap-3">
+                        {answer.isCorrect ? (
+                          <CheckCircle className="text-green-600 h-5 w-5" />
+                        ) : (
+                          <XCircle className="text-red-600 h-5 w-5" />
+                        )}
+                        <div className="text-left">
+                          <strong className="text-gray-800">Question {index + 1}:</strong>
+                          <p className="text-sm text-gray-600 mt-0.5 line-clamp-1">{answer.question}</p>
+                        </div>
+                      </div>
+                      <ArrowRight
+                        className={`h-4 w-4 text-gray-400 transition-transform ${expandedQuestion === index ? "rotate-90" : ""
+                          }`}
+                      />
+                    </button>
+
+                    {expandedQuestion === index && (
+                      <div className="p-4 bg-gray-50 space-y-3 border-t">
+                        {/* For text answer questions (last 2) */}
+                        {index >= 20 ? (
+                          <div className="space-y-3">
+                            <div>
+                              <h4 className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                                <Edit className="h-4 w-4" /> Your Written Answer:
+                              </h4>
+                              <div className="bg-white p-3 rounded border border-gray-200">
+                                <p className="text-gray-800 whitespace-pre-wrap">
+                                  {answer.selectedAnswer || "No answer provided"}
+                                </p>
+                              </div>
+                            </div>
+                            <div>
+                              <h4 className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                                <CheckCircle className="h-4 w-4 text-green-600" />Answer:
+                              </h4>
+                              <div className="bg-green-50 p-3 rounded border border-green-200">
+                                <p className="text-gray-800 whitespace-pre-wrap">{answer.correctAnswer}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          /* For multiple choice questions */
+                          <div className="space-y-2">
+                            {Object.entries(answer.options).map(([key, value]) => {
+                              const isCorrect = key === answer.correctAnswer;
+                              const isSelected = answer.selectedAnswer === key;
+                              const isWrong = isSelected && !isCorrect;
+
+                              return (
+                                <div
+                                  key={key}
+                                  className={`p-3 border rounded flex items-start gap-2 ${isCorrect
+                                    ? "bg-green-50 border-green-300"
+                                    : isWrong
+                                      ? "bg-red-50 border-red-300"
+                                      : "bg-white border-gray-200"
+                                    }`}
+                                >
+                                  <div className={`w-5 h-5 rounded flex items-center justify-center text-xs font-medium mt-0.5 ${isCorrect
+                                    ? "bg-green-600 text-white"
+                                    : isWrong
+                                      ? "bg-red-600 text-white"
+                                      : "bg-gray-200 text-gray-700"
+                                    }`}>
+                                    {key}
+                                  </div>
+                                  <span className="flex-1">{value}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default function TakeTestPage() {
   const router = useRouter();
   const [currentUser, setCurrentUser] = useState<any | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
-  const [timeLeft, setTimeLeft] = useState(TEST_DURATION);
-  const [questionTimeRemaining, setQuestionTimeRemaining] = useState(QUESTION_TIME_LIMIT);
+  const [timeLeft, setTimeLeft] = useState(TOTAL_TEST_DURATION);
+  const [questionTimeRemaining, setQuestionTimeRemaining] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
-  const [flaggedQuestions, setFlaggedQuestions] = useState<Set<number>>(new Set());
   const [showResults, setShowResults] = useState(false);
   const [score, setScore] = useState(0);
   const [assessmentData, setAssessmentData] = useState<AssessmentData | null>(null);
   const [questionTimeSpent, setQuestionTimeSpent] = useState<Record<number, number>>({});
-  const [currentSection, setCurrentSection] = useState<'APTITUDE' | 'ENGLISH' | 'CODING'>('APTITUDE');
-  const [compilationResult, setCompilationResult] = useState<CompilationResult | null>(null);
-  const [isRunningCode, setIsRunningCode] = useState<boolean>(false);
-  const [selectedLanguage, setSelectedLanguage] = useState<string>("java");
+  const [testResult, setTestResult] = useState<TestResult | null>(null);
+  const [textAnswers, setTextAnswers] = useState<Record<number, string>>({});
 
-  // Gradient background style for buttons
-  const gradientStyle = {
-    background: 'linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)'
-  };
-
-  // Section configuration
-  const sections = [
-    {
-      name: 'APTITUDE' as const,
-      title: 'Aptitude',
-      icon: <Calculator className="h-3 w-3" />,
-      color: 'bg-blue-500',
-    },
-    {
-      name: 'ENGLISH' as const,
-      title: 'English',
-      icon: <Languages className="h-3 w-3" />,
-      color: 'bg-green-500',
-    },
-    {
-      name: 'CODING' as const,
-      title: 'Coding',
-      icon: <Code className="h-3 w-3" />,
-      color: 'bg-purple-500',
-    }
-  ];
+  // Initialize question time limit based on index
+  useEffect(() => {
+    const timeLimit = getQuestionTimeLimit(currentQuestionIndex);
+    setQuestionTimeRemaining(timeLimit);
+  }, [currentQuestionIndex]);
 
   // Load assessment data
   useEffect(() => {
@@ -362,15 +462,11 @@ export default function TakeTestPage() {
           return;
         }
 
-        // Process questions
+        // Ensure all questions are multiple_choice
         const processedQuestions = data.assessment.map((question, index) => ({
           ...question,
-          type: !question.options || Object.keys(question.options).length === 0 ? 'programming' : 'multiple_choice',
-          section: question.section || ['APTITUDE', 'ENGLISH', 'CODING'][index % 3] as any,
-          testCases: question.testCases || [{
-            input: "programming,python",
-            expectedOutput: "gramming"
-          }]
+          type: 'multiple_choice' as 'multiple_choice' | 'programming',
+          section: question.section || (['APTITUDE', 'ENGLISH', 'CODING'][index % 3] as any),
         }));
 
         setAssessmentData({ ...data, assessment: processedQuestions });
@@ -378,12 +474,21 @@ export default function TakeTestPage() {
 
         // Initialize answers
         const initialAnswers: Record<number, string> = {};
+        const initialTextAnswers: Record<number, string> = {};
         processedQuestions.forEach((question, index) => {
           if (question.userAnswer) {
             initialAnswers[index] = question.userAnswer;
+            // For last 2 questions, also set text answers
+            if (index >= 20) {
+              initialTextAnswers[index] = question.userAnswer;
+            }
           }
         });
         setAnswers(initialAnswers);
+        setTextAnswers(initialTextAnswers);
+
+        // Initialize question time remaining for first question
+        setQuestionTimeRemaining(getQuestionTimeLimit(0));
 
         setLoading(false);
       } catch (error) {
@@ -397,7 +502,7 @@ export default function TakeTestPage() {
     initializeAssessment();
   }, [router]);
 
-  // Timers
+  // Total timer
   useEffect(() => {
     if (timeLeft <= 0 || showResults || !questions.length) {
       if (timeLeft <= 0 && !showResults) {
@@ -412,14 +517,6 @@ export default function TakeTestPage() {
 
     return () => clearInterval(timer);
   }, [timeLeft, showResults, questions.length]);
-
-  useEffect(() => {
-    if (showResults || !questions.length) return;
-
-    const timeSpent = questionTimeSpent[currentQuestionIndex] || 0;
-    const remaining = Math.max(0, QUESTION_TIME_LIMIT - timeSpent);
-    setQuestionTimeRemaining(remaining);
-  }, [currentQuestionIndex, showResults, questions.length]);
 
   // Question timer
   useEffect(() => {
@@ -439,11 +536,21 @@ export default function TakeTestPage() {
   }, [currentQuestionIndex, showResults, questions.length]);
 
   const handleTimeUp = async () => {
-    const timeSpent = QUESTION_TIME_LIMIT - questionTimeRemaining;
+    const timeSpent = getQuestionTimeLimit(currentQuestionIndex) - questionTimeRemaining;
     setQuestionTimeSpent(prev => ({
       ...prev,
       [currentQuestionIndex]: (prev[currentQuestionIndex] || 0) + timeSpent
     }));
+
+    // Auto-save answer before moving
+    const currentAnswer = isTextAnswerQuestion(currentQuestionIndex)
+      ? textAnswers[currentQuestionIndex] || ""
+      : answers[currentQuestionIndex] || "";
+
+    if (currentAnswer) {
+      await saveAnswerToServer(currentQuestionIndex, currentAnswer);
+    }
+
     await moveToNextQuestion();
   };
 
@@ -476,104 +583,44 @@ export default function TakeTestPage() {
   };
 
   const handleAnswerSelect = (optionKey: string) => {
+    if (isTextAnswerQuestion(currentQuestionIndex)) {
+      // For text answer questions, don't select options
+      return;
+    }
     const updatedAnswers = { ...answers, [currentQuestionIndex]: optionKey };
     setAnswers(updatedAnswers);
     saveAnswerToServer(currentQuestionIndex, optionKey);
   };
 
-  const handleCodeAnswerChange = (code: string) => {
-    const updatedAnswers = { ...answers, [currentQuestionIndex]: code };
-    setAnswers(updatedAnswers);
-  };
-
-  // Professional code compilation
-  const handleRunCode = async () => {
-    if (!answers[currentQuestionIndex]?.trim()) {
-      toast.error("Please write some code before running");
-      return;
-    }
-
-    if (!currentUser) {
-      toast.error("Please login to compile code");
-      return;
-    }
-
-    setIsRunningCode(true);
-    setCompilationResult(null);
-
-    try {
-      // Simulate API call to backend compiler
-      const result = await new Promise<CompilationResult>((resolve) => {
-        setTimeout(() => {
-          const code = answers[currentQuestionIndex];
-
-          // Basic validation
-          if (selectedLanguage === "java" && !code.includes("class")) {
-            resolve({
-              success: false,
-              output: "",
-              error: "Error: Java code must contain a class definition"
-            });
-            return;
-          }
-
-          // Simulate successful execution for valid code
-          if (code.trim().length > 10) {
-            resolve({
-              success: true,
-              output: "gramming",
-              error: "",
-              testCases: {
-                passed: 1,
-                total: 1,
-                results: [{
-                  input: "programming,python",
-                  expected: "gramming",
-                  actual: "gramming",
-                  passed: true
-                }]
-              }
-            });
-          } else {
-            resolve({
-              success: false,
-              output: "",
-              error: "Compilation Error: Please write complete code solution"
-            });
-          }
-        }, 1500);
-      });
-
-      setCompilationResult(result);
-      toast.success(result.success ? "Code executed successfully" : "Compilation failed");
-
-    } catch (error) {
-      toast.error("Failed to compile code");
-      setCompilationResult({
-        success: false,
-        output: "",
-        error: "Network error: Unable to reach compiler service"
-      });
-    } finally {
-      setIsRunningCode(false);
-    }
+  const handleTextAnswerChange = (text: string) => {
+    const updatedTextAnswers = { ...textAnswers, [currentQuestionIndex]: text };
+    setTextAnswers(updatedTextAnswers);
+    // Auto-save text answers with a debounce
+    const timeoutId = setTimeout(() => {
+      saveAnswerToServer(currentQuestionIndex, text);
+    }, 1000);
+    return () => clearTimeout(timeoutId);
   };
 
   const moveToNextQuestion = async () => {
-    const timeSpent = QUESTION_TIME_LIMIT - questionTimeRemaining;
+    const timeSpent = getQuestionTimeLimit(currentQuestionIndex) - questionTimeRemaining;
     setQuestionTimeSpent(prev => ({
       ...prev,
       [currentQuestionIndex]: (prev[currentQuestionIndex] || 0) + timeSpent
     }));
 
-    const currentAnswer = answers[currentQuestionIndex];
-    if (currentAnswer && questions[currentQuestionIndex].type === 'programming') {
+    const currentAnswer = isTextAnswerQuestion(currentQuestionIndex)
+      ? textAnswers[currentQuestionIndex] || ""
+      : answers[currentQuestionIndex] || "";
+
+    if (currentAnswer) {
       await saveAnswerToServer(currentQuestionIndex, currentAnswer);
     }
 
     if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-      setCompilationResult(null);
+      const nextIndex = currentQuestionIndex + 1;
+      setCurrentQuestionIndex(nextIndex);
+      setQuestionTimeRemaining(getQuestionTimeLimit(nextIndex));
     } else {
       handleSubmitAssessment(false);
     }
@@ -581,62 +628,6 @@ export default function TakeTestPage() {
 
   const handleNextQuestion = async () => {
     await moveToNextQuestion();
-  };
-
-  const handlePreviousQuestion = async () => {
-    if (currentQuestionIndex > 0) {
-      const timeSpent = QUESTION_TIME_LIMIT - questionTimeRemaining;
-      setQuestionTimeSpent(prev => ({
-        ...prev,
-        [currentQuestionIndex]: (prev[currentQuestionIndex] || 0) + timeSpent
-      }));
-
-      const currentAnswer = answers[currentQuestionIndex];
-      if (currentAnswer && questions[currentQuestionIndex].type === 'programming') {
-        await saveAnswerToServer(currentQuestionIndex, currentAnswer);
-      }
-
-      setCurrentQuestionIndex(currentQuestionIndex - 1);
-      setCompilationResult(null);
-    }
-  };
-
-  const handleQuestionNavigation = async (newIndex: number) => {
-    if (newIndex === currentQuestionIndex) return;
-
-    const timeSpent = QUESTION_TIME_LIMIT - questionTimeRemaining;
-    setQuestionTimeSpent(prev => ({
-      ...prev,
-      [currentQuestionIndex]: (prev[currentQuestionIndex] || 0) + timeSpent
-    }));
-
-    const currentAnswer = answers[currentQuestionIndex];
-    if (currentAnswer && questions[currentQuestionIndex].type === 'programming') {
-      await saveAnswerToServer(currentQuestionIndex, currentAnswer);
-    }
-
-    setCurrentQuestionIndex(newIndex);
-    setCompilationResult(null);
-  };
-
-  const handleSectionChange = async (section: 'APTITUDE' | 'ENGLISH' | 'CODING') => {
-    const timeSpent = QUESTION_TIME_LIMIT - questionTimeRemaining;
-    setQuestionTimeSpent(prev => ({
-      ...prev,
-      [currentQuestionIndex]: (prev[currentQuestionIndex] || 0) + timeSpent
-    }));
-
-    const currentAnswer = answers[currentQuestionIndex];
-    if (currentAnswer && questions[currentQuestionIndex].type === 'programming') {
-      await saveAnswerToServer(currentQuestionIndex, currentAnswer);
-    }
-
-    setCurrentSection(section);
-    const firstInSection = questions.findIndex(q => q.section === section);
-    if (firstInSection !== -1) {
-      setCurrentQuestionIndex(firstInSection);
-    }
-    setCompilationResult(null);
   };
 
   const handleSubmitAssessment = async (forceSubmit: boolean) => {
@@ -670,24 +661,45 @@ export default function TakeTestPage() {
       if (result.success && result.data) {
         const calculatedScore = Math.round((result.data.correct / result.data.totalQuestions) * 100);
         setScore(calculatedScore);
-        setShowResults(true);
 
-        // Store results
-        const resultData = {
+        // Prepare test result data
+        const testResultData: TestResult = {
           userId: currentUser.userId,
           score: calculatedScore,
           correctAnswers: result.data.correct,
           totalQuestions: result.data.totalQuestions,
-          timeSpent: TEST_DURATION - timeLeft,
+          timeSpent: TOTAL_TEST_DURATION - timeLeft,
           assessmentId: assessmentData.assessmentId,
-          courseName: assessmentData.courseName
+          courseName: assessmentData.courseName || "Assessment",
+          completedAt: new Date().toISOString(),
+          answers: questions.map((question, index) => ({
+            questionId: question.id,
+            selectedAnswer: isTextAnswerQuestion(index)
+              ? textAnswers[index] || ""
+              : answers[index] || "",
+            correctAnswer: question.answer,
+            isCorrect: isTextAnswerQuestion(index)
+              ? textAnswers[index] === question.answer
+              : answers[index] === question.answer,
+            question: question.question,
+            options: question.options,
+            isTextAnswer: isTextAnswerQuestion(index),
+            userTextAnswer: isTextAnswerQuestion(index) ? textAnswers[index] : undefined
+          }))
         };
 
+        setTestResult(testResultData);
+
+        // Store in localStorage for persistence
         const existing = JSON.parse(localStorage.getItem("testResults") || "[]");
-        existing.push(resultData);
+        existing.push(testResultData);
         localStorage.setItem("testResults", JSON.stringify(existing));
 
+        // Clear assessment data from session storage
         sessionStorage.removeItem('assessmentData');
+
+        // Show results
+        setShowResults(true);
         toast.success(`Assessment submitted! Score: ${calculatedScore}%`);
       } else {
         toast.error(result.message || "Submission failed");
@@ -698,49 +710,43 @@ export default function TakeTestPage() {
     } finally {
       setIsSubmitting(false);
     }
-  }, [assessmentData, currentUser, timeLeft]);
-
-  const toggleFlagQuestion = (questionIndex: number) => {
-    const newFlagged = new Set(flaggedQuestions);
-    if (newFlagged.has(questionIndex)) {
-      newFlagged.delete(questionIndex);
-    } else {
-      newFlagged.add(questionIndex);
-    }
-    setFlaggedQuestions(newFlagged);
-  };
+  }, [assessmentData, currentUser, timeLeft, questions, answers, textAnswers]);
 
   const getAnsweredQuestionsCount = () => {
-    return Object.keys(answers).length;
-  };
-
-  const getProgressPercentage = () => {
-    return (getAnsweredQuestionsCount() / questions.length) * 100;
+    let count = 0;
+    for (let i = 0; i < questions.length; i++) {
+      if (isTextAnswerQuestion(i)) {
+        if (textAnswers[i] && textAnswers[i].trim().length > 0) {
+          count++;
+        }
+      } else {
+        if (answers[i] && answers[i].trim().length > 0) {
+          count++;
+        }
+      }
+    }
+    return count;
   };
 
   const isQuestionAnswered = (index: number) => {
-    return answers[index] !== undefined && answers[index] !== '';
+    if (isTextAnswerQuestion(index)) {
+      return textAnswers[index] !== undefined && textAnswers[index].trim().length > 0;
+    } else {
+      return answers[index] !== undefined && answers[index].trim().length > 0;
+    }
   };
 
-  const getQuestionStatus = (index: number) => {
-    return isQuestionAnswered(index) ? 'answered' : 'not-answered';
+  const handleGoHome = () => {
+    router.push("/");
   };
 
-  const getSectionProgress = (section: string) => {
-    const sectionQuestions = questions.filter(q => q.section === section);
-    const answered = sectionQuestions.filter(q => {
-      const index = questions.findIndex(qu => qu.id === q.id);
-      return isQuestionAnswered(index);
-    }).length;
-    return {
-      total: sectionQuestions.length,
-      answered,
-      percentage: (answered / sectionQuestions.length) * 100
-    };
+  const handleGoDashboard = () => {
+    router.push("/student-dashboard/assessments");
   };
 
-  const formatTime = (s: number) =>
-    `${Math.floor(s / 60).toString().padStart(2, "0")}:${(s % 60).toString().padStart(2, "0")}`;
+  const handleTakeAnotherTest = () => {
+    router.push("/assessments/pretest");
+  };
 
   if (loading) {
     return (
@@ -778,67 +784,28 @@ export default function TakeTestPage() {
   }
 
   const currentQuestion = questions[currentQuestionIndex];
-  const currentSectionInfo = sections.find(s => s.name === currentQuestion.section);
+  const currentQuestionTimeLimit = getQuestionTimeLimit(currentQuestionIndex);
+  const isTextQuestion = isTextAnswerQuestion(currentQuestionIndex);
 
-  if (showResults) {
+  if (showResults && testResult) {
     return (
-      <div className="min-h-screen bg-gray-50 py-6">
-        <div className="container mx-auto px-4 max-w-2xl">
-          <Card className="shadow-sm">
-            <CardContent className="p-6">
-              <div className="text-center mb-6">
-                <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-3 ${score >= 70 ? "bg-green-100" : score >= 50 ? "bg-yellow-100" : "bg-red-100"
-                  }`}>
-                  {score >= 70 ? (
-                    <CheckCircle className="h-8 w-8 text-green-600" />
-                  ) : score >= 50 ? (
-                    <XCircle className="h-8 w-8 text-yellow-600" />
-                  ) : (
-                    <XCircle className="h-8 w-8 text-red-600" />
-                  )}
-                </div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">Assessment Complete</h3>
-                <p className="text-gray-600 mb-4 text-sm">
-                  Score: <span className="font-semibold text-blue-600">{score}%</span>
-                </p>
-                <div className="bg-white border rounded-lg p-4 inline-block">
-                  <div className="grid grid-cols-2 gap-3 text-sm text-gray-600">
-                    <div>Total: <span className="font-medium">{questions.length}</span></div>
-                    <div>Answered: <span className="font-medium">{getAnsweredQuestionsCount()}</span></div>
-                    <div>Correct: <span className="font-medium">{Math.round((score / 100) * questions.length)}</span></div>
-                    <div>Time: <span className="font-medium">{formatTime(TEST_DURATION - timeLeft)}</span></div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex justify-center space-x-3">
-                <Button
-                  onClick={() => router.push("/assessments/result")}
-                  size="sm"
-                  style={gradientStyle}
-                >
-                  View Results
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+      <ResultsPage
+        result={testResult}
+        onTakeAnotherTest={handleTakeAnotherTest}
+        onGoHome={handleGoHome}
+        onGoDashboard={handleGoDashboard}
+      />
     );
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Ralithon Technologies Header */}
+      {/* Assessment Header */}
       <AssessmentHeader
         timeLeft={timeLeft}
-        currentSection={currentSectionInfo?.title || 'Assessment'}
         currentQuestion={currentQuestionIndex + 1}
         totalQuestions={questions.length}
       />
-
-      {/* Answer Status Legend */}
-      {/* <AnswerStatusLegend /> */}
 
       <div className="container mx-auto px-4 py-4 max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 h-[calc(100vh-12rem)]">
@@ -848,8 +815,7 @@ export default function TakeTestPage() {
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
-                    {/* <BookOpen className="h-4 w-4 text-gray-600" /> */}
-                    <CardTitle className="text-base font-semibold">Question Palette</CardTitle>
+                    <CardTitle className="text-base font-semibold">Assessment Info</CardTitle>
                   </div>
                   <Button
                     onClick={() => handleSubmitAssessment(false)}
@@ -863,76 +829,73 @@ export default function TakeTestPage() {
               </CardHeader>
 
               <CardContent className="space-y-4">
-                {/* Progress */}
-                {/* <div className="bg-white border rounded-lg p-3">
-                  <div className="flex justify-between text-xs text-gray-600 mb-1">
-                    <span>Q{currentQuestionIndex + 1} of {questions.length}</span>
-                    <span>{getAnsweredQuestionsCount()} answered</span>
-                  </div>
-                  <Progress value={getProgressPercentage()} className="h-1.5" />
-                </div> */}
-
-                {/* Sections */}
-                <div>
-                  <h3 className="text-sm font-medium text-gray-700 mb-2">Sections</h3>
-                  <div className="space-y-2">
-                    {sections.map((section) => {
-                      const progress = getSectionProgress(section.name);
-                      const isCurrent = currentSection === section.name;
-                      return (
-                        <button
-                          key={section.name}
-                          onClick={() => handleSectionChange(section.name)}
-                          className={`w-full p-2 rounded border text-left text-sm transition-colors ${isCurrent
-                            ? "border-blue-500 bg-blue-50"
-                            : "border-gray-200 hover:border-gray-300"
-                            }`}
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-2">
-                              <div className={`p-1 rounded ${section.color} text-white`}>
-                                {section.icon}
-                              </div>
-                              <span className="font-medium">{section.title}</span>
-                            </div>
-                            <Badge variant="secondary" className="text-xs">
-                              {progress.answered}/{progress.total}
-                            </Badge>
-                          </div>
-                        </button>
-                      );
-                    })}
+                {/* Important Note */}
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                  <div className="flex items-start space-x-2">
+                    <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                    <div className="space-y-1">
+                      <p className="text-xs font-medium text-amber-800">Important Notes:</p>
+                      <ul className="text-xs text-amber-700 space-y-0.5 list-disc pl-3">
+                        <li>Once you move to the next question, you cannot go back</li>
+                        <li>Answer will be auto-saved when you select/write an answer</li>
+                        <li>First 20 questions: 1 min each, Last 2 questions: 5 min each</li>
+                        <li>Review all questions before submitting</li>
+                      </ul>
+                    </div>
                   </div>
                 </div>
 
-                {/* Question Palette */}
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <h3 className="text-sm font-medium text-gray-700">Questions</h3>
-                    <span className="text-xs text-gray-500">{currentSectionInfo?.title}</span>
+                {/* Time Information
+                <div className="bg-white border rounded-lg p-3">
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs text-gray-600">
+                      <span>Total Questions:</span>
+                      <span className="font-medium">{questions.length}</span>
+                    </div>
+                    <div className="flex justify-between text-xs text-gray-600">
+                      <span>Current Question:</span>
+                      <span className="font-medium">{currentQuestionIndex + 1}</span>
+                    </div>
+                    <div className="flex justify-between text-xs text-gray-600">
+                      <span>Question Type:</span>
+                      <span className={`font-medium ${currentQuestionIndex < 20 ? "text-blue-600" : "text-green-600"}`}>
+                        {currentQuestionIndex < 20 ? "Multiple Choice" : "Text Answer"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-xs text-gray-600">
+                      <span>Time Limit:</span>
+                      <span className={`font-medium ${currentQuestionIndex < 20 ? "text-blue-600" : "text-green-600"}`}>
+                        {currentQuestionIndex < 20 ? "1 min" : "5 min"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-xs text-gray-600">
+                      <span>Answered:</span>
+                      <span className="font-medium">{getAnsweredQuestionsCount()}/{questions.length}</span>
+                    </div>
                   </div>
+                </div> */}
+
+                {/* Question Progress */}
+                <div>
+                  <h3 className="text-sm font-medium text-gray-700 mb-2">Question Progress</h3>
                   <div className="grid grid-cols-5 gap-1.5">
-                    {questions
-                      .filter(q => q.section === currentSection)
-                      .map((question, index) => {
-                        const globalIndex = questions.findIndex(q => q.id === question.id);
-                        return (
-                          <button
-                            key={globalIndex}
-                            onClick={() => handleQuestionNavigation(globalIndex)}
-                            className={`aspect-square rounded text-xs font-medium transition-colors ${globalIndex === currentQuestionIndex
-                              ? "bg-blue-600 text-white"
-                              : flaggedQuestions.has(globalIndex)
-                                ? "bg-yellow-100 text-yellow-800 border border-yellow-300"
-                                : getQuestionStatus(globalIndex) === 'answered'
-                                  ? "bg-green-100 text-green-800 border border-green-300"
-                                  : "bg-white text-gray-600 border border-gray-300"
-                              }`}
-                          >
-                            {globalIndex + 1}
-                          </button>
-                        );
-                      })}
+                    {questions.map((_, index) => (
+                      <div
+                        key={index}
+                        className={`aspect-square rounded text-xs font-medium flex items-center justify-center ${index === currentQuestionIndex
+                          ? "bg-blue-600 text-white"
+                          : isQuestionAnswered(index)
+                            ? "bg-green-100 text-green-800 border border-green-300"
+                            : "bg-white text-gray-600 border border-gray-300"
+                          }`}
+                        title={`Question ${index + 1}${index >= 20 ? ' (Text Answer)' : ''}`}
+                      >
+                        {index + 1}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-2 text-xs text-gray-500">
+                    <p>Note: Questions 21-22 require text answers</p>
                   </div>
                 </div>
               </CardContent>
@@ -945,30 +908,20 @@ export default function TakeTestPage() {
               <CardHeader className="py-3 border-b">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
-                    <div className={`p-2 rounded ${currentSectionInfo?.color} text-white`}>
-                      {currentSectionInfo?.icon}
-                    </div>
                     <div>
                       <CardTitle className="text-base font-semibold">
-                        {currentSectionInfo?.title} - Question {currentQuestionIndex + 1}
+                        Question {currentQuestionIndex + 1}
                       </CardTitle>
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <div className={`px-2 py-1 rounded text-xs font-medium ${questionTimeRemaining <= 10 ? "bg-red-100 text-red-700" : "bg-orange-100 text-orange-700"
+                    <div className={`px-2 py-1 rounded text-xs font-medium ${questionTimeRemaining <= 10
+                      ? "bg-red-100 text-red-700"
+                      : "bg-orange-100 text-orange-700"
                       }`}>
                       <Clock className="h-3 w-3 inline mr-1" />
-                      {questionTimeRemaining}s
+                      {questionTimeRemaining}s / {currentQuestionTimeLimit}s
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => toggleFlagQuestion(currentQuestionIndex)}
-                      className={`h-8 ${flaggedQuestions.has(currentQuestionIndex) ? "text-yellow-600" : "text-gray-400"
-                        }`}
-                    >
-                      <Flag className="h-4 w-4" />
-                    </Button>
                   </div>
                 </div>
               </CardHeader>
@@ -987,47 +940,27 @@ export default function TakeTestPage() {
                     </div>
                   </div>
 
-                  {/* Content */}
-                  {currentQuestion.type === 'programming' ? (
+                  {/* Content based on question type */}
+                  {isTextQuestion ? (
                     <div className="space-y-3 flex-1">
-                      <div className="flex justify-between items-center">
-                        <h3 className="text-sm font-medium text-gray-700">Solution</h3>
-                        <div className="flex space-x-2">
-                          <Button
-                            onClick={handleRunCode}
-                            disabled={isRunningCode || !answers[currentQuestionIndex]?.trim()}
-                            size="sm"
-                            className="h-8"
-                            style={gradientStyle}
-                          >
-                            {isRunningCode ? (
-                              <RotateCw className="h-3 w-3 animate-spin mr-1" />
-                            ) : (
-                              <Play className="h-3 w-3 mr-1" />
-                            )}
-                            Run
-                          </Button>
-                        </div>
-                      </div>
-
-                      <div className="grid gap-3 flex-1 min-h-0">
-                        <CodeEditor
-                          value={answers[currentQuestionIndex] || ''}
-                          onChange={handleCodeAnswerChange}
+                      <h3 className="text-sm font-medium text-gray-700">Write your answer:</h3>
+                      <div className="flex-1">
+                        <Textarea
+                          value={textAnswers[currentQuestionIndex] || ''}
+                          onChange={(e) => handleTextAnswerChange(e.target.value)}
+                          placeholder="Type your detailed answer here..."
+                          className="min-h-[250px] text-sm"
                           disabled={isSaving}
-                          language={selectedLanguage}
-                          onLanguageChange={setSelectedLanguage}
                         />
-
-                        <CompilerOutput
-                          result={compilationResult}
-                          isRunning={isRunningCode}
-                        />
+                        <div className="mt-2 text-xs text-gray-500">
+                          <p>Your answer is auto-saved as you type</p>
+                          {/* <p className="mt-1">Character count: {textAnswers[currentQuestionIndex]?.length || 0}</p> */}
+                        </div>
                       </div>
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      <h3 className="text-sm font-medium text-gray-700">Options</h3>
+                      <h3 className="text-sm font-medium text-gray-700">Select the correct option:</h3>
                       <div className="space-y-2">
                         {Object.entries(currentQuestion.options).map(([key, value]) => (
                           <button
@@ -1055,21 +988,16 @@ export default function TakeTestPage() {
 
                   {/* Navigation */}
                   <div className="flex justify-between items-center pt-3 border-t">
-                    <Button
-                      onClick={handlePreviousQuestion}
-                      disabled={currentQuestionIndex === 0}
-                      variant="outline"
-                      size="sm"
-                    >
-                      <ChevronLeft className="h-4 w-4 mr-1" />
-                      Previous
-                    </Button>
+                    <div className="text-xs text-gray-500 text-center flex items-center space-x-2">
+                      <AlertCircle className="h-4 w-4 text-amber-500" />
+                      <span>Note: Cannot go back to previous questions</span>
+                    </div>
                     <Button
                       onClick={handleNextQuestion}
                       size="sm"
                       style={gradientStyle}
                     >
-                      Next
+                      {currentQuestionIndex < questions.length - 1 ? "Next Question" : "Submit Assessment"}
                       <ChevronRight className="h-4 w-4 ml-1" />
                     </Button>
                   </div>
@@ -1079,44 +1007,6 @@ export default function TakeTestPage() {
           </div>
         </div>
       </div>
-
-      <style jsx>{`
-        .status-legend {
-          display: flex;
-          justify-content: center;
-          gap: 25px;
-          padding: 15px;
-          background-color: white;
-          border-bottom: 1px solid #e0e0e0;
-          font-size: 0.9em;
-        }
-
-        .status-item {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-
-        .status-color {
-          display: inline-block;
-          width: 16px;
-          height: 16px;
-          border-radius: 50%;
-          border: 1px solid #ccc;
-        }
-
-        .status-color.answered {
-          background-color: #00c853;
-        }
-
-        .status-color.not-answered {
-          background-color: #ffab00;
-        }
-
-        .status-color.marked {
-          background-color: #2962ff;
-        }
-      `}</style>
     </div>
   );
 }

@@ -7,6 +7,7 @@ export interface AnswerSubmission {
   assessmentId: number;
   questionId: string;
   answer: string;
+  questionType: string;
 }
 
 export interface AssessmentSubmission {

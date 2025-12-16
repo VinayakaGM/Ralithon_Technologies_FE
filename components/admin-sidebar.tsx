@@ -88,7 +88,7 @@ export function AdminSidebar({ activeTab, setActiveTab }: AdminSidebarProps) {
             className="hover:opacity-80 transition-opacity"
           >
             <div className="w-8 h-8 flex items-center justify-center">
-              <img src={`${IMAGE_URL}logo.png`} alt="Ralithon Technologies" />
+              <img src={`/images/logo.jpeg`} alt="Ralithon Technologies" />
             </div>
           </button>
           <h2 className="text-lg font-bold text-white">Admin Dashboard</h2>

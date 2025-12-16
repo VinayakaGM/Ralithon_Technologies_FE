@@ -129,7 +129,7 @@ export default function PreTestPage() {
 
                 <ul className="list-disc pl-5 leading-relaxed space-y-1">
                   <li>Objective (MCQ) online test</li>
-                  <li>Duration: 30–45 minutes</li>
+                  <li>Duration: 30 minutes</li>
                   <li>Timer continues after start</li>
                   <li>Do not refresh or close the browser</li>
                   <li>Switching tabs may auto-submit</li>
@@ -183,7 +183,7 @@ export default function PreTestPage() {
                     </Button>
 
                     <Link
-                      href="/assessments/result"
+                      href="/admin-dashboard/enrolled-assessments"
                       className="block w-full text-center text-sm text-blue-600 hover:underline"
                     >
                       View previous results

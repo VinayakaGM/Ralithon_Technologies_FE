@@ -1584,15 +1584,15 @@ export default function RalithonWebsite() {
             <div className="px-6 py-6">
 
               {/* Logo */}
-              <div className="mx-auto w-14 h-14 mb-3 relative">
+              {/* <div className="mx-auto w-14 h-14 mb-3 relative">
                 <Image
-                  src={`${IMAGE_URL}logo.png`}
+                  src={`/images/logo.jpeg`}
                   alt="Ralithon Logo"
                   fill
                   className="object-contain"
                   priority
                 />
-              </div>
+              </div> */}
 
               {/* Heading */}
               <h2 className="text-lg md:text-xl font-semibold text-gray-800 text-center mb-1">
@@ -1635,7 +1635,7 @@ export default function RalithonWebsite() {
                 }}
                 className="w-full text-white text-sm font-medium py-3 rounded-lg hover:shadow-md transition active:scale-95 touch-manipulation"
                 style={{
-                  background: "linear-gradient(270deg, rgb(55,182,241) 0%, rgb(2,116,186) 100%)"
+                  background: "linear-gradient(270deg, rgb(6, 132, 190) 0%, rgb(2, 116, 186) 100%)"
                 }}
               >
                 Apply for Internship
