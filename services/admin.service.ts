@@ -44,6 +44,7 @@ export interface AssessmentFormData {
   topic: string;
   assessmentType: string;
   price: number | string;
+  modeType?: string;
 }
 
 export interface Assessment {
@@ -54,6 +55,7 @@ export interface Assessment {
   assessmentType: string;
   price: number;
   awsUrl?: string;
+  modeType?: string;
 }
 
 export interface NotesFormData {
@@ -271,6 +273,7 @@ class AdminCourseService {
           topic: assessmentData.topic,
           assessmentType: assessmentData.assessmentType,
           price: assessmentData.price,
+          modeType: assessmentData.modeType,
         })
       );
 
