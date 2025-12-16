@@ -72,34 +72,34 @@ export default function InternshipsPage() {
         {
             id: 1,
             name: "Dr. Alok Choudhary",
-            role: "",
-            experience: "10+ Years in EdTech",
+            role: "Director - Academic Strategy & Student Development",
+            experience: "16+ Years in EdTech",
             company: "Ralithon Technologies",
             location: "Indore, M.P.",
-            image: "/images/professor1.webp",
+            image: "/images/professor1.webp", 
             description: "Dr. Alok Choudhary provided invaluable guidance in integrating and implementing various technological components within our academic framework. His vision and expertise have effectively bridged the gap between technology and education, significantly contributing to our professional and career development.",
             expertise: ["Industry-Academia Collaboration Expert"]
         },
         {
             id: 2,
             name: "Hardik Patel ",
-            role: "CTO & Lead Instructor",
+            role: "Growth Advisor",
             experience: "15+ Years in Software Development",
             company: "Ralithon Technologies",
             location: "Ahmedabad , Gujarat",
             image: "/images/professor2.webp", // Replace with your actual image path
-            description: "The vision of blending technology with academics aligns perfectly with industry needs. As an entrepreneur, I’ve seen how his initiatives prepare students for future careers and drive innovation in the professional world.",
+            description: "His approach of seamlessly blending technology with academics resonates strongly with current industry requirements. As an entrepreneur, I’ve witnessed how his initiatives empower students with future-ready skills and foster meaningful innovation in the professional landscape.",
             expertise: ["Full Stack Development", "Cloud Architecture", "Mentoring"]
         },
         {
             id: 3,
             name: "Prof. Rahul Sen",
-            role: "Head of Learning",
+            role: "Skill Development Mentor",
             experience: "8+ Years in Curriculum Design",
             company: "Ralithon Technologies",
             location: "Udaipur , Rajasthan",
             image: "/images/professor3.webp", // Replace with your actual image path
-            description: "Specializes in creating engaging learning experiences and career-focused training programs.",
+            description: "His strategy of integrating modern technology with academic practices has consistently aligned with evolving industry standards. His initiatives and leadership have empowered students with real-world skills, strengthening their readiness for emerging professional opportunities.",
             expertise: ["Curriculum Design", "Career Guidance", "Skill Development"]
         }
     ];
@@ -758,7 +758,7 @@ export default function InternshipsPage() {
                                         {mentor.name}
                                     </h3>
                                     <div className="flex items-center justify-center text-blue-600 mb-3">
-                                        <Briefcase className="h-5 w-5 mr-2" />
+                                        {/* <Briefcase className="h-5 w-5 mr-2" /> */}
                                         <span className="font-semibold">{mentor.role}</span>
                                     </div>
 
