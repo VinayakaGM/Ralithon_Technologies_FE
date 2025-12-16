@@ -175,14 +175,14 @@ export default function ContactPage() {
             link: "tel:+917999751661",
             color: "from-green-500 to-emerald-500"
         },
-        {
-            icon: <MapPin className="h-6 w-6" />,
-            title: "Visit Us",
-            description: "Come say hello at our office",
-            details: "Indore, Madhya Pradesh",
-            link: "https://maps.google.com/?q=Indore,Madhya+Pradesh",
-            color: "from-purple-500 to-pink-500"
-        }
+        // {
+        //     icon: <MapPin className="h-6 w-6" />,
+        //     title: "Visit Us",
+        //     description: "Come say hello at our office",
+        //     details: "Indore, Madhya Pradesh",
+        //     link: "https://maps.google.com/?q=Indore,Madhya+Pradesh",
+        //     color: "from-purple-500 to-pink-500"
+        // }
     ];
 
     const companyInfo = [
@@ -247,7 +247,7 @@ export default function ContactPage() {
                         </p>
                     </div>
 
-                    <div className="grid md:grid-cols-3 sm:grid-cols-2 gap-6">
+                    <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
                         {contactInfo.map((item, index) => (
                             <a
                                 key={index}
@@ -266,7 +266,11 @@ export default function ContactPage() {
                                         {item.title}
                                     </h3>
                                     <p className="text-sm text-gray-600 leading-snug">{item.description}</p>
-                                    <p className="text-sm font-medium text-gray-900 mt-1">{item.details}</p>
+                                    <p className="text-sm font-medium text-gray-900 mt-1 break-all">
+                                        {item.details}
+                                    </p>
+
+
                                 </div>
                             </a>
                         ))}
@@ -275,8 +279,19 @@ export default function ContactPage() {
             </section>
 
 
+            {/* Visual Divider */}
+            <section className="py-8 bg-gray-50">
+                <div className="container mx-auto px-4">
+                    <div className="max-w-4xl mx-auto text-center">
+                        <h3 className="text-2xl font-bold text-gray-800 mb-2">Let's Build Your Solution</h3>
+                        <p className="text-gray-600">Share your project details and we'll create a customized plan</p>
+                    </div>
+                </div>
+            </section>
+
+
             {/* Contact Form Section */}
-            <section className="py-16 bg-gray-50">
+            <section className="pb-16 bg-gray-50">
                 <div className="container mx-auto px-4">
                     <div className="max-w-6xl mx-auto">
                         <div className="grid lg:grid-cols-5 bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-200">
@@ -458,7 +473,7 @@ export default function ContactPage() {
                                             disabled={isSubmitting}
                                             className="w-full text-white px-6 py-4 rounded-lg font-semibold transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5 text-lg"
                                             style={{
-                                                background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                                                background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)"
                                             }}
                                         >
                                             {isSubmitting ? (
@@ -499,7 +514,7 @@ export default function ContactPage() {
                             <Button
                                 className="mt-4 text-white"
                                 style={{
-                                    background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                                    background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)"
                                 }}
                                 onClick={() => window.open('https://maps.google.com/?q=Indore,Madhya+Pradesh', '_blank')}
                             >

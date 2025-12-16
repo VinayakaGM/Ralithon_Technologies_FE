@@ -302,7 +302,7 @@ export default function AssessmentMonitoringTab() {
                       <Button 
                         className="text-white shadow-lg hover:shadow-xl transition-all duration-200 px-6 py-3 rounded-xl"
                         style={{
-                          background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                          background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)"
                         }}
                       >
                         <Plus className="h-5 w-5 mr-2" />
@@ -467,7 +467,7 @@ export default function AssessmentMonitoringTab() {
                             disabled={isSubmitting}
                             className="text-white shadow-lg hover:shadow-xl transition-all duration-200 px-6 py-3 rounded-xl"
                             style={{
-                              background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                              background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)"
                             }}
                           >
                             {isSubmitting
@@ -508,7 +508,7 @@ export default function AssessmentMonitoringTab() {
                               <Badge
                                 className="text-white px-3 py-1 rounded-full"
                                 style={{
-                                  background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                                  background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)"
                                 }}
                               >
                                 {viewAssessment.assessmentType}
@@ -557,7 +557,7 @@ export default function AssessmentMonitoringTab() {
                           <div 
                             className="text-3xl font-bold mb-1"
                             style={{
-                              background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)",
+                              background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)",
                               WebkitBackgroundClip: "text",
                               WebkitTextFillColor: "transparent"
                             }}
@@ -571,7 +571,7 @@ export default function AssessmentMonitoringTab() {
                         <div 
                           className="p-3 rounded-xl group-hover:scale-110 transition-transform duration-300"
                           style={{
-                            background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                            background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)"
                           }}
                         >
                           <FileText className="h-6 w-6 text-white" />
@@ -586,7 +586,7 @@ export default function AssessmentMonitoringTab() {
                           <div 
                             className="text-3xl font-bold mb-1"
                             style={{
-                              background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)",
+                              background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)",
                               WebkitBackgroundClip: "text",
                               WebkitTextFillColor: "transparent"
                             }}
@@ -604,7 +604,7 @@ export default function AssessmentMonitoringTab() {
                         <div 
                           className="p-3 rounded-xl group-hover:scale-110 transition-transform duration-300"
                           style={{
-                            background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                            background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)"
                           }}
                         >
                           <BookOpen className="h-6 w-6 text-white" />
@@ -619,7 +619,7 @@ export default function AssessmentMonitoringTab() {
                           <div 
                             className="text-3xl font-bold mb-1"
                             style={{
-                              background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)",
+                              background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)",
                               WebkitBackgroundClip: "text",
                               WebkitTextFillColor: "transparent"
                             }}
@@ -637,7 +637,7 @@ export default function AssessmentMonitoringTab() {
                         <div 
                           className="p-3 rounded-xl group-hover:scale-110 transition-transform duration-300"
                           style={{
-                            background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                            background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)"
                           }}
                         >
                           <DollarSign className="h-6 w-6 text-white" />
@@ -726,7 +726,7 @@ export default function AssessmentMonitoringTab() {
                                   <Badge
                                     className="text-white text-xs font-bold rounded-full px-3 py-1 whitespace-nowrap"
                                     style={{
-                                      background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                                      background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)"
                                     }}
                                   >
                                     {assessment.assessmentType}

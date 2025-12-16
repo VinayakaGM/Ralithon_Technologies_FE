@@ -15,6 +15,8 @@ import {
     Target,
     BarChart3,
     TrendingUp,
+    Briefcase,
+    MapPin,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -64,6 +66,43 @@ export default function InternshipsPage() {
     const IMAGE_URL = process.env.NEXT_PUBLIC_IMAGE_URL;
     const router = useRouter();
     const currentUser = mounted ? AuthService.getCurrentUser() : null;
+
+    // Simplified Mentors Data - Only 3 mentors
+    const mentors = [
+        {
+            id: 1,
+            name: "Dr. Alok Choudhary",
+            role: "Director - Academic Strategy & Student Development",
+            experience: "16+ Years in EdTech",
+            company: "Ralithon Technologies",
+            location: "Indore, M.P.",
+            image: "/images/professor1.webp", 
+            description: "Dr. Alok Choudhary provided invaluable guidance in integrating and implementing various technological components within our academic framework. His vision and expertise have effectively bridged the gap between technology and education, significantly contributing to our professional and career development.",
+            expertise: ["Industry-Academia Collaboration Expert"]
+        },
+        {
+            id: 2,
+            name: "Hardik Patel ",
+            role: "Growth Advisor",
+            experience: "15+ Years in Software Development",
+            company: "Ralithon Technologies",
+            location: "Ahmedabad , Gujarat",
+            image: "/images/professor2.webp", // Replace with your actual image path
+            description: "His approach of seamlessly blending technology with academics resonates strongly with current industry requirements. As an entrepreneur, I’ve witnessed how his initiatives empower students with future-ready skills and foster meaningful innovation in the professional landscape.",
+            expertise: ["Full Stack Development", "Cloud Architecture", "Mentoring"]
+        },
+        {
+            id: 3,
+            name: "Prof. Rahul Sen",
+            role: "Skill Development Mentor",
+            experience: "8+ Years in Curriculum Design",
+            company: "Ralithon Technologies",
+            location: "Udaipur , Rajasthan",
+            image: "/images/professor3.webp", // Replace with your actual image path
+            description: "His strategy of integrating modern technology with academic practices has consistently aligned with evolving industry standards. His initiatives and leadership have empowered students with real-world skills, strengthening their readiness for emerging professional opportunities.",
+            expertise: ["Curriculum Design", "Career Guidance", "Skill Development"]
+        }
+    ];
 
     useEffect(() => {
         setMounted(true);
@@ -535,7 +574,7 @@ export default function InternshipsPage() {
                 </div>
             </section>
 
-            <section className="py-16 px-4 bg-gradient-to-br from-blue-600 to-cyan-500">
+            <section className="py-16 px-4 bg-gradient-to-br from-blue-600 to-cyan-500" style={{ background: "linear-gradient(270deg, rgb(6, 132, 190) 0%, rgb(2, 116, 186) 100%)" }}>
                 <div className="container mx-auto max-w-7xl">
                     <div className="text-center mb-12">
                         <h2 className="text-3xl font-bold text-white mb-4">Why Choose Our Programs?</h2>
@@ -566,28 +605,6 @@ export default function InternshipsPage() {
             {/* Programs Section */}
             <section className="py-16">
                 <div className="container mx-auto px-4">
-                    {/* Filter Tabs */}
-                    <div className="flex justify-center mb-12">
-                        <div className="bg-white rounded-2xl p-2 shadow-lg border border-gray-200">
-                            {[
-                                { key: "all", label: "All Programs", count: courses.length },
-                                { key: "free", label: "Free Internships", count: freeCourses.length },
-                                { key: "paid", label: "Premium Programs", count: paidCourses.length },
-                            ].map((filter) => (
-                                <button
-                                    key={filter.key}
-                                    onClick={() => setActiveFilter(filter.key as any)}
-                                    className={`px-6 py-3 rounded-xl font-medium transition-all ${activeFilter === filter.key
-                                        ? "bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-md"
-                                        : "text-gray-600 hover:text-blue-600"
-                                        }`}
-                                >
-                                    {filter.label} ({filter.count})
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
                     {/* Programs Grid */}
                     {loadingCourses ? (
                         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -610,7 +627,7 @@ export default function InternshipsPage() {
                         </div>
                     ) : filteredCourses.length === 0 ? (
                         <div className="text-center py-12">
-                            <p className="text-gray-600 font-medium">No programs found for the selected filter.</p>
+                            <p className="text-gray-600 font-medium">Currently No programs found.</p>
                         </div>
                     ) : (
                         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -636,11 +653,6 @@ export default function InternshipsPage() {
                                                 {course.courseType?.toUpperCase() || "PAID"}
                                             </div>
                                         </div>
-                                        {/* {course.courseType?.toLowerCase() !== "free" && (
-                                            <div className="absolute top-4 right-4 bg-white rounded-full p-2 shadow-md">
-                                                <DollarSign className="h-5 w-5 text-blue-600" />
-                                            </div>
-                                        )} */}
                                     </div>
 
                                     <CardHeader className="pb-3">
@@ -705,34 +717,124 @@ export default function InternshipsPage() {
                 </div>
             </section>
 
-            {/* CTA Section */}
-            {/* <section className="py-16 bg-gradient-to-r from-blue-600 to-cyan-600">
-                <div className="container mx-auto px-4 text-center">
-                    <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-                        Ready to Launch Your Career?
-                    </h2>
-                    <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-                        Join hundreds of students who have transformed their careers with our industry-focused programs
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            {/* Our Mentors Section - Simplified Layout for 3 Mentors */}
+            <section id="mentors" className="py-16 bg-white">
+                <div className="container mx-auto px-4">
+                    <div className="text-center mb-12">
+                        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                            Our Mentors
+                        </h2>
+                        {/* <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                            Learn directly from industry professionals who guide you through hands-on projects and real-world scenarios
+                        </p> */}
+                    </div>
+
+                    {/* Responsive Grid - 1 column on mobile, 3 on desktop */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6">
+                        {mentors.map((mentor) => (
+                            <div
+                                key={mentor.id}
+                                className="bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-200 hover:shadow-2xl transition-all duration-300"
+                            >
+                                {/* Mentor Image - Responsive and handles different sizes */}
+                                <div className="relative w-full h-72 bg-gradient-to-br from-blue-50 to-cyan-50">
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <div className="relative w-48 h-48 md:w-56 md:h-56 rounded-full overflow-hidden border-4 border-white shadow-lg">
+                                            <Image
+                                                src={mentor.image}
+                                                alt={mentor.name}
+                                                fill
+                                                className="object-cover object-center"
+                                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 400px"
+                                                style={{ objectPosition: 'center 20%' }}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="p-6 text-center">
+                                    {/* Name and Role */}
+                                    <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                                        {mentor.name}
+                                    </h3>
+                                    <div className="flex items-center justify-center text-blue-600 mb-3">
+                                        {/* <Briefcase className="h-5 w-5 mr-2" /> */}
+                                        <span className="font-semibold">{mentor.role}</span>
+                                    </div>
+
+                                    {/* Company and Location */}
+                                    <div className="mb-4">
+                                        <p className="text-gray-700 font-medium mb-1">{mentor.company}</p>
+                                        <div className="flex items-center justify-center text-gray-500 text-sm">
+                                            <MapPin className="h-4 w-4 mr-1" />
+                                            {mentor.location}
+                                        </div>
+                                    </div>
+
+                                    {/* Experience */}
+                                    <div className="mb-4">
+                                        <div className="inline-block bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-sm font-semibold">
+                                            {mentor.experience}
+                                        </div>
+                                    </div>
+
+                                    {/* Description */}
+                                    <p className="text-gray-600 mb-4 leading-relaxed">
+                                        {mentor.description}
+                                    </p>
+
+                                    {/* Expertise Tags */}
+                                    <div className="pt-4 border-t border-gray-100">
+                                        <h4 className="text-sm font-semibold text-gray-700 mb-3">Areas of Expertise:</h4>
+                                        <div className="flex flex-wrap justify-center gap-2">
+                                            {mentor.expertise.map((skill, index) => (
+                                                <span
+                                                    key={index}
+                                                    className="px-3 py-1 bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-700 rounded-full text-xs font-medium"
+                                                >
+                                                    {skill}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Mentor Stats - Simplified */}
+                    {/* <div className="mt-12 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-2xl p-8 text-white">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+                            <div className="text-center">
+                                <div className="text-4xl font-bold mb-2">33+</div>
+                                <div className="text-blue-100 font-medium">Years Combined Experience</div>
+                            </div>
+                            <div className="text-center">
+                                <div className="text-4xl font-bold mb-2">1000+</div>
+                                <div className="text-blue-100 font-medium">Students Mentored</div>
+                            </div>
+                            <div className="text-center">
+                                <div className="text-4xl font-bold mb-2">4.9/5</div>
+                                <div className="text-blue-100 font-medium">Average Rating</div>
+                            </div>
+                        </div>
+                    </div> */}
+
+                    {/* CTA */}
+                    {/* <div className="text-center mt-12">
+                        <p className="text-gray-600 text-lg mb-6">
+                            Ready to learn from industry experts with real-world experience?
+                        </p>
                         <Button
                             size="lg"
-                            className="bg-white text-blue-600 hover:bg-gray-100 font-semibold px-8"
+                            className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold px-8 py-3"
                             onClick={() => setShowAuthModal(true)}
                         >
-                            Start Free Assessment
+                            Start Your Learning Journey
                         </Button>
-                        <Button
-                            size="lg"
-                            variant="outline"
-                            className="border-white text-white hover:bg-white hover:text-blue-600 font-semibold px-8"
-                            onClick={() => document.getElementById('programs')?.scrollIntoView({ behavior: 'smooth' })}
-                        >
-                            Explore Programs
-                        </Button>
-                    </div>
+                    </div> */}
                 </div>
-            </section> */}
+            </section>
 
             {/* Add Footer */}
             <Footer

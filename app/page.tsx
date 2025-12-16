@@ -26,6 +26,8 @@ import {
   ChevronLeft,
   ChevronRight,
   ClipboardList,
+  Wrench,
+  MapPin,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -92,78 +94,38 @@ export default function RalithonWebsite() {
   const mentors = [
     {
       id: 1,
-      name: "Dr. Rajesh Kumar",
-      role: "Professor & HOD",
-      department: "Electronics and Communication Department",
-      college: "ABC Engineering College",
-      experience: "15+ years teaching",
-      image: `${IMAGE_URL}professor2.jpg`,
-      bio: "Dr. Rajesh Kumar has been guiding students in computer science for over 15 years. His expertise in software engineering and database management has helped shape countless successful careers in the IT industry.",
-      expertise: ["Software Engineering", "Database Systems", "Algorithms"],
-      achievements: [
-        "Guided 50+ student projects",
-        "Published 20+ research papers",
-        "Industry-Academia Collaboration Expert",
-        "Student Mentor Award Winner"
-      ],
-      words: "The foundation of success in technology lies in strong fundamentals and continuous learning. Your dedication to mastering core concepts will take you far in this ever-evolving field.",
-      impact: "Dr. Kumar's guidance helped us establish strong development practices and understand the importance of scalable architecture in our projects."
+      name: "Dr. Alok Choudhary",
+      role: "Director - Academic Strategy & Student Development",
+      experience: "16+ Years in EdTech",
+      company: "Ralithon Technologies",
+      location: "Indore, M.P.",
+      image: "/images/professor1.webp",
+      description: "Dr. Alok Choudhary provided invaluable guidance in integrating and implementing various technological components within our academic framework. His vision and expertise have effectively bridged the gap between technology and education, significantly contributing to our professional and career development.",
+      expertise: ["Industry-Academia Collaboration Expert"]
     },
     {
       id: 2,
-      name: "Prof. Sunita Sharma",
-      role: "Associate Professor",
-      department: "Information Technology",
-      college: "XYZ Institute of Technology",
-      experience: "12+ years teaching",
-      image: `${IMAGE_URL}professor2.jpg`,
-      bio: "Prof. Sunita Sharma specializes in web technologies and mobile application development. Her practical approach to teaching has helped students bridge the gap between academic learning and industry requirements.",
-      expertise: ["Web Technologies", "Mobile Development", "UI/UX Design"],
-      achievements: [
-        "Mentored 100+ web projects",
-        "Industry Workshop Coordinator",
-        "Full Stack Development Expert",
-        "Student Innovation Guide"
-      ],
-      words: "In the world of technology, your ability to adapt and learn new frameworks is as important as your core knowledge. Stay curious and never stop building.",
-      impact: "Prof. Sharma's insights into modern web development frameworks were crucial in helping us build responsive and user-friendly applications."
+      name: "Hardik Patel ",
+      role: "Growth Advisor",
+      experience: "15+ Years in Software Development",
+      company: "Ralithon Technologies",
+      location: "Ahmedabad , Gujarat",
+      image: "/images/professor2.webp", // Replace with your actual image path
+      description: "His approach of seamlessly blending technology with academics resonates strongly with current industry requirements. As an entrepreneur, I’ve witnessed how his initiatives empower students with future-ready skills and foster meaningful innovation in the professional landscape.",
+      expertise: ["Full Stack Development", "Cloud Architecture", "Mentoring"]
     },
     {
       id: 3,
-      name: "Dr. Amit Patel",
-      role: "Senior Professor",
-      department: "Artificial Intelligence",
-      college: "PQR College of Engineering",
-      experience: "18+ years teaching",
-      image: `${IMAGE_URL}professor3.jpg`,
-      bio: "With nearly two decades of experience in AI and machine learning, Dr. Amit Patel has been at the forefront of introducing cutting-edge technologies to students. His research in neural networks has been widely recognized.",
-      expertise: ["Machine Learning", "Neural Networks", "Data Science"],
-      achievements: [
-        "AI Research Pioneer",
-        "Patent Holder in ML Algorithms",
-        "International Conference Speaker",
-        "Research Grant Recipient"
-      ],
-      words: "Artificial Intelligence is not just about algorithms, it's about solving real-world problems. Focus on understanding the problem deeply before jumping to solutions.",
-      impact: "Dr. Patel's mentorship in AI concepts enabled us to implement intelligent features in our applications and understand the ethical implications of AI."
+      name: "Prof. Rahul Sen",
+      role: "Skill Development Mentor",
+      experience: "8+ Years in Curriculum Design",
+      company: "Ralithon Technologies",
+      location: "Udaipur , Rajasthan",
+      image: "/images/professor3.webp", // Replace with your actual image path
+      description: "His strategy of integrating modern technology with academic practices has consistently aligned with evolving industry standards. His initiatives and leadership have empowered students with real-world skills, strengthening their readiness for emerging professional opportunities.",
+      expertise: ["Curriculum Design", "Career Guidance", "Skill Development"]
     }
   ];
-
-  // Auto-slide for mentors carousel
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentMentorIndex((prev) => (prev + 1) % mentors.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, [mentors.length]);
-
-  const nextMentor = () => {
-    setCurrentMentorIndex((prev) => (prev + 1) % mentors.length);
-  };
-
-  const prevMentor = () => {
-    setCurrentMentorIndex((prev) => (prev - 1 + mentors.length) % mentors.length);
-  };
 
   // Rest of your existing useEffect hooks and state declarations...
   useEffect(() => {
@@ -713,7 +675,7 @@ export default function RalithonWebsite() {
         setAuthMode={setAuthMode}
         scrollToSection={scrollToSection}
       />
-      <section className="relative w-full flex items-center overflow-hidden h-[450px]">
+      <section id="home" className="home relative w-full flex items-center overflow-hidden h-[450px] border-black-200">
         {slides.map((slide, i) => {
           const isCurrent = i === slideIndex;
           return (
@@ -749,9 +711,9 @@ export default function RalithonWebsite() {
             <p className="text-base sm:text-lg md:text-xl text-white/90 mb-6 transition-all duration-[2500ms] ease-in-out">
               {slides[slideIndex].subtitle}
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+            {/* <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
               <button className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition"
-                style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}>
+                style={{ background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)" }}>
                 {slides[slideIndex].cta1}
               </button>
               <button
@@ -760,7 +722,7 @@ export default function RalithonWebsite() {
                 <span
                   className="relative z-10"
                   style={{
-                    background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)",
+                    background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)",
                     WebkitBackgroundClip: "text",
                     WebkitTextFillColor: "transparent",
                     color: "transparent",
@@ -770,7 +732,7 @@ export default function RalithonWebsite() {
                 </span>
               </button>
 
-            </div>
+            </div> */}
           </div>
 
           <div className="hidden md:block md:flex-1">
@@ -792,7 +754,7 @@ export default function RalithonWebsite() {
             <h2 className="text-4xl font-extrabold text-gray-900 mb-4 tracking-tight">About Ralithon</h2>
             <div
               className="w-28 h-1 mx-auto mb-6 rounded-full"
-              style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}
+              style={{ background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)" }}
             ></div>
             <p className="text-lg md:text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed">
               Transforming businesses through innovative technology solutions and digital excellence.
@@ -807,7 +769,7 @@ export default function RalithonWebsite() {
                 <div className="flex items-center mb-6">
                   <div
                     className="w-10 h-10 rounded-lg flex items-center justify-center mr-4"
-                    style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}
+                    style={{ background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)" }}
                   >
                     <Building className="h-5 w-5 text-white" />
                   </div>
@@ -864,14 +826,15 @@ export default function RalithonWebsite() {
           </div>
 
           {/* Expertise Section */}
-          <div className="rounded-2xl p-10 text-white mb-16" style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}>
+          <div className="rounded-2xl p-10 text-white mb-16" style={{ background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)" }}>
             <h3 className="text-2xl font-semibold mb-10 text-center">Our Expertise</h3>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-8">
               {[
                 { icon: <Code className="h-6 w-6 text-white" />, title: "Web Development", desc: "Modern, responsive websites" },
                 { icon: <Smartphone className="h-6 w-6 text-white" />, title: "Mobile Apps", desc: "Native & cross-platform" },
                 { icon: <Brain className="h-6 w-6 text-white" />, title: "AI & ML", desc: "Intelligent solutions" },
                 { icon: <Cloud className="h-8 w-8 text-white" />, title: "Cloud Engineering", desc: "Scalable infrastructure" },
+                { icon: <Wrench className="h-6 w-6 text-white" />, title: "Support & Maintenance", desc: "24/7 technical support" }
               ].map((item, idx) => (
                 <div key={idx} className="text-center">
                   <div className="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -894,7 +857,7 @@ export default function RalithonWebsite() {
                 onClick={() => scrollToSection("services")}
                 className="font-semibold hover:opacity-80 transition-opacity cursor-pointer"
                 style={{
-                  background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)",
+                  background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",
@@ -908,7 +871,7 @@ export default function RalithonWebsite() {
                 onClick={() => scrollToSection("mentors")}
                 className="font-semibold hover:opacity-80 transition-opacity cursor-pointer"
                 style={{
-                  background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)",
+                  background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",
@@ -922,7 +885,7 @@ export default function RalithonWebsite() {
                 onClick={() => router.push('/internships')}
                 className="font-semibold hover:opacity-80 transition-opacity cursor-pointer"
                 style={{
-                  background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)",
+                  background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",
@@ -935,7 +898,7 @@ export default function RalithonWebsite() {
             <Button
               onClick={() => scrollToSection("contact")}
               className="text-white px-10 py-3 rounded-lg font-semibold transition duration-300 transform hover:-translate-y-1"
-              style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}
+              style={{ background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)" }}
             >
               Get In Touch
             </Button>
@@ -959,7 +922,7 @@ export default function RalithonWebsite() {
             </h2>
             <div
               className="w-20 h-1 mx-auto mb-8"
-              style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}
+              style={{ background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)" }}
             ></div>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
               We don't just deliver solutions - we partner with you to understand your business goals and create tailored strategies that drive real results. Our process is designed for maximum impact at every stage of your digital transformation.
@@ -1218,107 +1181,95 @@ export default function RalithonWebsite() {
           </div>
         </div>
       )}
-      <section id="mentors" className="py-10 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">Our Guides</h2>
-            <div className="w-24 h-1 mx-auto rounded-full bg-gradient-to-r from-sky-400 to-sky-700 mb-6" />
-            <p className="text-gray-500 max-w-md mx-auto">Academic excellence meets industry insight</p>
+      <section id="mentors" className="py-16 bg-white">
+        <div className="container mx-auto px-2">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Our Mentors
+            </h2>
+            <div
+              className="w-28 h-1 mx-auto mb-6 rounded-full"
+              style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}
+            ></div>
+            {/* <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                                  Learn directly from industry professionals who guide you through hands-on projects and real-world scenarios
+                              </p> */}
           </div>
 
-          <div className="relative max-w-5xl mx-auto">
-            <div className="overflow-hidden">
+          {/* Responsive Grid - 1 column on mobile, 3 on desktop */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6">
+            {mentors.map((mentor) => (
               <div
-                className="flex transition-transform duration-500 ease-in-out"
-                style={{ transform: `translateX(-${currentMentorIndex * 100}%)` }}
+                key={mentor.id}
+                className="bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-200 hover:shadow-2xl transition-all duration-300"
               >
-                {mentors.map((mentor, index) => (
-                  <div key={mentor.id} className="w-full flex-shrink-0 px-6">
-                    <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-8 border border-gray-100">
-                      <div className="grid lg:grid-cols-5 gap-8">
-
-                        {/* Profile Sidebar */}
-                        <div className="lg:col-span-2">
-                          <div className="text-center lg:text-left">
-                            <div className="relative w-20 h-20 lg:w-28 lg:h-28 rounded-full overflow-hidden border-4 border-white shadow-lg mx-auto lg:mx-0 mb-4">
-                              <Image
-                                src={mentor.image}
-                                alt={mentor.name}
-                                fill
-                                className="object-cover"
-                                sizes="80px"
-                              />
-                            </div>
-                            <h3 className="text-xl font-semibold text-gray-800 mb-1">{mentor.name}</h3>
-                            <p className="text-blue-600 text-sm mb-2">{mentor.role}</p>
-                            <p className="text-gray-500 text-xs">{mentor.college}</p>
-                          </div>
-                        </div>
-
-                        {/* Content */}
-                        <div className="lg:col-span-3">
-                          {/* Expertise */}
-                          <div className="mb-6">
-                            <div className="flex flex-wrap gap-2 mb-4">
-                              {mentor.expertise.map((skill, skillIndex) => (
-                                <span key={skillIndex} className="px-3 py-1 bg-blue-50 text-blue-700 text-sm rounded-full">
-                                  {skill}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-
-                          {/* Achievements */}
-                          <div className="mb-6">
-                            <ul className="space-y-2">
-                              {mentor.achievements.map((achievement, achievementIndex) => (
-                                <li key={achievementIndex} className="flex items-center text-sm text-gray-600">
-                                  <div className="w-4 h-4 bg-green-100 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
-                                    <Check className="h-2 w-2 text-green-600" />
-                                  </div>
-                                  {achievement}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-
-                          {/* Impact */}
-                          <div className="bg-blue-50 rounded-lg p-4">
-                            <p className="text-sm text-blue-800 leading-relaxed">
-                              {mentor.impact}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
+                {/* Mentor Image - Responsive and handles different sizes */}
+                <div className="relative w-full h-72 bg-gradient-to-br from-blue-50 to-cyan-50">
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="relative w-48 h-48 md:w-56 md:h-56 rounded-full overflow-hidden border-4 border-white shadow-lg">
+                      <Image
+                        src={mentor.image}
+                        alt={mentor.name}
+                        fill
+                        className="object-cover object-center"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 400px"
+                        style={{ objectPosition: 'center 20%' }}
+                      />
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
+                </div>
 
-            {/* Navigation */}
-            <div className="flex justify-center mt-8 space-x-4">
-              <button onClick={prevMentor} className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-              <div className="flex items-center space-x-1">
-                {mentors.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentMentorIndex(index)}
-                    className={`w-1.5 h-1.5 rounded-full transition-all ${index === currentMentorIndex ? "bg-blue-600" : "bg-gray-300"
-                      }`}
-                  />
-                ))}
+                <div className="p-6 text-center">
+                  {/* Name and Role */}
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                    {mentor.name}
+                  </h3>
+                  <div className="flex items-center justify-center text-blue-600 mb-3">
+                    {/* <Briefcase className="h-5 w-5 mr-2" /> */}
+                    <span className="font-semibold">{mentor.role}</span>
+                  </div>
+
+                  {/* Company and Location */}
+                  <div className="mb-4">
+                    <p className="text-gray-700 font-medium mb-1">{mentor.company}</p>
+                    <div className="flex items-center justify-center text-gray-500 text-sm">
+                      <MapPin className="h-4 w-4 mr-1" />
+                      {mentor.location}
+                    </div>
+                  </div>
+
+                  {/* Experience */}
+                  <div className="mb-4">
+                    <div className="inline-block bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-sm font-semibold">
+                      {mentor.experience}
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <p className="text-gray-600 mb-4 leading-relaxed">
+                    {mentor.description}
+                  </p>
+
+                  {/* Expertise Tags */}
+                  <div className="pt-4 border-t border-gray-100">
+                    <h4 className="text-sm font-semibold text-gray-700 mb-3">Areas of Expertise:</h4>
+                    <div className="flex flex-wrap justify-center gap-2">
+                      {mentor.expertise.map((skill, index) => (
+                        <span
+                          key={index}
+                          className="px-3 py-1 bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-700 rounded-full text-xs font-medium"
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
-              <button onClick={nextMentor} className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
-                <ChevronRight className="h-5 w-5" />
-              </button>
-            </div>
+            ))}
           </div>
         </div>
       </section>
-
       {/* Contact Section */}
       <section id="contact" className="py-10 bg-gray-100">
         <div className="container mx-auto px-4">
@@ -1351,7 +1302,7 @@ export default function RalithonWebsite() {
             </h2>
             <div
               className="w-20 h-1 mx-auto mb-8"
-              style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}
+              style={{ background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)" }}
             ></div>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
               Find answers to common questions about our services and internship
@@ -1362,7 +1313,7 @@ export default function RalithonWebsite() {
             <Button
               onClick={() => setFaqExpanded(!faqExpanded)}
               className="text-white px-6 py-3 rounded-full flex items-center space-x-2 mx-auto"
-              style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}
+              style={{ background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)" }}
             >
               <span>{faqExpanded ? "Hide FAQs" : "View All FAQs"}</span>
               <ChevronDown
@@ -1500,7 +1451,7 @@ export default function RalithonWebsite() {
                   handleTakeAssessment(selectedCourse);
                 }}
                 className="px-4 py-2 text-sm font-medium text-white rounded-md focus:outline-none focus:ring-2"
-                style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}
+                style={{ background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)" }}
               >
                 Continue to Assessment
               </button>
@@ -1612,15 +1563,15 @@ export default function RalithonWebsite() {
             <div className="px-6 py-6">
 
               {/* Logo */}
-              <div className="mx-auto w-14 h-14 mb-3 relative">
+              {/* <div className="mx-auto w-14 h-14 mb-3 relative">
                 <Image
-                  src={`${IMAGE_URL}logo.png`}
+                  src={`/images/logo.jpeg`}
                   alt="Ralithon Logo"
                   fill
                   className="object-contain"
                   priority
                 />
-              </div>
+              </div> */}
 
               {/* Heading */}
               <h2 className="text-lg md:text-xl font-semibold text-gray-800 text-center mb-1">
@@ -1663,7 +1614,7 @@ export default function RalithonWebsite() {
                 }}
                 className="w-full text-white text-sm font-medium py-3 rounded-lg hover:shadow-md transition active:scale-95 touch-manipulation"
                 style={{
-                  background: "linear-gradient(270deg, rgb(55,182,241) 0%, rgb(2,116,186) 100%)"
+                  background: "linear-gradient(270deg, rgb(6, 132, 190) 0%, rgb(2, 116, 186) 100%)"
                 }}
               >
                 Apply for Internship
@@ -1687,7 +1638,7 @@ export default function RalithonWebsite() {
           onClick={scrollToTop}
           className="fixed bottom-6 right-6 rounded-full w-12 h-12 shadow-lg z-50"
           size="icon"
-          style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}
+          style={{ background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)" }}
         >
           <ChevronUp className="h-6 w-6" />
         </Button>
