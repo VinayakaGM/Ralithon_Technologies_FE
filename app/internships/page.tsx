@@ -444,8 +444,8 @@ export default function InternshipsPage() {
                     }
                 },
                 prefill: {
-                    email: currentUser?.email,
-                    contact: userDetails.phoneNumber,
+                    email: currentUser?.email || "",
+                    contact: userDetails?.phoneNumber || "",
                 },
                 theme: {
                     color: "#0274ba",
