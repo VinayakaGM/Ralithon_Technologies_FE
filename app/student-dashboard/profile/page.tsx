@@ -236,7 +236,9 @@ export default function ProfileTab() {
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <X className="w-8 h-8 text-red-600" />
           </div>
-          <p className="text-red-600 font-medium text-lg">{error}</p>
+          <p className="text-red-600 font-medium text-lg">
+            Unable to load your profile at the moment. Please try again later.
+          </p>
         </div>
       </div>
     );
@@ -372,8 +374,8 @@ export default function ProfileTab() {
                             onChange={handleInputChange}
                             disabled={!editMode}
                             className={`transition-all duration-200 ${editMode
-                                ? 'border-blue-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-                                : 'bg-gray-50 border-gray-200'
+                              ? 'border-blue-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+                              : 'bg-gray-50 border-gray-200'
                               }`}
                           />
                         </div>
@@ -389,8 +391,8 @@ export default function ProfileTab() {
                             onChange={handleInputChange}
                             disabled={!editMode}
                             className={`transition-all duration-200 ${editMode
-                                ? 'border-blue-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-                                : 'bg-gray-50 border-gray-200'
+                              ? 'border-blue-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+                              : 'bg-gray-50 border-gray-200'
                               }`}
                           />
                         </div>
@@ -422,8 +424,8 @@ export default function ProfileTab() {
                             disabled={!editMode}
                             placeholder="Enter your phone number"
                             className={`transition-all duration-200 ${editMode
-                                ? 'border-blue-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-                                : 'bg-gray-50 border-gray-200'
+                              ? 'border-blue-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+                              : 'bg-gray-50 border-gray-200'
                               }`}
                           />
                         </div>
@@ -501,8 +503,8 @@ export default function ProfileTab() {
                         </div>
                         <Badge
                           className={`font-medium px-3 py-1 ${user.status
-                              ? 'bg-green-100 text-green-800 hover:bg-green-100'
-                              : 'bg-red-100 text-red-800 hover:bg-red-100'
+                            ? 'bg-green-100 text-green-800 hover:bg-green-100'
+                            : 'bg-red-100 text-red-800 hover:bg-red-100'
                             }`}
                         >
                           {user.status ? "Active" : "Inactive"}

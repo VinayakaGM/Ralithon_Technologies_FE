@@ -257,8 +257,8 @@ export default function NotesManagement() {
                       </DialogHeader>
                       <div className="space-y-6 py-4">
                         {error && (
-                          <div className="bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-lg text-sm font-medium">
-                            {error}
+                          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                            Unable to load the note(s) at the moment. Please try again later.
                           </div>
                         )}
 

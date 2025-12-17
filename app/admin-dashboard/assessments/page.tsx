@@ -195,7 +195,7 @@ export default function AssessmentMonitoringTab() {
         return;
       }
 
-     
+
       const payload: any = {
         subjectName: formData.subjectName,
         topic: formData.topic,
@@ -322,7 +322,7 @@ export default function AssessmentMonitoringTab() {
                     }}
                   >
                     <DialogTrigger asChild>
-                      <Button 
+                      <Button
                         className="text-white shadow-lg hover:shadow-xl transition-all duration-200 px-6 py-3 rounded-xl"
                         style={{
                           background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)"
@@ -348,7 +348,7 @@ export default function AssessmentMonitoringTab() {
                       <div className="grid gap-6 py-6">
                         {error && (
                           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-                            {error}
+                            Unable to load the assessment at the moment. Please try again later.
                           </div>
                         )}
                         <div className="space-y-3">
@@ -367,8 +367,8 @@ export default function AssessmentMonitoringTab() {
                             <option value="Assessment">Assessment</option>
                           </select>
                           <p className="text-xs text-slate-500">
-                            {formData.modeType === "Exam" 
-                              ? "Exams are not linked to specific courses" 
+                            {formData.modeType === "Exam"
+                              ? "Exams are not linked to specific courses"
                               : "Assessments must be linked to a course"}
                           </p>
                         </div>
@@ -418,7 +418,7 @@ export default function AssessmentMonitoringTab() {
                               <option value="Paid">Premium Assessment</option>
                             </select>
                           </div>
-                          
+
                           {formData.modeType === "Assessment" && (
                             <div className="space-y-3">
                               <RequiredLabel
