@@ -228,11 +228,10 @@ export default function CoursesTab() {
                   {/* Application status message */}
                   {applyStatus && (
                     <div
-                      className={`p-4 rounded-xl ${
-                        applyStatus.success
-                          ? "bg-green-50 border border-green-200"
-                          : "bg-red-50 border border-red-200"
-                      }`}
+                      className={`p-4 rounded-xl ${applyStatus.success
+                        ? "bg-green-50 border border-green-200"
+                        : "bg-red-50 border border-red-200"
+                        }`}
                     >
                       <div className="flex items-center gap-2">
                         {applyStatus.success ? (
@@ -284,20 +283,18 @@ export default function CoursesTab() {
                           (video, index) => (
                             <div
                               key={index}
-                              className={`p-4 rounded-xl cursor-pointer transition-all duration-200 ${
-                                selectedVideo === video.videoUrl
-                                  ? "bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 shadow-md"
-                                  : "bg-white/70 hover:bg-white/90 border border-slate-200 hover:shadow-lg"
-                              }`}
+                              className={`p-4 rounded-xl cursor-pointer transition-all duration-200 ${selectedVideo === video.videoUrl
+                                ? "bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 shadow-md"
+                                : "bg-white/70 hover:bg-white/90 border border-slate-200 hover:shadow-lg"
+                                }`}
                               onClick={() => setSelectedVideo(video.videoUrl)}
                             >
                               <div className="flex items-start gap-3">
                                 <div
-                                  className={`p-2 rounded-lg ${
-                                    selectedVideo === video.videoUrl
-                                      ? "bg-blue-100 text-blue-600"
-                                      : "bg-slate-100 text-slate-600"
-                                  }`}
+                                  className={`p-2 rounded-lg ${selectedVideo === video.videoUrl
+                                    ? "bg-blue-100 text-blue-600"
+                                    : "bg-slate-100 text-slate-600"
+                                    }`}
                                 >
                                   <Play className="w-4 h-4" />
                                 </div>
@@ -348,9 +345,12 @@ export default function CoursesTab() {
                 {/* Error State */}
                 {error && (
                   <div className="bg-red-50 border border-red-200 rounded-2xl p-6 text-center">
-                    <div className="text-red-600 font-medium">{error}</div>
+                    <div className="text-red-600 font-medium">
+                      Unable to load courses at the moment. Please refresh or try again later.
+                    </div>
                   </div>
                 )}
+
 
                 {/* Loading State */}
                 {loading && (
@@ -417,11 +417,10 @@ export default function CoursesTab() {
                               </div>
                               <Badge
                                 variant="secondary"
-                                className={`px-3 py-1 rounded-full font-medium ${
-                                  course.courseStatus === "Active"
-                                    ? "bg-blue-100 text-blue-700 border-blue-200"
-                                    : "bg-emerald-100 text-emerald-700 border-emerald-200"
-                                }`}
+                                className={`px-3 py-1 rounded-full font-medium ${course.courseStatus === "Active"
+                                  ? "bg-blue-100 text-blue-700 border-blue-200"
+                                  : "bg-emerald-100 text-emerald-700 border-emerald-200"
+                                  }`}
                               >
                                 {course.courseStatus}
                               </Badge>
@@ -452,32 +451,28 @@ export default function CoursesTab() {
 
                             {/* Status Card */}
                             <div
-                              className={`p-4 rounded-xl ${
-                                course.courseStatus === "Active"
-                                  ? "bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200"
-                                  : "bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200"
-                              }`}
+                              className={`p-4 rounded-xl ${course.courseStatus === "Active"
+                                ? "bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200"
+                                : "bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200"
+                                }`}
                             >
                               <div className="flex items-center gap-3">
                                 <Star
-                                  className={`w-5 h-5 ${
-                                    course.courseStatus === "Active"
-                                      ? "text-blue-600"
-                                      : "text-emerald-600"
-                                  }`}
+                                  className={`w-5 h-5 ${course.courseStatus === "Active"
+                                    ? "text-blue-600"
+                                    : "text-emerald-600"
+                                    }`}
                                 />
                                 <p
-                                  className={`text-sm font-medium ${
-                                    course.courseStatus === "Active"
-                                      ? "text-blue-700"
-                                      : "text-emerald-700"
-                                  }`}
+                                  className={`text-sm font-medium ${course.courseStatus === "Active"
+                                    ? "text-blue-700"
+                                    : "text-emerald-700"
+                                    }`}
                                 >
                                   {course.courseStatus === "Active"
                                     ? "Course is currently active"
-                                    : `Course completed on ${
-                                        course.endDate.split(" ")[0]
-                                      }`}
+                                    : `Course completed on ${course.endDate.split(" ")[0]
+                                    }`}
                                 </p>
                               </div>
                             </div>
