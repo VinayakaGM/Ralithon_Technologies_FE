@@ -339,11 +339,10 @@ export default function CourseManagementTab() {
                       </DialogHeader>
                       <div className="space-y-8 py-2">
                         {error && (
-                          <div className="bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-lg text-sm">
-                            {error}
+                          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                            Unable to load the courses at the moment. Please try again later.
                           </div>
                         )}
-
                         <div className="space-y-8">
                           {/* Basic Information Section */}
                           <div className="space-y-6">
@@ -598,11 +597,10 @@ export default function CourseManagementTab() {
                       </DialogHeader>
                       <div className="space-y-8 py-2">
                         {error && (
-                          <div className="bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-lg text-sm">
-                            {error}
+                          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                            Unable to load the couses at the moment. Please try again later.
                           </div>
                         )}
-
                         <div className="space-y-8">
                           {/* Basic Information Section */}
                           <div className="space-y-6">
@@ -1012,8 +1010,8 @@ export default function CourseManagementTab() {
                                 <TableCell>
                                   <Badge
                                     className={`text-xs font-bold rounded-full px-3 py-1 whitespace-nowrap ${course.courseType === "PAID"
-                                        ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white"
-                                        : "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white"
+                                      ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white"
+                                      : "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white"
                                       }`}
                                   >
                                     {course.courseType}

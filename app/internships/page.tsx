@@ -76,7 +76,7 @@ export default function InternshipsPage() {
             experience: "16+ Years in EdTech",
             company: "Ralithon Technologies",
             location: "Indore, M.P.",
-            image: "/images/professor1.webp", 
+            image: "/images/professor1.webp",
             description: "Dr. Alok Choudhary provided invaluable guidance in integrating and implementing various technological components within our academic framework. His vision and expertise have effectively bridged the gap between technology and education, significantly contributing to our professional and career development.",
             expertise: ["Industry-Academia Collaboration Expert"]
         },
@@ -622,8 +622,12 @@ export default function InternshipsPage() {
                         </div>
                     ) : courseError ? (
                         <div className="text-center py-12">
-                            <p className="text-red-500 font-medium">{courseError}</p>
-                            <Button onClick={fetchCourses} className="mt-4">Retry</Button>
+                            <p className="text-red-500 font-medium">
+                                Unable to load programs at the moment. Please try again later.
+                            </p>
+                            <Button onClick={fetchCourses} className="mt-4">
+                                Retry
+                            </Button>
                         </div>
                     ) : filteredCourses.length === 0 ? (
                         <div className="text-center py-12">
