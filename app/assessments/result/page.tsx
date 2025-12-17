@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import AuthService from "@/services/auth.service";
@@ -37,7 +37,7 @@ interface TestResult {
   timeSpent: number;
 }
 
-export default function TestResultPage() {
+ function TestResultPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [currentUser, setCurrentUser] = useState<any | null>(null);
@@ -263,5 +263,21 @@ export default function TestResultPage() {
         </div>
       </div>
     </div>
+  );
+}
+export default function TestResultPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+            <p className="mt-4 text-gray-600">Loading results...</p>
+          </div>
+        </div>
+      }
+    >
+      <TestResultPageInner />
+    </Suspense>
   );
 }
