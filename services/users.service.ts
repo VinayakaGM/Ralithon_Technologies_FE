@@ -83,7 +83,6 @@ export interface AssessmentStartResponse {
   message: string;
   assessment: AssessmentQuestion[];
   attemptId?: string | null;
-  assessmentId: number;
 }
 
 export interface AssessmentAttemptResponse {
@@ -313,7 +312,7 @@ class UserService {
   ): Promise<AssessmentAttemptResponse> {
     return axios
       .post(
-        `${API_URL}admin/assessments/start/${assessmentId}/${userId}?isAssessement=true`,
+        `${API_URL}admin/assessments/start/${assessmentId}/${userId}`,
         null,
         {
           headers: { ...this.getHeaders(), Accept: "*/*" },
@@ -328,26 +327,6 @@ class UserService {
       .catch((error) => this.handleError(error));
   }
 
-
-  attemptTest(
-    userId: number,
-  ): Promise<AssessmentAttemptResponse> {
-    return axios
-      .post(
-        `${API_URL}admin/assessments/startExam/${userId}`,
-        null,
-        {
-          headers: { ...this.getHeaders(), Accept: "*/*" }
-        }
-      )
-      .then((response) => ({
-        success: true,
-        data: response.data,
-        message: response.data.message || "Assessment start successfully",
-      }))
-      .catch((error) => this.handleError(error));
-  }
-
   submitAnswer(
     userId: number | undefined,
     assessmentId: number,
@@ -355,17 +334,14 @@ class UserService {
     answer: string
   ): Promise<ApiResponse> {
     return axios
-      .post(
-        `${API_URL}admin/assessments/answer/${userId}`,
-        {
-          assessmentId,
+      .post(`${API_URL}admin/assessments/answer/${userId}`, null, {
+        headers: this.getHeaders(),
+        params: {
           questionId,
           answer,
+          assessmentId,
         },
-        {
-          headers: this.getHeaders(),
-        }
-      )
+      })
       .then((response) => ({
         success: true,
         data: response.data,
@@ -373,7 +349,6 @@ class UserService {
       }))
       .catch((error) => this.handleError(error));
   }
-
 
   submitAssessment(
     assessmentId: number,

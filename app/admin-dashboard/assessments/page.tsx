@@ -53,12 +53,6 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/admin-sidebar";
 import { AdminHeader } from "@/components/admin-header";
 
-
-interface AssessmentFormDataExtended extends Omit<AssessmentFormData, 'courseId'> {
-  courseId: number;
-  modeType: string;
-}
-
 export default function AssessmentMonitoringTab() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -72,13 +66,14 @@ export default function AssessmentMonitoringTab() {
   const [isCoursesLoading, setIsCoursesLoading] = useState(false);
   const [viewAssessment, setViewAssessment] = useState<Assessment | null>(null);
   const [activeTab, setActiveTab] = useState("assessments");
-  const [formData, setFormData] = useState<AssessmentFormDataExtended>({
+  const [formData, setFormData] = useState<
+    AssessmentFormData & { courseId: number }
+  >({
     courseId: 0,
     subjectName: "",
     topic: "",
     assessmentType: "Free",
     price: 0,
-    modeType: "Exam",
   });
 
   const [fileData, setFileData] = useState<File | null>(null);
@@ -127,13 +122,7 @@ export default function AssessmentMonitoringTab() {
   ) => {
     const { name, value } = e.target;
 
-    if (name === "modeType") {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-        courseId: value === "Exam" ? 0 : prev.courseId,
-      }));
-    } else if (name === "assessmentType") {
+    if (name === "assessmentType") {
       setFormData((prev) => ({
         ...prev,
         [name]: value,
@@ -148,8 +137,8 @@ export default function AssessmentMonitoringTab() {
               ? ""
               : Number(value)
             : name === "courseId"
-              ? Number(value)
-              : value,
+            ? Number(value)
+            : value,
       }));
     }
   };
@@ -166,18 +155,12 @@ export default function AssessmentMonitoringTab() {
 
     // Validate required fields
     if (
+      !formData.courseId ||
       !formData.subjectName.trim() ||
       !formData.topic.trim() ||
-      !formData.assessmentType ||
-      !formData.modeType
+      !formData.assessmentType
     ) {
       toast.error("Please fill in all required fields");
-      setIsSubmitting(false);
-      return;
-    }
-
-    if (formData.modeType === "Assessment" && !formData.courseId) {
-      toast.error("Please select a course for Assessment mode");
       setIsSubmitting(false);
       return;
     }
@@ -195,29 +178,20 @@ export default function AssessmentMonitoringTab() {
         return;
       }
 
-     
-      const payload: any = {
-        subjectName: formData.subjectName,
-        topic: formData.topic,
-        assessmentType: formData.assessmentType,
+      const submissionData = {
+        ...formData,
         price: formData.price === "" ? 0 : Number(formData.price),
-        modeType: formData.modeType, // This should be included
       };
-
-      // Only include courseId if mode is Assessment
-      if (formData.modeType === "Assessment" && formData.courseId) {
-        payload.courseId = formData.courseId;
-      }
 
       let response;
       if (editingAssessment) {
         response = await AdminCourseService.updateAssessment(
           editingAssessment.assessmentId,
-          payload,
+          submissionData,
           fileData ? { file: fileData } : undefined
         );
       } else {
-        response = await AdminCourseService.createAssessment(payload, {
+        response = await AdminCourseService.createAssessment(submissionData, {
           file: fileData!,
         });
       }
@@ -235,7 +209,6 @@ export default function AssessmentMonitoringTab() {
           topic: "",
           assessmentType: "Free",
           price: 0,
-          modeType: "Exam",
         });
         setFileData(null);
         setEditingAssessment(null);
@@ -243,14 +216,13 @@ export default function AssessmentMonitoringTab() {
       } else {
         setError(
           response.message ||
-          `Failed to ${editingAssessment ? "update" : "create"} assessment`
+            `Failed to ${editingAssessment ? "update" : "create"} assessment`
         );
       }
     } catch (error: any) {
-      console.error("DEBUG - Error:", error);
       setError(
         error.message ||
-        `Failed to ${editingAssessment ? "update" : "create"} assessment`
+          `Failed to ${editingAssessment ? "update" : "create"} assessment`
       );
     } finally {
       setIsSubmitting(false);
@@ -265,7 +237,6 @@ export default function AssessmentMonitoringTab() {
       topic: assessment.topicName,
       assessmentType: assessment.assessmentType,
       price: assessment.price,
-      modeType: assessment.modeType || "Exam",
     });
     setIsAddDialogOpen(true);
   };
@@ -277,6 +248,13 @@ export default function AssessmentMonitoringTab() {
   const handleDeleteAssessment = async (assessmentId: number) => {
     if (confirm("Are you sure you want to delete this assessment?")) {
       try {
+        // You'll need to implement deleteAssessment in your service
+        // const response = await AdminCourseService.deleteAssessment(assessmentId);
+        // if (response.success) {
+        //   await fetchAssessments();
+        // } else {
+        //   setError(response.message || "Failed to delete assessment");
+        // }
         setError("Delete functionality not implemented yet");
       } catch (error: any) {
         setError(error.message || "Failed to delete assessment");
@@ -315,7 +293,6 @@ export default function AssessmentMonitoringTab() {
                           topic: "",
                           assessmentType: "Free",
                           price: 0,
-                          modeType: "Exam",
                         });
                         setFileData(null);
                       }
@@ -325,7 +302,7 @@ export default function AssessmentMonitoringTab() {
                       <Button 
                         className="text-white shadow-lg hover:shadow-xl transition-all duration-200 px-6 py-3 rounded-xl"
                         style={{
-                          background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)"
+                          background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
                         }}
                       >
                         <Plus className="h-5 w-5 mr-2" />
@@ -353,24 +330,27 @@ export default function AssessmentMonitoringTab() {
                         )}
                         <div className="space-y-3">
                           <RequiredLabel
-                            name="modeType"
-                            label="Mode Type"
+                            name="courseId"
+                            label="Course Selection"
                           />
                           <select
-                            id="modeType"
-                            name="modeType"
+                            id="courseId"
+                            name="courseId"
                             className="flex h-12 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:cursor-not-allowed disabled:opacity-50"
-                            value={formData.modeType}
+                            value={formData.courseId}
                             onChange={handleInputChange}
+                            disabled={isCoursesLoading || !!editingAssessment}
                           >
-                            <option value="Exam">Exam</option>
-                            <option value="Assessment">Assessment</option>
+                            <option value={0}>Select a course</option>
+                            {courses.map((course) => (
+                              <option
+                                key={course.courseId}
+                                value={course.courseId}
+                              >
+                                {course.courseName}
+                              </option>
+                            ))}
                           </select>
-                          <p className="text-xs text-slate-500">
-                            {formData.modeType === "Exam" 
-                              ? "Exams are not linked to specific courses" 
-                              : "Assessments must be linked to a course"}
-                          </p>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -418,34 +398,6 @@ export default function AssessmentMonitoringTab() {
                               <option value="Paid">Premium Assessment</option>
                             </select>
                           </div>
-                          
-                          {formData.modeType === "Assessment" && (
-                            <div className="space-y-3">
-                              <RequiredLabel
-                                name="courseId"
-                                label="Course Selection"
-                              />
-                              <select
-                                id="courseId"
-                                name="courseId"
-                                className="flex h-12 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:cursor-not-allowed disabled:opacity-50"
-                                value={formData.courseId}
-                                onChange={handleInputChange}
-                                disabled={isCoursesLoading}
-                              >
-                                <option value={0}>Select a course</option>
-                                {courses.map((course) => (
-                                  <option
-                                    key={course.courseId}
-                                    value={course.courseId}
-                                  >
-                                    {course.courseName}
-                                  </option>
-                                ))}
-                              </select>
-                            </div>
-                          )}
-
                           <div className="space-y-3">
                             <RequiredLabel name="price" label="Price (₹)" />
                             <Input
@@ -515,7 +467,7 @@ export default function AssessmentMonitoringTab() {
                             disabled={isSubmitting}
                             className="text-white shadow-lg hover:shadow-xl transition-all duration-200 px-6 py-3 rounded-xl"
                             style={{
-                              background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)"
+                              background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
                             }}
                           >
                             {isSubmitting
@@ -523,8 +475,8 @@ export default function AssessmentMonitoringTab() {
                                 ? "Updating..."
                                 : "Creating..."
                               : editingAssessment
-                                ? "Update Assessment"
-                                : "Create Assessment"}
+                              ? "Update Assessment"
+                              : "Create Assessment"}
                           </Button>
                         </div>
                       </div>
@@ -551,48 +503,25 @@ export default function AssessmentMonitoringTab() {
                           <div className="grid grid-cols-2 gap-6">
                             <div className="space-y-2">
                               <p className="text-sm font-semibold text-slate-700">
-                                Mode Type
-                              </p>
-                              <Badge
-                                className="text-white px-3 py-1 rounded-full"
-                                style={{
-                                  background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)"
-                                }}
-                              >
-                                {viewAssessment.modeType || "Exam"}
-                              </Badge>
-                            </div>
-                            <div className="space-y-2">
-                              <p className="text-sm font-semibold text-slate-700">
                                 Assessment Type
                               </p>
                               <Badge
                                 className="text-white px-3 py-1 rounded-full"
                                 style={{
-                                  background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)"
+                                  background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
                                 }}
                               >
                                 {viewAssessment.assessmentType}
                               </Badge>
                             </div>
-                          </div>
-                          {viewAssessment.modeType === "Assessment" && viewAssessment.courseId && (
                             <div className="space-y-2">
                               <p className="text-sm font-semibold text-slate-700">
-                                Course
+                                Price
                               </p>
-                              <p className="text-lg font-medium text-slate-900">
-                                {courses.find(c => c.courseId === viewAssessment.courseId)?.courseName || "Unknown Course"}
+                              <p className="text-lg font-bold text-slate-900">
+                                ₹ {viewAssessment.price || 0}
                               </p>
                             </div>
-                          )}
-                          <div className="space-y-2">
-                            <p className="text-sm font-semibold text-slate-700">
-                              Price
-                            </p>
-                            <p className="text-lg font-bold text-slate-900">
-                              ₹ {viewAssessment.price || 0}
-                            </p>
                           </div>
                           <div className="space-y-3">
                             <p className="text-sm font-semibold text-slate-700">
@@ -620,15 +549,15 @@ export default function AssessmentMonitoringTab() {
                   </DialogContent>
                 </Dialog>
 
-                <div className="grid gap-6 md:grid-cols-4">
+                <div className="grid gap-6 md:grid-cols-3">
                   <Card className="bg-gradient-to-br from-white to-blue-50/50 border-0 shadow-lg hover:shadow-xl transition-all duration-300 group">
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <div
+                          <div 
                             className="text-3xl font-bold mb-1"
                             style={{
-                              background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)",
+                              background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)",
                               WebkitBackgroundClip: "text",
                               WebkitTextFillColor: "transparent"
                             }}
@@ -639,10 +568,10 @@ export default function AssessmentMonitoringTab() {
                             Total Assessments
                           </div>
                         </div>
-                        <div
+                        <div 
                           className="p-3 rounded-xl group-hover:scale-110 transition-transform duration-300"
                           style={{
-                            background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)"
+                            background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
                           }}
                         >
                           <FileText className="h-6 w-6 text-white" />
@@ -654,28 +583,28 @@ export default function AssessmentMonitoringTab() {
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <div
+                          <div 
                             className="text-3xl font-bold mb-1"
                             style={{
-                              background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)",
+                              background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)",
                               WebkitBackgroundClip: "text",
                               WebkitTextFillColor: "transparent"
                             }}
                           >
                             {
                               assessments.filter(
-                                (a) => a.modeType === "Exam"
+                                (a) => a.assessmentType === "Free"
                               ).length
                             }
                           </div>
                           <div className="text-sm font-medium text-slate-600 mt-1">
-                            Exams
+                            Free Assessments
                           </div>
                         </div>
-                        <div
+                        <div 
                           className="p-3 rounded-xl group-hover:scale-110 transition-transform duration-300"
                           style={{
-                            background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)"
+                            background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
                           }}
                         >
                           <BookOpen className="h-6 w-6 text-white" />
@@ -687,43 +616,10 @@ export default function AssessmentMonitoringTab() {
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <div
+                          <div 
                             className="text-3xl font-bold mb-1"
                             style={{
-                              background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)",
-                              WebkitBackgroundClip: "text",
-                              WebkitTextFillColor: "transparent"
-                            }}
-                          >
-                            {
-                              assessments.filter(
-                                (a) => a.modeType === "Assessment"
-                              ).length
-                            }
-                          </div>
-                          <div className="text-sm font-medium text-slate-600 mt-1">
-                            Course Assessments
-                          </div>
-                        </div>
-                        <div
-                          className="p-3 rounded-xl group-hover:scale-110 transition-transform duration-300"
-                          style={{
-                            background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)"
-                          }}
-                        >
-                          <BookOpen className="h-6 w-6 text-white" />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card className="bg-gradient-to-br from-white to-blue-50/50 border-0 shadow-lg hover:shadow-xl transition-all duration-300 group">
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div
-                            className="text-3xl font-bold mb-1"
-                            style={{
-                              background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)",
+                              background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)",
                               WebkitBackgroundClip: "text",
                               WebkitTextFillColor: "transparent"
                             }}
@@ -738,10 +634,10 @@ export default function AssessmentMonitoringTab() {
                             Premium Assessments
                           </div>
                         </div>
-                        <div
+                        <div 
                           className="p-3 rounded-xl group-hover:scale-110 transition-transform duration-300"
                           style={{
-                            background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)"
+                            background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
                           }}
                         >
                           <DollarSign className="h-6 w-6 text-white" />
@@ -768,7 +664,7 @@ export default function AssessmentMonitoringTab() {
                   <CardContent>
                     {isLoading ? (
                       <div className="flex flex-col justify-center items-center h-64 space-y-4">
-                        <div
+                        <div 
                           className="animate-spin rounded-full h-12 w-12 border-4 border-t-blue-600"
                           style={{
                             borderColor: "rgb(55, 182, 241) rgb(55, 182, 241) rgb(55, 182, 241) rgb(2, 116, 186)"
@@ -798,9 +694,6 @@ export default function AssessmentMonitoringTab() {
                           <TableHeader>
                             <TableRow className="bg-slate-50/50 hover:bg-slate-50">
                               <TableHead className="font-semibold text-slate-700 py-4">
-                                Mode Type
-                              </TableHead>
-                              <TableHead className="font-semibold text-slate-700">
                                 Subject
                               </TableHead>
                               <TableHead className="font-semibold text-slate-700">
@@ -823,14 +716,6 @@ export default function AssessmentMonitoringTab() {
                                 key={assessment.assessmentId}
                                 className="hover:bg-slate-50/50 transition-colors"
                               >
-                                <TableCell>
-                                  <Badge
-                                    variant="outline"
-                                    className="text-slate-700 border-slate-300"
-                                  >
-                                    {assessment.modeType || "Exam"}
-                                  </Badge>
-                                </TableCell>
                                 <TableCell className="font-medium text-slate-900 py-4">
                                   {assessment.subjectName}
                                 </TableCell>
@@ -841,7 +726,7 @@ export default function AssessmentMonitoringTab() {
                                   <Badge
                                     className="text-white text-xs font-bold rounded-full px-3 py-1 whitespace-nowrap"
                                     style={{
-                                      background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)"
+                                      background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
                                     }}
                                   >
                                     {assessment.assessmentType}

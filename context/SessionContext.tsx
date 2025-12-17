@@ -33,30 +33,58 @@ export const SessionProvider = ({
     isLoggedInRef.current = isLoggedIn;
   }, [isLoggedIn]);
 
+  const handleUnauthorized = () => {
+    const wasLoggedIn = isLoggedInRef.current;
+    const hasToken = !!AuthService.getAuthToken();
+
+    if (wasLoggedIn || hasToken) {
+      setSessionExpired(true);
+      AuthService.logout();
+      setIsLoggedIn(false);
+      setUser(null);
+    }
+  };
 
   useEffect(() => {
-    const handleSessionExpired = () => {
-      const wasLoggedIn = isLoggedInRef.current;
-      const hasToken = !!AuthService.getAuthToken();
-
-      if (wasLoggedIn || hasToken) {
-        setSessionExpired(true);
-        AuthService.logout();
-        setIsLoggedIn(false);
-        setUser(null);
-      }
+    const initialCheck = () => {
+      const authenticated = AuthService.isAuthenticated();
+      setIsLoggedIn(authenticated);
+      setUser(AuthService.getCurrentUser());
+      console.log("Initial auth check - isAuthenticated:", authenticated);
     };
 
-    // Listen for session expired event dispatched from api.ts
-    window.addEventListener("session-expired", handleSessionExpired);
+    initialCheck();
 
-    // Initial check
-    const authenticated = AuthService.isAuthenticated();
-    setIsLoggedIn(authenticated);
-    setUser(AuthService.getCurrentUser());
+    const axiosResponseInterceptor = axios.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error) {
+          handleUnauthorized();
+        } else if (error.code === "ERR_NETWORK") {
+          console.log("Network error - check API URL and connectivity");
+        }
+        return Promise.reject(error);
+      }
+    );
+
+    const axiosRequestInterceptor = axios.interceptors.request.use(
+      (config) => {
+        const token = AuthService.getAuthToken();
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        } else {
+          console.log("No auth token available for request");
+        }
+        return config;
+      },
+      (error) => {
+        return Promise.reject(error);
+      }
+    );
 
     return () => {
-      window.removeEventListener("session-expired", handleSessionExpired);
+      axios.interceptors.response.eject(axiosResponseInterceptor);
+      axios.interceptors.request.eject(axiosRequestInterceptor);
     };
   }, []);
 

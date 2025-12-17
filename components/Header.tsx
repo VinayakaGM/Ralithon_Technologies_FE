@@ -141,7 +141,7 @@ export function Header({
     setMobileMenuOpen(false);
   };
 
-  const handleContactUsClick = () => {
+   const handleContactUsClick = () => {
     router.push("/contact");
     setMobileMenuOpen(false);
   };
@@ -177,18 +177,10 @@ export function Header({
     { id: "home", label: "Home", onClick: () => handleNavigation("home") },
     { id: "about", label: "About", onClick: () => handleNavigation("about") },
     { id: "services", label: "Services", onClick: () => handleNavigation("services") },
-    {
-      id: "internships",
-      label: "Internships",
+    { 
+      id: "internships", 
+      label: "Internship & Programs", 
       onClick: handleInternshipsClick, // Always goes to separate page
-    },
-    {
-      id: "tests",
-      label: "Assessment",
-      onClick: () => {
-        setMobileMenuOpen(false);
-        router.push("/assessments/pretest");
-      },
     },
     { id: "contact", label: "Contact", onClick: handleContactUsClick },
   ];
@@ -207,124 +199,111 @@ export function Header({
   const isNavItemActive = (item: any) => {
     if (item.id === "internships") {
       return isInternshipsPage; // Only active when on internships page
-    }
-    else if (item.id === "tests") {
-      return pathName?.startsWith("/assessments"); 
-    } else if (item.id === "contact") {
+    }else if (item.id === "contact") {
       return pathName === "/contact"; // Only active when on contact page
     }
     return isHomePage && activeSection === item.id;
   };
 
-  const blueGradient = "linear-gradient(270deg, rgb(6, 132, 190) 0%, rgb(2, 116, 186) 100%)";
-
   return (
-    <header className="shadow-lg sticky top-0 z-40 border-b border-gray-800" style={{ backgroundColor: "rgb(17, 24, 39)" }}>
+    <header className="bg-white shadow-lg sticky top-0 z-40 border-b border-gray-200">
       <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between">
           <Link
             href="/"
             onClick={() => isHomePage && setActiveSection("home")}
             className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
           >
-            <div className="w-16 h-16 flex items-center justify-center">
-              <img src={`/images/logo.jpeg`} alt="Company Logo" className="w-full h-full object-contain" style={{height:"150%", width: "150%"}} />
+            <div className="w-12 h-12 flex items-center justify-center">
+              <img src={`${IMAGE_URL}logo.png`} alt="Company Logo" />
             </div>
-            <div className="flex flex-col">
-              <span className="text-xl font-bold text-white">
-                Ralithon Technologies
-              </span>
-              <span className="text-sm" style={{ WebkitBackgroundClip: "text", backgroundClip: "text", color: "grey", fontWeight: "600" }}>
-                Digitilization for Everyone
-              </span>
-            </div>
+            <span className="text-2xl font-bold text-gray-800">
+              Ralithon Technologies
+            </span>
           </Link>
-          
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex space-x-8 items-center">
+          <nav className="hidden lg:flex space-x-6 items-center">
             {navItems.map((item) => (
               <button
                 key={item.id}
                 onClick={item.onClick}
                 className={`relative px-1 py-2 font-medium transition-all duration-300 ${
                   isNavItemActive(item)
-                    ? "text-transparent"
-                    : "text-gray-300 hover:text-white"
+                    ? "text-transparent bg-clip-text"
+                    : "text-gray-700 hover:text-blue-600"
                 }`}
                 style={
-                  isNavItemActive(item) 
+                  isNavItemActive(item)
                     ? { 
-                        background: blueGradient,
+                        background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)",
                         WebkitBackgroundClip: "text",
                         backgroundClip: "text"
-                      } 
+                      }
                     : {}
                 }
               >
                 {item.label}
                 {isNavItemActive(item) && (
-                  <div
+                  <div 
                     className="absolute bottom-0 left-0 right-0 h-0.5"
-                    style={{ background: blueGradient }}
+                    style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}
                   />
                 )}
               </button>
             ))}
-            
             {currentUser ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="flex items-center space-x-2 hover:bg-gray-800/50 text-white"
+                    className="flex items-center space-x-2 hover:bg-gray-100"
                   >
-                    <Avatar className="h-10 w-10">
+                    <Avatar className="h-8 w-8">
                       {userDetails?.profileImage ? (
                         <AvatarImage
                           src={userDetails.profileImage}
                           alt={`${userDetails.firstName} ${userDetails.lastName}`}
                         />
                       ) : (
-                        <AvatarFallback
+                        <AvatarFallback 
                           className="text-white"
-                          style={{ background: blueGradient }}
+                          style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}
                         >
                           {currentUser.email?.charAt(0).toUpperCase()}
                         </AvatarFallback>
                       )}
                     </Avatar>
-                    <span className="text-sm font-medium text-white">
+                    <span
+                      className="text-sm font-medium text-gray-700"
+                      style={{ marginLeft: "0px" }}
+                    >
                       {userDetails
                         ? `${userDetails.firstName}`
                         : currentUser?.email?.split("@")[0]}
                     </span>
-                    <ChevronDown className="h-4 w-4 text-gray-300" />
+                    <ChevronDown className="h-4 w-4 text-gray-500" />
                   </Button>
                 </DropdownMenuTrigger>
 
-                <DropdownMenuContent 
-                  align="end" 
-                  className="w-56 border-gray-700"
-                  style={{ backgroundColor: "rgb(17, 24, 39)" }}
-                >
-                  <DropdownMenuLabel className="border-b border-gray-700">
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium text-white">
+                      <p className="text-sm font-medium text-gray-900">
                         {userDetails
                           ? `${userDetails.firstName} ${userDetails.lastName}`
                           : currentUser?.email?.split("@")[0]}
                       </p>
-                      <p className="text-xs text-gray-400">
+                      <p className="text-xs text-gray-500">
                         {!userDetails ? `` : currentUser?.email}
                       </p>
                     </div>
                   </DropdownMenuLabel>
-                  
+                  <DropdownMenuSeparator />
+
                   <DropdownMenuItem
                     onSelect={(e) => e.preventDefault()}
                     onClick={handleDashboardRedirect}
                     disabled={isRedirecting || !isUserDataReady}
-                    className="text-gray-200 hover:bg-gray-800 focus:bg-gray-800 cursor-pointer focus:text-white"
+                    style={{ cursor: "pointer" }}
                   >
                     <div className="flex items-center w-full">
                       <User className="mr-2 h-4 w-4" />
@@ -339,9 +318,11 @@ export function Header({
                     </div>
                   </DropdownMenuItem>
 
+                  <DropdownMenuSeparator />
+
                   <DropdownMenuItem
                     onClick={handleLogout}
-                    className="text-red-400 hover:bg-red-900/20 hover:text-red-300 focus:bg-red-900/20 focus:text-red-300 cursor-pointer"
+                    className="text-red-600 cursor-pointer"
                   >
                     <LogOut className="mr-2 h-4 w-4" />
                     Logout
@@ -349,17 +330,17 @@ export function Header({
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
                 <Button
                   variant="outline"
-                  className="px-6 py-2 rounded-lg hover:bg-gray-800 border-gray-300 text-gray-300 hover:text-white hover:border-white transition-colors"
+                  className="px-4 py-2 rounded-full hover:bg-gray-50 border-[rgb(2,116,186)] text-[rgb(2,116,186)] hover:text-[rgb(2,116,186)]"
                   onClick={handleSignInClick}
                 >
                   Sign In
                 </Button>
                 <Button
-                  className="px-6 py-2 rounded-lg text-white hover:opacity-90 transition-opacity"
-                  style={{ background: blueGradient }}
+                  className="text-white px-4 py-2 rounded-full"
+                  style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}
                   onClick={handleSignUpClick}
                 >
                   Sign Up
@@ -370,7 +351,7 @@ export function Header({
 
           {/* Mobile Menu Button */}
           <Button
-            className="lg:hidden border-gray-300 hover:bg-white/10 text-gray-300 hover:text-white"
+            className="lg:hidden bg-transparent"
             variant="outline"
             size="sm"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -385,26 +366,27 @@ export function Header({
 
         {/* Mobile Menu */}
         <div
-          className={`lg:hidden overflow-hidden transition-all duration-300 ${
-            mobileMenuOpen ? "max-h-screen opacity-100 mt-4" : "max-h-0 opacity-0"
+          className={`lg:hidden overflow-hidden transition-all duration-500 ${
+            mobileMenuOpen ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
           }`}
         >
-          <nav className="pt-4 pb-2 space-y-2 rounded-lg p-4" style={{ backgroundColor: "rgb(26, 32, 48)" }}>
+          <nav className="pt-4 pb-2 space-y-2">
             {navItems.map((item) => (
               <button
                 key={item.id}
                 onClick={item.onClick}
-                className={`block w-full text-left px-4 py-3 rounded-lg font-medium transition-colors ${
+                className={`block w-full text-left px-4 py-3 rounded-lg font-medium ${
                   isNavItemActive(item)
-                    ? "text-white border-l-4"
-                    : "text-gray-300 hover:text-white hover:bg-white/5"
+                    ? "text-transparent bg-clip-text"
+                    : "text-gray-700 hover:bg-gray-100"
                 }`}
                 style={
-                  isNavItemActive(item) 
+                  isNavItemActive(item)
                     ? { 
-                        borderLeftColor: "rgb(6, 132, 190)",
-                        background: "rgba(6, 132, 190, 0.1)"
-                      } 
+                        background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)",
+                        WebkitBackgroundClip: "text",
+                        backgroundClip: "text"
+                      }
                     : {}
                 }
               >
@@ -420,7 +402,7 @@ export function Header({
                     setMobileMenuOpen(false);
                   }}
                   disabled={isRedirecting || !isUserDataReady}
-                  className="flex items-center w-full text-left px-4 py-3 rounded-lg font-medium text-gray-300 hover:text-white hover:bg-white/5 disabled:opacity-50"
+                  className="flex items-center w-full text-left px-4 py-3 rounded-lg font-medium text-gray-700 hover:bg-gray-100 hover:text-blue-600 disabled:opacity-50"
                 >
                   {currentUser.userType === "ROLE_STUDENT"
                     ? "Student Dashboard"
@@ -434,34 +416,33 @@ export function Header({
                     handleLogout();
                     setMobileMenuOpen(false);
                   }}
-                  className="block w-full text-left px-4 py-3 rounded-lg font-medium text-red-400 hover:bg-red-900/20 hover:text-red-300"
+                  className="block w-full text-left px-4 py-3 rounded-lg font-medium text-gray-700 hover:bg-gray-100 hover:text-blue-600"
                 >
                   Logout
                 </button>
               </>
             )}
             {!currentUser && (
-              <div className="flex flex-col space-y-3 pt-4 border-t border-gray-700">
-                <Button
+              <div className="flex flex-col space-y-2 pt-2">
+                <button
                   onClick={() => {
                     setMobileMenuOpen(false);
                     handleSignInClick();
                   }}
-                  variant="outline"
-                  className="border-gray-300 text-gray-300 hover:bg-white/5 hover:text-white hover:border-white"
+                  className="block w-full text-left px-4 py-3 rounded-lg font-medium border border-[rgb(2,116,186)] text-[rgb(2,116,186)] hover:bg-gray-50"
                 >
                   Sign In
-                </Button>
-                <Button
+                </button>
+                <button
                   onClick={() => {
                     setMobileMenuOpen(false);
                     handleSignUpClick();
                   }}
-                  className="text-white hover:opacity-90 transition-opacity"
-                  style={{ background: blueGradient }}
+                  className="block w-full text-left px-4 py-3 rounded-lg font-medium text-white"
+                  style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}
                 >
                   Sign Up
-                </Button>
+                </button>
               </div>
             )}
           </nav>

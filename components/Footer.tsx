@@ -29,7 +29,6 @@ export function Footer({
       <div className="container mx-auto px-4">
         <div className="grid md:grid-cols-3 gap-8">
           {/* About Us */}
-          {/* About Us */}
           <div>
             <h3 className="text-xl font-bold text-white mb-4">About Us</h3>
             <p className="text-gray-400 mb-4 leading-relaxed">
@@ -37,42 +36,31 @@ export function Footer({
               technology solutions and comprehensive services to help businesses
               succeed in the digital world.
             </p>
-            <p className="text-gray-400 mb-2">
-              Registered MSME: <span className="font-medium text-white">UDYAM-MP-48-0015924</span>
-            </p>
           </div>
 
-
-          {/* Contact Info */}
           {/* Contact Info */}
           <div>
             <h3 className="text-xl font-bold text-white mb-4">Contact Us</h3>
             <div className="space-y-3">
-
-              {/* LinkedIn Link */}
-              <a
-                href="https://www.linkedin.com/company/ralithontechnologies/posts/?feedView=all"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center space-x-3 text-gray-400 hover:text-white transition-colors"
-              >
-                <Linkedin className="h-5 w-5" />
-                <span>LinkedIn</span>
-              </a>
-
+              <div className="flex items-center space-x-3 text-gray-400">
+                <a
+                  href="#"
+                  className="flex items-center space-x-3 text-gray-400 hover:text-white transition-colors"
+                >
+                  <Linkedin className="h-5 w-5" />
+                  <span>LinkedIn</span>
+                </a>
+              </div>
               <div className="flex items-center space-x-3 text-gray-400">
                 <Mail className="h-5 w-5" />
                 <span>career@ralithontechnologies.in</span>
               </div>
-
               <div className="flex items-center space-x-3 text-gray-400">
                 <MapPin className="h-5 w-5" />
                 <span>Indore, Madhya Pradesh</span>
               </div>
-
             </div>
           </div>
-
 
           {/* Quick Links */}
           <div>
@@ -89,10 +77,11 @@ export function Footer({
                   <button
                     key={item.id}
                     onClick={() => handleSectionClick(item.id)}
-                    className={`block w-full text-left hover:text-white transition-colors ${activeSection === item.id
-                      ? "text-white font-medium"
-                      : "text-gray-400"
-                      }`}
+                    className={`block w-full text-left hover:text-white transition-colors ${
+                      activeSection === item.id
+                        ? "text-white font-medium"
+                        : "text-gray-400"
+                    }`}
                   >
                     {item.label}
                   </button>
@@ -111,7 +100,7 @@ export function Footer({
                 href="/policy"
                 className="block text-gray-400 hover:text-white transition-colors"
               >
-                Our Policies
+                Policy
               </Link>
             </div>
           </div>

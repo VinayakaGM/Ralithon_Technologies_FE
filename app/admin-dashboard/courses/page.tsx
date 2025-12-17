@@ -320,7 +320,7 @@ export default function CourseManagementTab() {
                       <Button
                         className="text-white shadow-lg hover:shadow-xl transition-all duration-200 px-6 py-3 h-auto"
                         style={{
-                          background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)"
+                          background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
                         }}
                       >
                         <Plus className="h-5 w-5 mr-2" />
@@ -563,7 +563,7 @@ export default function CourseManagementTab() {
                             disabled={isSubmitting}
                             className="text-white shadow-lg hover:shadow-xl transition-all duration-200 px-8 py-3 h-auto"
                             style={{
-                              background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)"
+                              background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
                             }}
                           >
                             {isSubmitting
@@ -833,7 +833,7 @@ export default function CourseManagementTab() {
                             disabled={isSubmitting}
                             className="text-white shadow-lg hover:shadow-xl transition-all duration-200 px-8 py-3 h-auto"
                             style={{
-                              background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)"
+                              background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
                             }}
                           >
                             {isSubmitting ? "Updating..." : "Update Course"}
@@ -853,7 +853,7 @@ export default function CourseManagementTab() {
                           <div
                             className="text-3xl font-bold mb-1"
                             style={{
-                              background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)",
+                              background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)",
                               WebkitBackgroundClip: "text",
                               WebkitTextFillColor: "transparent"
                             }}
@@ -867,7 +867,7 @@ export default function CourseManagementTab() {
                         <div
                           className="h-12 w-12 rounded-xl flex items-center justify-center"
                           style={{
-                            background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)"
+                            background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
                           }}
                         >
                           <BookOpen className="h-6 w-6 text-white" />
