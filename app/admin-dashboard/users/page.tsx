@@ -268,7 +268,7 @@ export default function UserManagementTab() {
                                     : "text-slate-600 hover:bg-blue-50 hover:text-blue-700"
                                 }`}
                                 style={roleFilter === "all" ? {
-                                  background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                                  background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)"
                                 } : {}}
                                 onClick={() => handleRoleFilterChange("all")}
                               >
@@ -281,7 +281,7 @@ export default function UserManagementTab() {
                                     : "text-slate-600 hover:bg-blue-50 hover:text-blue-700"
                                 }`}
                                 style={roleFilter === "ROLE_STUDENT" ? {
-                                  background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                                  background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)"
                                 } : {}}
                                 onClick={() => handleRoleFilterChange("ROLE_STUDENT")}
                               >
@@ -294,7 +294,7 @@ export default function UserManagementTab() {
                                     : "text-slate-600 hover:bg-blue-50 hover:text-blue-700"
                                 }`}
                                 style={roleFilter === "ROLE_ADMIN" ? {
-                                  background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                                  background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)"
                                 } : {}}
                                 onClick={() => handleRoleFilterChange("ROLE_ADMIN")}
                               >
@@ -313,7 +313,7 @@ export default function UserManagementTab() {
                                     : "text-slate-600 hover:bg-blue-50 hover:text-blue-700"
                                 }`}
                                 style={statusFilter === "all" ? {
-                                  background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                                  background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)"
                                 } : {}}
                                 onClick={() => handleStatusFilterChange("all")}
                               >
@@ -326,7 +326,7 @@ export default function UserManagementTab() {
                                     : "text-slate-600 hover:bg-blue-50 hover:text-blue-700"
                                 }`}
                                 style={statusFilter === "active" ? {
-                                  background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                                  background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)"
                                 } : {}}
                                 onClick={() => handleStatusFilterChange("active")}
                               >
@@ -339,7 +339,7 @@ export default function UserManagementTab() {
                                     : "text-slate-600 hover:bg-blue-50 hover:text-blue-700"
                                 }`}
                                 style={statusFilter === "inactive" ? {
-                                  background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                                  background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)"
                                 } : {}}
                                 onClick={() => handleStatusFilterChange("inactive")}
                               >
@@ -395,7 +395,7 @@ export default function UserManagementTab() {
                                       <AvatarFallback 
                                         className="text-white font-semibold"
                                         style={{
-                                          background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                                          background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)"
                                         }}
                                       >
                                         {user.firstName.charAt(0)}
@@ -419,7 +419,7 @@ export default function UserManagementTab() {
                                         : "bg-slate-100 text-slate-700 hover:bg-slate-200 border-0"
                                     }
                                     style={user.role === "ROLE_ADMIN" ? {
-                                      background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                                      background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)"
                                     } : {}}
                                   >
                                     {user.role === "ROLE_ADMIN" ? "Admin" : "Student"}

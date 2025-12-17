@@ -80,7 +80,7 @@ export function StudentSidebar({
       <SidebarHeader 
         className="p-4 border-b border-gray-200"
         style={{
-          background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+          background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)"
         }}
       >
         <div className="flex items-center space-x-3">
@@ -89,7 +89,7 @@ export function StudentSidebar({
             className="hover:opacity-80 transition-opacity"
           >
             <div className="w-8 h-8 flex items-center justify-center">
-              <img src={`${IMAGE_URL}logo.png`} alt="Ralithon Technologies" />
+              <img src={`/images/logo.jpeg`} alt="Ralithon Technologies" />
             </div>
           </button>
           <h2 className="text-lg font-bold text-white">Student Portal</h2>
@@ -116,7 +116,7 @@ export function StudentSidebar({
                       paddingTop: "30px",
                       paddingBottom: "30px",
                       ...(activeTab === item.id ? {
-                        background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                        background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)"
                       } : {})
                     }}
                   >

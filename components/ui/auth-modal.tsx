@@ -284,18 +284,21 @@ export function AuthModal({
             loginResponse.message === "login successfully"
           ) {
             toast.success("Welcome! 👋", {
-              description: `You've been automatically logged in. Welcome to Ralithon Technologies!`,
+              description: "You've been automatically logged in.",
             });
+
             localStorage.setItem("authToken", loginResponse.token);
-            login(response.token, {
-              userId: response.userId,
-              email: response.email,
-              userType: response.userType,
-              userStatus: response.userStatus,
+
+            login(loginResponse.token, {
+              userId: loginResponse.userId,
+              email: loginResponse.email,
+              userType: loginResponse.userType,
+              userStatus: loginResponse.userStatus,
             });
+
             setShowOTPModal(false);
             onClose();
-            if (onAuthSuccess) onAuthSuccess();
+            onAuthSuccess?.();
           }
         } catch (loginError: any) {
           console.error("Auto login error:", loginError);
@@ -311,8 +314,8 @@ export function AuthModal({
     } catch (error: any) {
       setOtpError(
         error.response?.data?.message ||
-          error.response?.message ||
-          "Failed to verify OTP. Please try again."
+        error.response?.message ||
+        "Failed to verify OTP. Please try again."
       );
     } finally {
       setIsVerifyingOTP(false);
@@ -344,9 +347,8 @@ export function AuthModal({
         response.message === "login successfully"
       ) {
         toast.success("Welcome Back! 👋", {
-          description: `${
-            response.message || "You've successfully logged in."
-          } Welcome to Ralithon Technologies!`,
+          description: `${response.message || "You've successfully logged in."
+            } Welcome to Ralithon Technologies!`,
         });
         localStorage.setItem("authToken", response.token);
         login(response.token, {
@@ -548,8 +550,8 @@ export function AuthModal({
                     href="/policy"
                     className="hover:underline"
                     target="_blank"
-                    style={{ 
-                      background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)",
+                    style={{
+                      background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)",
                       WebkitBackgroundClip: "text",
                       backgroundClip: "text",
                       color: "transparent"
@@ -567,7 +569,7 @@ export function AuthModal({
               <Button
                 type="submit"
                 className="w-full mt-2 text-white"
-                style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}
+                style={{ background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)" }}
                 disabled={
                   isLoadingForSignUp || !isCaptchaValid || !acceptedTerms
                 }
@@ -582,8 +584,8 @@ export function AuthModal({
                   type="button"
                   onClick={handleToggleMode}
                   className="p-0 h-auto text-sm underline"
-                  style={{ 
-                    background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)",
+                  style={{
+                    background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)",
                     WebkitBackgroundClip: "text",
                     backgroundClip: "text",
                     color: "transparent"
@@ -639,7 +641,7 @@ export function AuthModal({
               <Button
                 type="submit"
                 className="w-full text-white"
-                style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}
+                style={{ background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)" }}
                 disabled={isLoadingForSignIn || !isCaptchaValid}
               >
                 {isLoadingForSignIn ? "Signing in..." : "Sign In"}
@@ -651,8 +653,8 @@ export function AuthModal({
                   type="button"
                   onClick={() => setShowForgotPasswordModal(true)}
                   className="p-0 h-auto text-sm"
-                  style={{ 
-                    background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)",
+                  style={{
+                    background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)",
                     WebkitBackgroundClip: "text",
                     backgroundClip: "text",
                     color: "transparent"
@@ -668,8 +670,8 @@ export function AuthModal({
                   type="button"
                   onClick={handleToggleMode}
                   className="p-0 h-auto text-sm underline"
-                  style={{ 
-                    background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)",
+                  style={{
+                    background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)",
                     WebkitBackgroundClip: "text",
                     backgroundClip: "text",
                     color: "transparent"
