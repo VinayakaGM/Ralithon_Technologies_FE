@@ -444,8 +444,8 @@ export default function InternshipsPage() {
                     }
                 },
                 prefill: {
-                    email: currentUser?.email,
-                    contact: userDetails.phoneNumber,
+                    email: currentUser?.email || "",
+                    contact: userDetails?.phoneNumber || "",
                 },
                 theme: {
                     color: "#0274ba",
@@ -574,7 +574,7 @@ export default function InternshipsPage() {
                 </div>
             </section>
 
-            <section className="py-16 px-4 bg-gradient-to-br from-blue-600 to-cyan-500">
+            <section className="py-16 px-4 bg-gradient-to-br from-blue-600 to-cyan-500" style={{ background: "linear-gradient(270deg, rgb(6, 132, 190) 0%, rgb(2, 116, 186) 100%)" }}>
                 <div className="container mx-auto max-w-7xl">
                     <div className="text-center mb-12">
                         <h2 className="text-3xl font-bold text-white mb-4">Why Choose Our Programs?</h2>
@@ -627,7 +627,7 @@ export default function InternshipsPage() {
                         </div>
                     ) : filteredCourses.length === 0 ? (
                         <div className="text-center py-12">
-                            <p className="text-gray-600 font-medium">No programs found for the selected filter.</p>
+                            <p className="text-gray-600 font-medium">Currently No programs found.</p>
                         </div>
                     ) : (
                         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">

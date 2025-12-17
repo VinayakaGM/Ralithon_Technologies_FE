@@ -25,9 +25,8 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
-  Award,
-  Briefcase,
   ClipboardList,
+  Wrench,
   MapPin,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -50,7 +49,6 @@ import usersService, {
   Course,
   EnrolledCourse,
 } from "@/services/users.service";
-import AdminCourseService from "@/services/admin.service";
 import authService from "@/services/auth.service";
 import type {
   RazorpayCheckoutResponse,
@@ -73,9 +71,6 @@ export default function RalithonWebsite() {
   const [mounted, setMounted] = useState(false);
   const [userDetails, setUserDetails] = useState<any>(null);
   const [customMessage, setCustomMessage] = useState<string | undefined>();
-  const [courses, setCourses] = useState<any[]>([]);
-  const [loadingCourses, setLoadingCourses] = useState(false);
-  const [courseError, setCourseError] = useState<string | null>(null);
   const [selectedCourse, setSelectedCourse] = useState<any>(null);
   const [startDate, setStartDate] = useState("");
   const [showCourseModal, setShowCourseModal] = useState(false);
@@ -167,28 +162,6 @@ export default function RalithonWebsite() {
 
   const currentUser = mounted ? AuthService.getCurrentUser() : null;
 
-  // const fetchUserData = async () => {
-  //   const currentUser = localStorage.getItem("user");
-  //   if (!currentUser) return;
-
-  //   try {
-  //     const user = JSON.parse(currentUser);
-  //     if (user?.userId) {
-  //       setUserId(user.userId);
-  //       const response = await usersService.getEnrolledCourses(user.userId);
-  //       if (response.success) {
-  //         setEnrolledCourses(response.data);
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.error("Error:", error);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   fetchCourses();
-  // }, []);
-
   useEffect(() => {
     if (currentUser?.userId) {
       setUserId(currentUser.userId);
@@ -245,7 +218,7 @@ export default function RalithonWebsite() {
     {
       title: "Internship Opportunities",
       subtitle: "Gain hands-on experience with real projects and mentorship.",
-      image: "/images/internships.jpg",
+      image: "/images/internships.webp",
       cta1: "Apply Now",
       cta2: "Learn More",
       action1: () => console.log("Apply Now clicked"),
@@ -254,7 +227,7 @@ export default function RalithonWebsite() {
     {
       title: "IT Consulting Services",
       subtitle: "Delivering innovative IT solutions to help your business grow.",
-      image: "/images/itservices.jpg",
+      image: "/images/itservices.webp",
       cta1: "Explore Services",
       cta2: "Contact Us",
       action1: () => console.log("Explore Services clicked"),
@@ -263,7 +236,7 @@ export default function RalithonWebsite() {
     {
       title: "IT Services & Support",
       subtitle: "Managed IT, Cloud, and infrastructure support tailored for you.",
-      image: "/images/itconsultant.jpg",
+      image: "/images/itconsultant.webp",
       cta1: "Explore Services",
       cta2: "Contact Us",
       action1: () => console.log("Explore Services clicked"),
@@ -702,7 +675,7 @@ export default function RalithonWebsite() {
         setAuthMode={setAuthMode}
         scrollToSection={scrollToSection}
       />
-      <section className="relative w-full flex items-center overflow-hidden h-[450px]">
+      <section id="home" className="home relative w-full flex items-center overflow-hidden h-[450px] border-black-200">
         {slides.map((slide, i) => {
           const isCurrent = i === slideIndex;
           return (
@@ -738,9 +711,9 @@ export default function RalithonWebsite() {
             <p className="text-base sm:text-lg md:text-xl text-white/90 mb-6 transition-all duration-[2500ms] ease-in-out">
               {slides[slideIndex].subtitle}
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+            {/* <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
               <button className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition"
-                style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}>
+                style={{ background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)" }}>
                 {slides[slideIndex].cta1}
               </button>
               <button
@@ -749,7 +722,7 @@ export default function RalithonWebsite() {
                 <span
                   className="relative z-10"
                   style={{
-                    background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)",
+                    background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)",
                     WebkitBackgroundClip: "text",
                     WebkitTextFillColor: "transparent",
                     color: "transparent",
@@ -759,7 +732,7 @@ export default function RalithonWebsite() {
                 </span>
               </button>
 
-            </div>
+            </div> */}
           </div>
 
           <div className="hidden md:block md:flex-1">
@@ -781,7 +754,7 @@ export default function RalithonWebsite() {
             <h2 className="text-4xl font-extrabold text-gray-900 mb-4 tracking-tight">About Ralithon</h2>
             <div
               className="w-28 h-1 mx-auto mb-6 rounded-full"
-              style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}
+              style={{ background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)" }}
             ></div>
             <p className="text-lg md:text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed">
               Transforming businesses through innovative technology solutions and digital excellence.
@@ -796,7 +769,7 @@ export default function RalithonWebsite() {
                 <div className="flex items-center mb-6">
                   <div
                     className="w-10 h-10 rounded-lg flex items-center justify-center mr-4"
-                    style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}
+                    style={{ background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)" }}
                   >
                     <Building className="h-5 w-5 text-white" />
                   </div>
@@ -853,14 +826,15 @@ export default function RalithonWebsite() {
           </div>
 
           {/* Expertise Section */}
-          <div className="rounded-2xl p-10 text-white mb-16" style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}>
+          <div className="rounded-2xl p-10 text-white mb-16" style={{ background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)" }}>
             <h3 className="text-2xl font-semibold mb-10 text-center">Our Expertise</h3>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-8">
               {[
                 { icon: <Code className="h-6 w-6 text-white" />, title: "Web Development", desc: "Modern, responsive websites" },
                 { icon: <Smartphone className="h-6 w-6 text-white" />, title: "Mobile Apps", desc: "Native & cross-platform" },
                 { icon: <Brain className="h-6 w-6 text-white" />, title: "AI & ML", desc: "Intelligent solutions" },
                 { icon: <Cloud className="h-8 w-8 text-white" />, title: "Cloud Engineering", desc: "Scalable infrastructure" },
+                { icon: <Wrench className="h-6 w-6 text-white" />, title: "Support & Maintenance", desc: "24/7 technical support" }
               ].map((item, idx) => (
                 <div key={idx} className="text-center">
                   <div className="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -877,12 +851,54 @@ export default function RalithonWebsite() {
           <div className="text-center">
             <h3 className="text-2xl font-bold text-gray-900 mb-6">Ready to Transform Your Business?</h3>
             <p className="text-lg text-gray-700 mb-8 max-w-2xl mx-auto">
-              Partner with us for innovative solutions that drive growth and success. Let's discuss your project requirements.
+              Partner with us for innovative solutions that drive growth and success.
+              Explore our{' '}
+              <button
+                onClick={() => scrollToSection("services")}
+                className="font-semibold hover:opacity-80 transition-opacity cursor-pointer"
+                style={{
+                  background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                  color: "transparent"
+                }}
+              >
+                services
+              </button>
+              , learn from our{' '}
+              <button
+                onClick={() => scrollToSection("mentors")}
+                className="font-semibold hover:opacity-80 transition-opacity cursor-pointer"
+                style={{
+                  background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                  color: "transparent"
+                }}
+              >
+                expert guides
+              </button>
+              , or check out our{' '}
+              <button
+                onClick={() => router.push('/internships')}
+                className="font-semibold hover:opacity-80 transition-opacity cursor-pointer"
+                style={{
+                  background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                  color: "transparent"
+                }}
+              >
+                internship programs
+              </button>.
             </p>
             <Button
               onClick={() => scrollToSection("contact")}
               className="text-white px-10 py-3 rounded-lg font-semibold transition duration-300 transform hover:-translate-y-1"
-              style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}
+              style={{ background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)" }}
             >
               Get In Touch
             </Button>
@@ -906,7 +922,7 @@ export default function RalithonWebsite() {
             </h2>
             <div
               className="w-20 h-1 mx-auto mb-8"
-              style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}
+              style={{ background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)" }}
             ></div>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
               We don't just deliver solutions - we partner with you to understand your business goals and create tailored strategies that drive real results. Our process is designed for maximum impact at every stage of your digital transformation.
@@ -1286,7 +1302,7 @@ export default function RalithonWebsite() {
             </h2>
             <div
               className="w-20 h-1 mx-auto mb-8"
-              style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}
+              style={{ background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)" }}
             ></div>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
               Find answers to common questions about our services and internship
@@ -1297,7 +1313,7 @@ export default function RalithonWebsite() {
             <Button
               onClick={() => setFaqExpanded(!faqExpanded)}
               className="text-white px-6 py-3 rounded-full flex items-center space-x-2 mx-auto"
-              style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}
+              style={{ background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)" }}
             >
               <span>{faqExpanded ? "Hide FAQs" : "View All FAQs"}</span>
               <ChevronDown
@@ -1435,7 +1451,7 @@ export default function RalithonWebsite() {
                   handleTakeAssessment(selectedCourse);
                 }}
                 className="px-4 py-2 text-sm font-medium text-white rounded-md focus:outline-none focus:ring-2"
-                style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}
+                style={{ background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)" }}
               >
                 Continue to Assessment
               </button>
@@ -1547,15 +1563,15 @@ export default function RalithonWebsite() {
             <div className="px-6 py-6">
 
               {/* Logo */}
-              <div className="mx-auto w-14 h-14 mb-3 relative">
+              {/* <div className="mx-auto w-14 h-14 mb-3 relative">
                 <Image
-                  src={`${IMAGE_URL}logo.png`}
+                  src={`/images/logo.jpeg`}
                   alt="Ralithon Logo"
                   fill
                   className="object-contain"
                   priority
                 />
-              </div>
+              </div> */}
 
               {/* Heading */}
               <h2 className="text-lg md:text-xl font-semibold text-gray-800 text-center mb-1">
@@ -1598,7 +1614,7 @@ export default function RalithonWebsite() {
                 }}
                 className="w-full text-white text-sm font-medium py-3 rounded-lg hover:shadow-md transition active:scale-95 touch-manipulation"
                 style={{
-                  background: "linear-gradient(270deg, rgb(55,182,241) 0%, rgb(2,116,186) 100%)"
+                  background: "linear-gradient(270deg, rgb(6, 132, 190) 0%, rgb(2, 116, 186) 100%)"
                 }}
               >
                 Apply for Internship
@@ -1622,7 +1638,7 @@ export default function RalithonWebsite() {
           onClick={scrollToTop}
           className="fixed bottom-6 right-6 rounded-full w-12 h-12 shadow-lg z-50"
           size="icon"
-          style={{ background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)" }}
+          style={{ background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)" }}
         >
           <ChevronUp className="h-6 w-6" />
         </Button>

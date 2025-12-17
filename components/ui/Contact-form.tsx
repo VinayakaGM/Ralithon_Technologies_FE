@@ -327,7 +327,7 @@ export function ModernContactForm({ onSubmit }: ModernContactFormProps) {
                 disabled={isSubmitting}
                 className="w-full text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5"
                 style={{
-                  background: "linear-gradient(270deg, rgb(55, 182, 241) 0%, rgb(2, 116, 186) 100%)"
+                  background: "linear-gradient(270deg, rgb(6 132 190) 0%, rgb(2 116 186) 100%)"
                 }}
               >
                 {isSubmitting ? (
