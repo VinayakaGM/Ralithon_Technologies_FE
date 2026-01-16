@@ -101,6 +101,9 @@ const AssessmentHeader: React.FC<{
   const formatTime = (s: number) =>
     `${Math.floor(s / 60).toString().padStart(2, "0")}:${(s % 60).toString().padStart(2, "0")}`;
 
+  const isTimeRunningLow = timeLeft <= 60;
+  const timerColor = isTimeRunningLow ? "text-red-400" : "text-green-400";
+
   return (
     <div className="bg-gray-900 text-white">
       {/* Main Header */}
@@ -124,17 +127,20 @@ const AssessmentHeader: React.FC<{
       </div>
 
       {/* Timer Bar */}
-      <div className="border-t border-gray-700">
+      <div className={`border-t ${isTimeRunningLow ? "border-red-600 bg-red-900/20" : "border-gray-700"}`}>
         <div className="container mx-auto px-4 py-2">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-2">
-              <Clock className="h-4 w-4 text-green-400" />
-              <span className="font-mono font-bold text-green-400 text-lg">
+              <Clock className={`h-4 w-4 ${isTimeRunningLow ? "text-red-400 animate-pulse" : "text-green-400"}`} />
+              <span className={`font-mono font-bold ${timerColor} text-lg ${isTimeRunningLow ? "animate-pulse" : ""}`}>
                 {formatTime(timeLeft)}
               </span>
               <span className="text-gray-300 text-sm ml-2">
                 Total Time Left
               </span>
+              {isTimeRunningLow && (
+                <span className="text-red-400 text-xs font-semibold ml-2">⚠️ Auto-submitting soon!</span>
+              )}
             </div>
             <div className="text-gray-300 text-sm">
               Question {currentQuestion} of {totalQuestions}
@@ -428,6 +434,7 @@ export default function TakeTestPage() {
   const [questionTimeSpent, setQuestionTimeSpent] = useState<Record<number, number>>({});
   const [testResult, setTestResult] = useState<TestResult | null>(null);
   const [textAnswers, setTextAnswers] = useState<Record<number, string>>({});
+  const isSubmittingRef = React.useRef(false);
 
   // Initialize question time limit based on index
   useEffect(() => {
@@ -505,9 +512,6 @@ export default function TakeTestPage() {
   // Total timer
   useEffect(() => {
     if (timeLeft <= 0 || showResults || !questions.length) {
-      if (timeLeft <= 0 && !showResults) {
-        handleSubmitAssessment(true);
-      }
       return;
     }
 
@@ -534,6 +538,24 @@ export default function TakeTestPage() {
 
     return () => clearInterval(timer);
   }, [currentQuestionIndex, showResults, questions.length]);
+
+
+  useEffect(() => {
+    if (timeLeft === 60 && !showResults) {
+      toast.warning("⏰ Only 1 minute remaining! Assessment will auto-submit when time runs out.", {
+        duration: 4000,
+      });
+    }
+  }, [timeLeft, showResults]);
+
+  useEffect(() => {
+    if (timeLeft <= 0 && !showResults && !isSubmittingRef.current) {
+      isSubmittingRef.current = true;
+      handleSubmitAssessment(true, true); // force submit, auto submit
+    }
+  }, [timeLeft]);
+
+
 
   const handleTimeUp = async () => {
     const timeSpent = getQuestionTimeLimit(currentQuestionIndex) - questionTimeRemaining;
@@ -584,23 +606,26 @@ export default function TakeTestPage() {
 
   const handleAnswerSelect = (optionKey: string) => {
     if (isTextAnswerQuestion(currentQuestionIndex)) {
-      // For text answer questions, don't select options
       return;
     }
     const updatedAnswers = { ...answers, [currentQuestionIndex]: optionKey };
     setAnswers(updatedAnswers);
     saveAnswerToServer(currentQuestionIndex, optionKey);
   };
+  const textSaveTimeoutRef = React.useRef<any>(null);
 
   const handleTextAnswerChange = (text: string) => {
-    const updatedTextAnswers = { ...textAnswers, [currentQuestionIndex]: text };
-    setTextAnswers(updatedTextAnswers);
-    // Auto-save text answers with a debounce
-    const timeoutId = setTimeout(() => {
+    setTextAnswers(prev => ({ ...prev, [currentQuestionIndex]: text }));
+
+    if (textSaveTimeoutRef.current) {
+      clearTimeout(textSaveTimeoutRef.current);
+    }
+
+    textSaveTimeoutRef.current = setTimeout(() => {
       saveAnswerToServer(currentQuestionIndex, text);
     }, 1000);
-    return () => clearTimeout(timeoutId);
   };
+
 
   const moveToNextQuestion = async () => {
     const timeSpent = getQuestionTimeLimit(currentQuestionIndex) - questionTimeRemaining;
@@ -608,6 +633,16 @@ export default function TakeTestPage() {
       ...prev,
       [currentQuestionIndex]: (prev[currentQuestionIndex] || 0) + timeSpent
     }));
+
+    // Deduct unused time from the total time
+    // If you finish early, you lose the remaining time for that question
+    const unusedTime = questionTimeRemaining;
+    if (unusedTime > 0) {
+      setTimeLeft(prev => {
+        const newTimeLeft = Math.max(0, prev - unusedTime);
+        return newTimeLeft;
+      });
+    }
 
     const currentAnswer = isTextAnswerQuestion(currentQuestionIndex)
       ? textAnswers[currentQuestionIndex] || ""
@@ -622,7 +657,7 @@ export default function TakeTestPage() {
       setCurrentQuestionIndex(nextIndex);
       setQuestionTimeRemaining(getQuestionTimeLimit(nextIndex));
     } else {
-      handleSubmitAssessment(false);
+      handleSubmitAssessment(true);
     }
   };
 
@@ -630,8 +665,15 @@ export default function TakeTestPage() {
     await moveToNextQuestion();
   };
 
-  const handleSubmitAssessment = async (forceSubmit: boolean) => {
-    if (!forceSubmit && getAnsweredQuestionsCount() < questions.length) {
+  const handleSubmitAssessment = async (
+    forceSubmit: boolean,
+    isAutoSubmit = false
+  ) => {
+    if (
+      !forceSubmit &&
+      !isAutoSubmit &&
+      getAnsweredQuestionsCount() < questions.length
+    ) {
       toast.warning("You have unanswered questions. Submit anyway?", {
         action: {
           label: "Submit",
