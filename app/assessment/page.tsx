@@ -76,13 +76,15 @@ export default function Assessment() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [flaggedQuestions, setFlaggedQuestions] = useState<Set<number>>(new Set());
-  const [questionTimeRemaining, setQuestionTimeRemaining] = useState(30);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [score, setScore] = useState(0);
   const [forceSubmitEnabled, setForceSubmitEnabled] = useState(false);
   const [totalTimeElapsed, setTotalTimeElapsed] = useState(0);
   const [reviewMode, setReviewMode] = useState(false);
+  const QUESTION_TIME_LIMIT = 60;
+  const [questionTimeRemaining, setQuestionTimeRemaining] =
+    useState(QUESTION_TIME_LIMIT);
 
   const questionsToDisplay = useMemo(() => {
     if (!assessmentData.data?.assessment) return [];
@@ -172,9 +174,10 @@ export default function Assessment() {
 
   const handleTimeUp = async () => {
     if (!currentQuestionData) return;
+    
+    const answer = answers[currentQuestionData.originalIndex];
+    const success = await submitAnswer(answer ?? null);
 
-    const answer = answers[currentQuestionData.originalIndex] || "";
-    const success = await submitAnswer(answer);
 
     if (success) {
       moveToNextQuestion();
@@ -236,10 +239,10 @@ export default function Assessment() {
     if (currentQuestionIndex < questionsToDisplay.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
       if (!reviewMode) {
-        setQuestionTimeRemaining(30);
+        setQuestionTimeRemaining(QUESTION_TIME_LIMIT);
       }
     } else if (!reviewMode) {
-      handleSubmitAssessment(false);
+      handleSubmitAssessment(true, true);
     }
   };
 
@@ -249,11 +252,18 @@ export default function Assessment() {
     }
   };
 
-  const handleSubmitAssessment = async (forceSubmit: boolean) => {
-    if (!forceSubmit && getAnsweredQuestionsCount() < totalQuestions) {
+  const handleSubmitAssessment = async (
+    forceSubmit: boolean,
+    isAutoSubmit = false
+  ) => {
+    if (
+      !forceSubmit &&
+      !isAutoSubmit &&
+      getAnsweredQuestionsCount() < totalQuestions
+    ) {
       setForceSubmitEnabled(true);
       toast.warning(
-        "Are you sure you want to submit? You have unanswered questions.",
+        "You have unanswered questions. Submit anyway?",
         {
           action: {
             label: "Submit Anyway",
@@ -264,6 +274,7 @@ export default function Assessment() {
       );
       return;
     }
+
 
     if (!userId || !assessmentId) {
       return;
@@ -339,9 +350,15 @@ export default function Assessment() {
   }
 
   const isQuestionAnswered = (index: number) => {
-    return assessmentData.data?.assessment?.[index]?.userAnswer !== null ||
-      answers[index] !== undefined;
+    const savedAnswer = assessmentData.data?.assessment?.[index]?.userAnswer;
+    const localAnswer = answers[index];
+
+    return (
+      (savedAnswer !== null && savedAnswer !== "") ||
+      (localAnswer !== undefined && localAnswer !== "")
+    );
   };
+
 
   return (
     <div className="container mx-auto px-4 py-4 max-w-7xl h-[calc(100vh-32px)]">
@@ -417,13 +434,13 @@ export default function Assessment() {
                             }
                           }}
                           className={`aspect-square rounded text-sm font-medium transition-all flex items-center justify-center ${!reviewMode &&
-                              currentQuestionData.originalIndex === index
-                              ? "bg-blue-600 text-white"
-                              : flaggedQuestions.has(index)
-                                ? "bg-yellow-100 text-yellow-800 border border-yellow-300"
-                                : isQuestionAnswered(index)
-                                  ? "bg-green-100 text-green-800 border border-green-300"
-                                  : "bg-amber-50 text-gray-600 border border-amber-200"
+                            currentQuestionData.originalIndex === index
+                            ? "bg-blue-600 text-white"
+                            : flaggedQuestions.has(index)
+                              ? "bg-yellow-100 text-yellow-800 border border-yellow-300"
+                              : isQuestionAnswered(index)
+                                ? "bg-green-100 text-green-800 border border-green-300"
+                                : "bg-amber-50 text-gray-600 border border-amber-200"
                             }`}
                         >
                           {index + 1}
@@ -482,8 +499,8 @@ export default function Assessment() {
                   </CardTitle>
                   {!reviewMode && (
                     <div className={`flex items-center space-x-1 px-2 py-1 rounded ${questionTimeRemaining <= 10
-                        ? "bg-red-100 text-red-600"
-                        : "bg-orange-50 text-orange-600"
+                      ? "bg-red-100 text-red-600"
+                      : "bg-orange-50 text-orange-600"
                       }`}>
                       <Clock className="h-4 w-4" />
                       <span className="font-mono font-medium text-sm">
@@ -497,8 +514,8 @@ export default function Assessment() {
                   size="sm"
                   onClick={() => toggleFlagQuestion(currentQuestionData.originalIndex)}
                   className={`${flaggedQuestions.has(currentQuestionData.originalIndex)
-                      ? "text-yellow-600"
-                      : "text-gray-400"
+                    ? "text-yellow-600"
+                    : "text-gray-400"
                     }`}
                 >
                   <Flag className="h-4 w-4 mr-2" />
@@ -528,14 +545,14 @@ export default function Assessment() {
                           }}
                           disabled={isSubmitting || reviewMode}
                           className={`w-full p-3 text-left rounded-lg border-2 transition-all duration-200 ${answers[currentQuestionData.originalIndex] === key
-                              ? reviewMode
-                                ? key === currentQuestionData.answer
-                                  ? "border-green-500 bg-green-50 text-green-800"
-                                  : "border-red-500 bg-red-50 text-red-800"
-                                : "border-blue-500 bg-blue-50 text-blue-800"
-                              : reviewMode && key === currentQuestionData.answer
+                            ? reviewMode
+                              ? key === currentQuestionData.answer
                                 ? "border-green-500 bg-green-50 text-green-800"
-                                : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                                : "border-red-500 bg-red-50 text-red-800"
+                              : "border-blue-500 bg-blue-50 text-blue-800"
+                            : reviewMode && key === currentQuestionData.answer
+                              ? "border-green-500 bg-green-50 text-green-800"
+                              : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
                             }`}
                           aria-pressed={answers[currentQuestionData.originalIndex] === key}
                         >
@@ -603,10 +620,10 @@ export default function Assessment() {
             <div className="text-center">
               <div
                 className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 ${score >= 70
-                    ? "bg-green-100"
-                    : score >= 50
-                      ? "bg-yellow-100"
-                      : "bg-red-100"
+                  ? "bg-green-100"
+                  : score >= 50
+                    ? "bg-yellow-100"
+                    : "bg-red-100"
                   }`}
               >
                 {score >= 70 ? (
@@ -655,10 +672,10 @@ export default function Assessment() {
                       Your answer:{" "}
                       <span
                         className={`font-medium ${answers[index] === q.answer
-                            ? "text-green-600"
-                            : answers[index] === ""
-                              ? "text-gray-500"
-                              : "text-red-600"
+                          ? "text-green-600"
+                          : answers[index] === ""
+                            ? "text-gray-500"
+                            : "text-red-600"
                           }`}
                       >
                         {answers[index] === "" ? "Time expired (not answered)" : answers[index] || "Not answered"}
