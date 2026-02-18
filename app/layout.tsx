@@ -32,6 +32,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+    <head>
+    <meta name="google-site-verification" content="ZLizuXYisr8LiJQG1SuwGheGfyzDba01Jp2LY53XyNk" />
+    </head>
       <body className={inter.className}>
         <SessionProvider>
           <ThemeProvider
