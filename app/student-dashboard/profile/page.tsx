@@ -59,6 +59,7 @@ export default function ProfileTab() {
     email: "",
     phoneNumber: "",
   });
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof typeof formData, string>>>({});
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -105,10 +106,29 @@ export default function ProfileTab() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
+    
+    if (id === "phoneNumber") {
+      const digitsOnly = value.replace(/\D/g, "");
+      const truncatedValue = digitsOnly.slice(0, 10);
+      setFormData((prev) => ({
+        ...prev,
+        [id]: truncatedValue,
+      }));
+      // Clear error when user starts typing
+      if (fieldErrors.phoneNumber) {
+        setFieldErrors((prev) => ({ ...prev, phoneNumber: undefined }));
+      }
+      return;
+    }
+    
     setFormData((prev) => ({
       ...prev,
       [id]: value,
     }));
+    
+    if (fieldErrors[id as keyof typeof formData]) {
+      setFieldErrors((prev) => ({ ...prev, [id]: undefined }));
+    }
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -149,11 +169,32 @@ export default function ProfileTab() {
   const handleSaveChanges = async () => {
     if (!user) return;
 
-    // Basic validation
-    if (!formData.firstName.trim() || !formData.lastName.trim()) {
-      toast.error("First name and last name are required");
+    const newErrors: typeof fieldErrors = {};
+
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = "First name is required";
+    } else if (!/^[a-zA-Z\s]+$/.test(formData.firstName)) {
+      newErrors.firstName = "First name can only contain letters and spaces";
+    }
+
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = "Last name is required";
+    } else if (!/^[a-zA-Z\s]+$/.test(formData.lastName)) {
+      newErrors.lastName = "Last name can only contain letters and spaces";
+    }
+
+    if (!formData.phoneNumber.trim()) {
+      newErrors.phoneNumber = "Phone number is required";
+    } else if (!/^\d{10}$/.test(formData.phoneNumber.trim())) {
+      newErrors.phoneNumber = "Phone number must be exactly 10 digits";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setFieldErrors(newErrors);
       return;
     }
+
+    setFieldErrors({});
 
     try {
       setIsUploading(true);
@@ -371,11 +412,16 @@ export default function ProfileTab() {
                             value={formData.firstName}
                             onChange={handleInputChange}
                             disabled={!editMode}
-                            className={`transition-all duration-200 ${editMode
+                            className={`transition-all duration-200 ${
+                              fieldErrors.firstName ? 'border-red-500' : editMode ? 'border-blue-300' : 'border-gray-200'
+                            } ${editMode
                                 ? 'border-blue-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
                                 : 'bg-gray-50 border-gray-200'
                               }`}
                           />
+                          {fieldErrors.firstName && (
+                            <p className="mt-1 text-red-600 text-sm">{fieldErrors.firstName}</p>
+                          )}
                         </div>
 
                         <div className="space-y-2">
@@ -388,11 +434,16 @@ export default function ProfileTab() {
                             value={formData.lastName}
                             onChange={handleInputChange}
                             disabled={!editMode}
-                            className={`transition-all duration-200 ${editMode
+                            className={`transition-all duration-200 ${
+                              fieldErrors.lastName ? 'border-red-500' : editMode ? 'border-blue-300' : 'border-gray-200'
+                            } ${editMode
                                 ? 'border-blue-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
                                 : 'bg-gray-50 border-gray-200'
                               }`}
                           />
+                          {fieldErrors.lastName && (
+                            <p className="mt-1 text-red-600 text-sm">{fieldErrors.lastName}</p>
+                          )}
                         </div>
 
                         <div className="space-y-2">
@@ -421,11 +472,16 @@ export default function ProfileTab() {
                             onChange={handleInputChange}
                             disabled={!editMode}
                             placeholder="Enter your phone number"
-                            className={`transition-all duration-200 ${editMode
+                            className={`transition-all duration-200 ${
+                              fieldErrors.phoneNumber ? 'border-red-500' : editMode ? 'border-blue-300' : 'border-gray-200'
+                            } ${editMode
                                 ? 'border-blue-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
                                 : 'bg-gray-50 border-gray-200'
                               }`}
                           />
+                          {fieldErrors.phoneNumber && (
+                            <p className="mt-1 text-red-600 text-sm">{fieldErrors.phoneNumber}</p>
+                          )}
                         </div>
                       </div>
 

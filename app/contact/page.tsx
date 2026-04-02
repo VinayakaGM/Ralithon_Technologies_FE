@@ -34,8 +34,11 @@ const contactFormSchema = yup.object().shape({
         .matches(/^[a-zA-Z\s]+$/, "Only alphabets and spaces are allowed"),
     email: yup
         .string()
-        .email("Invalid email format")
-        .required("Email is required"),
+        .required("Email is required")
+        .matches(
+            /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+            "Please enter a valid email address (e.g., user@example.com)"
+        ),
     phone: yup
         .string()
         .matches(/^[0-9]+$/, "Phone number must contain only digits")
@@ -113,12 +116,6 @@ export default function ContactPage() {
                     }
                 });
                 setErrors(validationErrors);
-
-                if (error.inner.length > 0) {
-                    toast.error("Validation Error", {
-                        description: error.inner[0].message,
-                    });
-                }
             } else {
                 console.error("Submission error:", error);
                 toast.error("Submission Failed", {
@@ -139,6 +136,10 @@ export default function ContactPage() {
             const digitsOnly = value.replace(/\D/g, "");
             const truncatedValue = digitsOnly.slice(0, 10);
             setFormData((prev) => ({ ...prev, phone: truncatedValue }));
+            
+            if (errors.phone) {
+                setErrors((prev) => ({ ...prev, phone: undefined }));
+            }
             return;
         }
 
@@ -254,7 +255,7 @@ export default function ContactPage() {
                                 href={item.link}
                                 target={item.link.startsWith('http') ? '_blank' : '_self'}
                                 rel={item.link.startsWith('http') ? 'noopener noreferrer' : ''}
-                                className="group flex items-center gap-5 bg-white border border-gray-100 rounded-xl p-6 shadow-sm hover:shadow-md hover:border-blue-200 transition-all duration-300"
+                                className="group flex items-center gap-5 bg-white border border-gray-100 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-blue-200 transition-all duration-300"
                             >
                                 <div
                                     className={`flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-r ${item.color} flex items-center justify-center text-white text-xl`}
