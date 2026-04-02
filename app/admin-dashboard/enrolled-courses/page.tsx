@@ -100,7 +100,7 @@ export default function EnrolledCoursesTab() {
   };
 
   const handleNavigateToCourses = () => {
-    router.push("/");
+    router.push("/internships#courses");
   };
 
   const handleApplyProject = async (

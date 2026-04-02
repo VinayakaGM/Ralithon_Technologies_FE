@@ -100,7 +100,7 @@ export default function CoursesTab() {
   };
 
   const handleNavigateToCourses = () => {
-    router.push("/");
+    router.push("/internships#courses");
   };
 
   const extractVideoId = (url: string) => {
