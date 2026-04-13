@@ -603,7 +603,7 @@ export default function InternshipsPage() {
             </section>
 
             {/* Programs Section */}
-            <section className="py-16">
+            <section id="courses" className="py-16">
                 <div className="container mx-auto px-4">
                     {/* Programs Grid */}
                     {loadingCourses ? (
@@ -1026,7 +1026,7 @@ export default function InternshipsPage() {
                                 <ul className="space-y-2">
                                     <li className="flex items-start">
                                         <Clock className="h-4 w-4 text-gray-400 mr-2 mt-0.5" />
-                                        <span>30 minutes duration</span>
+                                        <span>20 minutes duration</span>
                                     </li>
                                     <li className="flex items-start">
                                         <Award className="h-4 w-4 text-gray-400 mr-2 mt-0.5" />
