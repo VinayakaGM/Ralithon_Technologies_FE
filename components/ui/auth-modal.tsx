@@ -49,6 +49,7 @@ export function AuthModal({
   const [captchaReset, setCaptchaReset] = useState(0);
   const [acceptedTerms, setAcceptedTerms] = useState(true);
   const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
+  const [signInError, setSignInError] = useState("");
   const [signUpData, setSignUpData] = useState({
     firstName: "",
     lastName: "",
@@ -101,6 +102,7 @@ export function AuthModal({
       password: "",
       checkPassword: "",
     });
+    setSignInError("");
     setAcceptedTerms(true);
     setShowOTPModal(false);
     setIsCaptchaValid(false);
@@ -163,6 +165,9 @@ export function AuthModal({
   const handleSignInChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setSignInData((prev) => ({ ...prev, [id]: value }));
+    if (signInError) {
+      setSignInError("");
+    }
   };
 
   const validateSignUpForm = () => {
@@ -329,8 +334,19 @@ export function AuthModal({
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(signInData.emailId.trim())) {
+      setSignInError("Invalid email format. Please enter a valid email.");
+      return;
+    }
+
+    if (!signInData.password.trim()) {
+      setSignInError("Password is required.");
+      return;
+    }
+
     if (!isCaptchaValid) {
-      toast.error("Please complete the verification code");
+      setSignInError("Please complete the verification code");
       return;
     }
 
@@ -347,8 +363,7 @@ export function AuthModal({
         response.message === "login successfully"
       ) {
         toast.success("Welcome Back! 👋", {
-          description: `${response.message || "You've successfully logged in."
-            } Welcome to Ralithon Technologies!`,
+          description: `${response.message || "You've successfully logged in."} Welcome to Ralithon Technologies!`,
         });
         localStorage.setItem("authToken", response.token);
         login(response.token, {
@@ -357,22 +372,22 @@ export function AuthModal({
           userType: response.userType,
           userStatus: response.userStatus,
         });
+        setSignInError("");
         onClose();
         if (onAuthSuccess) onAuthSuccess();
       } else {
-        toast.error("Login Failed", {
-          description: response.message || "Login failed. Please try again.",
-        });
+        const message = response.message || "Login failed. Please try again.";
+        setSignInError(message);
       }
     } catch (error: any) {
       setCaptchaReset((prev) => prev + 1);
       setIsCaptchaValid(false);
-      toast.error("Login Failed", {
-        description:
-          error.response?.data?.message ||
-          error.response?.message ||
-          "Invalid credentials. Please check your email and password.",
-      });
+      const message =
+        error.response?.data?.message ||
+        error.response?.message ||
+        error.message ||
+        "Invalid credentials. Please check your email and password.";
+      setSignInError(message);
     } finally {
       setIsLoadingForSignIn(false);
     }
@@ -597,6 +612,11 @@ export function AuthModal({
             </form>
           ) : (
             <form onSubmit={handleSignIn} className="grid gap-4 py-4">
+              {signInError && (
+                <div className="rounded-md bg-red-50 border border-red-200 p-3 text-red-700 text-sm">
+                  {signInError}
+                </div>
+              )}
               <div className="space-y-2">
                 <Label htmlFor="emailId">Email</Label>
                 <Input
@@ -605,6 +625,7 @@ export function AuthModal({
                   required
                   value={signInData.emailId}
                   onChange={handleSignInChange}
+                  className={signInError ? "border-red-500" : ""}
                 />
               </div>
 
