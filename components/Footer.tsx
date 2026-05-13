@@ -82,7 +82,6 @@ export function Footer({
                 { id: "home", label: "Home" },
                 { id: "about", label: "About" },
                 { id: "services", label: "Services" },
-                { id: "internships", label: "Internship & Programs" },
                 { id: "contact", label: "Contact" },
               ].map((item) =>
                 isHomePage ? (
@@ -107,6 +106,12 @@ export function Footer({
                   </Link>
                 )
               )}
+              <Link
+                href="/internships"
+                className="block text-gray-400 hover:text-white transition-colors"
+              >
+                Internships & Programs
+              </Link>
               <Link
                 href="/policy"
                 className="block text-gray-400 hover:text-white transition-colors"
