@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { AuthModal } from "@/components/ui/auth-modal";
 import {
     Mail,
     Phone,
@@ -531,6 +532,13 @@ export default function ContactPage() {
                 activeSection={activeSection}
                 setActiveSection={setActiveSection}
                 scrollToSection={scrollToSection}
+            />
+
+            <AuthModal
+                isOpen={showAuthModal}
+                onClose={() => setShowAuthModal(false)}
+                mode={authMode}
+                onModeChange={(mode) => setAuthMode(mode)}
             />
         </div>
     );
