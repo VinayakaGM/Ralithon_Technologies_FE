@@ -42,6 +42,7 @@ import { useRouter } from "next/navigation";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import * as Tooltip from "@radix-ui/react-tooltip";
 
 export default function InternshipsPage() {
     const [mounted, setMounted] = useState(false);
@@ -659,9 +660,88 @@ export default function InternshipsPage() {
                                         <CardTitle className="text-xl font-bold text-gray-800 line-clamp-2">
                                             {course.courseName}
                                         </CardTitle>
-                                        <CardDescription className="text-gray-600 line-clamp-2">
-                                            {course.description || "Gain industry-ready skills with hands-on projects"}
-                                        </CardDescription>
+
+                                        <Tooltip.Provider delayDuration={150}>
+                                            <Tooltip.Root>
+                                                <Tooltip.Trigger asChild>
+                                                    <CardDescription
+                                                        className="
+                                                        text-gray-600
+                                                        line-clamp-2  
+                                                        cursor-help
+                                                        transition-all
+                                                        duration-300
+                                                        hover:translate-x-1
+                                                        "
+                                                    >
+                                                        {course.description ||
+                                                            "Gain industry-ready skills with hands-on projects"}
+                                                    </CardDescription>
+                                                </Tooltip.Trigger>
+
+                                                <Tooltip.Portal>
+                                                    <Tooltip.Content
+                                                        side="top"
+                                                        align="start"
+                                                        sideOffset={12}
+                                                        className="
+                                                        z-50
+                                                        overflow-hidden
+                                                        rounded-2xl
+                                                        p-[1px]
+                                                        bg-gradient-to-br
+                                                        from-blue-500/40
+                                                        via-cyan-400/30
+                                                        to-blue-700/40
+                                                        shadow-[0_20px_60px_rgba(0,0,0,0.35)]
+                                                        animate-in
+                                                        fade-in-0
+                                                        zoom-in-95
+                                                        duration-200
+                                                        "
+                                                    >
+                                                        <div
+                                                            className="
+                                                            max-w-sm
+                                                            rounded-2xl
+                                                            bg-white/95
+                                                            backdrop-blur-xl
+                                                            px-5
+                                                            py-4
+                                                            "
+                                                        >
+                                                            <div className="flex items-start gap-3">
+                                                                <div
+                                                                    className="
+                                                                    mt-1
+                                                                    h-2.5
+                                                                    w-2.5
+                                                                    rounded-full
+                                                                    bg-gradient-to-r
+                                                                    from-blue-500
+                                                                    to-cyan-400
+                                                                    animate-pulse
+                                                                    "
+                                                                />
+
+                                                                <div>
+                                                                    <p className="text-sm font-semibold text-gray-900 mb-1">
+                                                                        Program Description
+                                                                    </p>
+
+                                                                    <p className="text-sm leading-relaxed text-gray-600">
+                                                                        {course.description ||
+                                                                            "Gain industry-ready skills with hands-on projects"}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <Tooltip.Arrow className="fill-white" />
+                                                    </Tooltip.Content>
+                                                </Tooltip.Portal>
+                                            </Tooltip.Root>
+                                        </Tooltip.Provider>
                                     </CardHeader>
 
                                     <CardContent className="space-y-4">
@@ -674,7 +754,7 @@ export default function InternshipsPage() {
                                                 </div>
                                                 {course.courseType?.toLowerCase() !== "free" && (
                                                     <div className="font-bold text-blue-600">
-                                                        ₹{course.courseFee?.toFixed(2) || "0.00"}
+                                                        ₹{course.courseFee?.toFixed(2) || "0.00"} + GST
                                                     </div>
                                                 )}
                                             </div>
