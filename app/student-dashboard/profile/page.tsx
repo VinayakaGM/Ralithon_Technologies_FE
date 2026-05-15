@@ -107,16 +107,37 @@ export default function ProfileTab() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     
+    // if (id === "phoneNumber") {
+    //   const digitsOnly = value.replace(/\D/g, "");
+    //   const truncatedValue = digitsOnly.slice(0, 10);
+    //   setFormData((prev) => ({
+    //     ...prev,
+    //     [id]: truncatedValue,
+    //   }));
+    //   // Clear error when user starts typing
+    //   if (fieldErrors.phoneNumber) {
+    //     setFieldErrors((prev) => ({ ...prev, phoneNumber: undefined }));
+    //   }
+    //   return;
+    // }
+
     if (id === "phoneNumber") {
-      const digitsOnly = value.replace(/\D/g, "");
-      const truncatedValue = digitsOnly.slice(0, 10);
+      let processedValue = value;
+
+      processedValue = value.startsWith("+91")
+        ? "+91" + value.substring(3).replace(/\D/g, "").slice(0, 10)
+        : "+91" + value.replace(/\D/g, "").slice(0, 10);
+
       setFormData((prev) => ({
         ...prev,
-        [id]: truncatedValue,
+        [id]: processedValue,
       }));
-      // Clear error when user starts typing
+
       if (fieldErrors.phoneNumber) {
-        setFieldErrors((prev) => ({ ...prev, phoneNumber: undefined }));
+        setFieldErrors((prev) => ({
+          ...prev,
+          phoneNumber: undefined,
+        }));
       }
       return;
     }
@@ -185,8 +206,9 @@ export default function ProfileTab() {
 
     if (!formData.phoneNumber.trim()) {
       newErrors.phoneNumber = "Phone number is required";
-    } else if (!/^\d{10}$/.test(formData.phoneNumber.trim())) {
-      newErrors.phoneNumber = "Phone number must be exactly 10 digits";
+    } else if (!/^\+91\d{10}$/.test(formData.phoneNumber.trim())) {
+      newErrors.phoneNumber =
+        "Must be +91 followed by 10 digits";
     }
 
     if (Object.keys(newErrors).length > 0) {
