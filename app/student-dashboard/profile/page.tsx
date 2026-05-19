@@ -106,20 +106,6 @@ export default function ProfileTab() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
-    
-    // if (id === "phoneNumber") {
-    //   const digitsOnly = value.replace(/\D/g, "");
-    //   const truncatedValue = digitsOnly.slice(0, 10);
-    //   setFormData((prev) => ({
-    //     ...prev,
-    //     [id]: truncatedValue,
-    //   }));
-    //   // Clear error when user starts typing
-    //   if (fieldErrors.phoneNumber) {
-    //     setFieldErrors((prev) => ({ ...prev, phoneNumber: undefined }));
-    //   }
-    //   return;
-    // }
 
     if (id === "phoneNumber") {
       let processedValue = value;
