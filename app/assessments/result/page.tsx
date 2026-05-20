@@ -16,6 +16,7 @@ import {
   Clock,
   BookOpen,
 } from "lucide-react";
+import {formatDate} from "@/utils/dateFormat";
 
 interface Answer {
   questionId: number;
@@ -180,7 +181,7 @@ interface TestResult {
                 <p>✔ Correct Answers: <strong>{result.correctAnswers}</strong></p>
                 <p>✘ Incorrect Answers: <strong>{result.totalQuestions - result.correctAnswers}</strong></p>
                 <p>🕒 Time Taken: <strong>{formatTime(result.timeSpent)}</strong></p>
-                <p>📅 Completed On: <strong>{new Date(result.completedAt).toLocaleString()}</strong></p>
+                <p>📅 Completed On: <strong>{formatDate(result.completedAt, true)}</strong></p>
 
                 <div className="flex gap-3 mt-4">
                   <Button className="flex-1 flex items-center justify-center gap-2">

@@ -24,6 +24,7 @@ import {
   Badge,
 } from "lucide-react";
 import assessmentsService from "@/services/assessments.service";
+import { formatDate } from "@/utils/dateFormat";
 
 interface Question {
   id: string;
@@ -312,7 +313,7 @@ const ResultsPage: React.FC<{
                 </p>
                 <p className="flex items-center gap-2">
                   <Clock className="h-4 w-4 text-purple-600" />
-                  <span>Completed On: <strong>{new Date(result.completedAt).toLocaleString()}</strong></span>
+                  <span>Completed On: <strong>{formatDate(result.completedAt, true)}</strong></span>
                 </p>
               </div>
             )}

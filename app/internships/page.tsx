@@ -42,6 +42,7 @@ import { useRouter } from "next/navigation";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { formatDate } from "@/utils/dateFormat";
 
 export default function InternshipsPage() {
     const [mounted, setMounted] = useState(false);
@@ -1097,7 +1098,7 @@ export default function InternshipsPage() {
                                     </div>
                                     <div className="flex justify-between mb-2">
                                         <span className="font-medium">Start Date:</span>
-                                        <span>{new Date(startDate).toLocaleDateString()}</span>
+                                        <span>{formatDate(startDate)}</span>
                                     </div>
                                     {selectedCourse.courseType?.toLowerCase() !== "free" && (
                                         <div className="flex justify-between">
