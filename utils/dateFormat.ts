@@ -1,8 +1,8 @@
 export const formatDate = (
-  date: string | Date,
+  date: string | Date | null,
   includeTime = false
 ) => {
-  if (!date) return "";
+  if (!date) return "N/A";
 
   return new Intl.DateTimeFormat("en-IN", {
     day: "2-digit",
