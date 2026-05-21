@@ -17,6 +17,7 @@ import {
   XCircle,
   Clock,
 } from "lucide-react";
+import {formatDate} from "@/utils/dateFormat";
 
 interface StudentTestAttempt {
   id: string;
@@ -343,11 +344,7 @@ export default function AdminTestsPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 text-center text-sm text-gray-600">
-                        {new Date(student.completedAt).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })}
+                        {formatDate(student.completedAt)}
                       </td>
                       <td className="px-6 py-4 text-center">
                         <div className="flex items-center justify-center space-x-2">
@@ -484,13 +481,7 @@ export default function AdminTestsPage() {
                 <div>
                   <p className="text-sm text-gray-600">Completed</p>
                   <p className="text-lg font-semibold text-gray-900">
-                    {new Date(selectedStudent.completedAt).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
+                    {formatDate(selectedStudent.completedAt, true)}
                   </p>
                 </div>
               </div>

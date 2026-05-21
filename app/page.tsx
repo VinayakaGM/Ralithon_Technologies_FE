@@ -59,6 +59,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import {formatDate} from "@/utils/dateFormat";
 
 export default function RalithonWebsite() {
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -1385,7 +1386,7 @@ export default function RalithonWebsite() {
                 <div className="mt-4 p-3 bg-gray-50 rounded-md">
                   <div className="flex justify-between">
                     <span className="font-medium">Course Start Date:</span>
-                    <span>{new Date(startDate).toLocaleDateString()}</span>
+                    <span>{formatDate(startDate)}</span>
                   </div>
                   {selectedCourse.courseType?.toLowerCase() !== "free" && (
                     <div className="flex justify-between mt-2">
