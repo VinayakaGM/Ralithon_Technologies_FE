@@ -30,6 +30,7 @@ import { useRouter } from "next/navigation";
 import { AdminSidebar } from "@/components/admin-sidebar";
 import { AdminHeader } from "@/components/admin-header";
 import { AlertCircle, CheckCircle } from "lucide-react";
+import {formatDate} from "@/utils/dateFormat";
 
 export default function EnrolledCoursesTab() {
   const [courses, setCourses] = useState<EnrolledCourse[]>([]);
@@ -436,7 +437,7 @@ export default function EnrolledCoursesTab() {
                                   <span className="font-medium">Start:</span>
                                 </div>
                                 <span className="text-slate-700 font-medium">
-                                  {course.startDate.split(" ")[0]}
+                                  {formatDate(course.startDate)}
                                 </span>
                               </div>
                               <div className="flex items-center justify-between text-sm">
@@ -445,7 +446,7 @@ export default function EnrolledCoursesTab() {
                                   <span className="font-medium">End:</span>
                                 </div>
                                 <span className="text-slate-700 font-medium">
-                                  {course.endDate.split(" ")[0]}
+                                  {formatDate(course.endDate)}
                                 </span>
                               </div>
                             </div>
@@ -476,7 +477,7 @@ export default function EnrolledCoursesTab() {
                                   {course.courseStatus === "Active"
                                     ? "Course is currently active"
                                     : `Course completed on ${
-                                        course.endDate.split(" ")[0]
+                                        formatDate(course.endDate)
                                       }`}
                                 </p>
                               </div>

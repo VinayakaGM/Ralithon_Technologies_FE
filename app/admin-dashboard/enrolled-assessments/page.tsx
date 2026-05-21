@@ -28,6 +28,7 @@ import UserService from "@/services/users.service";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { AdminSidebar } from "@/components/admin-sidebar";
 import { AdminHeader } from "@/components/admin-header";
+import {formatDate} from "@/utils/dateFormat"
 
 interface Submission {
   submissionId: number;
@@ -310,7 +311,7 @@ export default function EnrolledAssessmentTab() {
                               </div>
                               <CardDescription className="text-gray-600 flex items-center gap-2">
                                 <Calendar className="w-4 h-4" />
-                                Last completed: {assessment.recentCompletedOn}
+                                Last completed: {formatDate(assessment.recentCompletedOn)}
                               </CardDescription>
                             </div>
                             <div className="flex items-center gap-3">
@@ -519,7 +520,7 @@ export default function EnrolledAssessmentTab() {
                                         </div>
 
                                         <div className="text-xs text-gray-500 bg-gray-50 rounded px-3 py-2">
-                                          📅 Completed: {submission.completedOn}
+                                          📅 Completed: {formatDate(submission.completedOn, true)}
                                         </div>
                                       </div>
                                     )

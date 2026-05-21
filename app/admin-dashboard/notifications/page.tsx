@@ -40,6 +40,7 @@ import { Plus, Send, Bell, Users, Calendar } from "lucide-react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/admin-sidebar";
 import { AdminHeader } from "@/components/admin-header";
+import { formatDate } from "@/utils/dateFormat";
 
 const notifications = [
   {
@@ -307,7 +308,7 @@ export default function NotificationsTab() {
                                   notification.status.slice(1)}
                               </Badge>
                             </TableCell>
-                            <TableCell>{notification.sentDate || "—"}</TableCell>
+                            <TableCell>{notification.sentDate ? formatDate(notification.sentDate) : "—"}</TableCell>
                             <TableCell className="text-right">
                               <div className="flex justify-end space-x-1">
                                 <Button variant="ghost" size="sm">

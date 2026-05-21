@@ -22,6 +22,7 @@ import { AdminSidebar } from "@/components/admin-sidebar"
 import { AdminHeader } from "@/components/admin-header"
 import { LoadingSpinner } from "@/components/LoadingSpinner"
 import { toast } from "sonner"
+import {formatDate} from "@/utils/dateFormat"
 
 interface ApiUser {
   userId: number
@@ -120,11 +121,6 @@ export default function UserManagementTab() {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
-  }
-
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return "N/A"
-    return new Date(dateString).toLocaleDateString()
   }
 
   // Calculate pagination data

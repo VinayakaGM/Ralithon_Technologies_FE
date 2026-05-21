@@ -33,6 +33,7 @@ import { toast } from "sonner";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { StudentSidebar } from "@/components/student-sidebar";
 import { StudentHeader } from "@/components/student-header";
+import {formatDate} from "@/utils/dateFormat"
 
 interface UserData {
   userId: number;
@@ -292,10 +293,7 @@ export default function ProfileTab() {
   }
 
   const formattedRole = user.role === "ROLE_STUDENT" ? "Student" : "Admin";
-  const formattedDate = new Date(user.memberSince).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-  });
+  const formattedDate = formatDate(user.memberSince);
 
   return (
     <SidebarProvider>
