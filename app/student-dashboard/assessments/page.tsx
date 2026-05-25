@@ -125,8 +125,7 @@ export default function AssessmentsTab() {
 
       // Sort submissions by completion date (most recent first)
       const sortedSubmissions = [...submissions].sort(
-        (a, b) =>
-          new Date(b.completedOn).getTime() - new Date(a.completedOn).getTime()
+        (a, b) => b.submissionId - a.submissionId
       );
 
       // Get scores string (e.g., "80/100, 30/100, 20/100")
